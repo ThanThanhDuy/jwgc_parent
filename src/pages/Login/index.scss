@@ -1,0 +1,113 @@
+@import "../../themes/colors/index.scss";
+
+.pageLogin {
+  display: flex;
+  background-color: $bg-color;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 150px;
+  &--title {
+    // margin-bottom: 120px;
+    &__hightLabel {
+      font-size: 34px;
+      font-weight: 800;
+      color: $primary-color;
+    }
+    &__lowLabel {
+      font-size: 20px;
+      font-weight: 400;
+      color: $grey-900;
+    }
+  }
+  &--container {
+    background-color: white;
+    width: 400px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    &__form {
+      &__btnSubmit {
+        background-color: $primary-color;
+        width: 100%;
+        margin-top: 20px;
+        height: 50px;
+        font-size: 20px;
+        font-weight: 500;
+        &:hover {
+          background-color: $primary-color-hover;
+        }
+        &:focus {
+          background-color: $primary-color-hover;
+        }
+        &:active {
+          background-color: $primary-color-hover;
+        }
+        &:focus-visible {
+          background-color: $primary-color-hover;
+        }
+      }
+    }
+    &__forgotPassword {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+      color: $primary-color;
+      cursor: pointer;
+      font-size: 14px;
+      &:hover {
+        color: $primary-color-hover;
+      }
+      &:focus {
+        color: $primary-color-hover;
+      }
+    }
+    &__btn {
+      display: flex;
+      justify-content: center;
+      &__btnRegiter {
+        background-color: white;
+        border: 1px solid $primary-color;
+        color: $primary-color;
+        width: 60%;
+        height: 50px;
+        font-size: 20px;
+        font-weight: 500;
+        &:hover {
+          background-color: $primary-color-bg-hover;
+          border: 1px solid $primary-color;
+          color: $primary-color;
+        }
+        &:focus {
+          background-color: $primary-color-bg-hover;
+          border: 1px solid $primary-color;
+          color: $primary-color;
+        }
+        &:active {
+          background-color: $primary-color-bg-hover;
+          border: 1px solid $primary-color;
+          color: $primary-color;
+        }
+        &:focus-visible {
+          background-color: $primary-color-bg-hover;
+          border: 1px solid $primary-color;
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+@media screen and (max-width: 970px) {
+  .pageLogin {
+    max-width: 100%;
+    flex-direction: column;
+    gap: 30px;
+    background-color: white;
+    justify-content: flex-start;
+    margin-top: 30px;
+    &--container {
+      box-shadow: none;
+      width: 100%;
+    }
+  }
+}
