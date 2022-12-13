@@ -1,3 +1,197 @@
+@import "../../themes/colors/index.scss";
+
 .header {
-  height: 55px;
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  position: fixed;
+  background-color: white;
+  width: 100%;
+  &__container {
+    margin: 0 200px;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    &__logo {
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+      a {
+        background-color: $grey-900;
+        color: white;
+        padding: 8px;
+        font-weight: 700;
+        border-radius: 5px;
+        letter-spacing: 1px;
+        text-decoration: none;
+      }
+    }
+    &__search {
+      display: flex;
+      align-items: center;
+      position: relative;
+      &__bar {
+        min-height: 100%;
+        width: 420px;
+        border: 1.5px solid $form-border;
+        padding: 1px 10px;
+        border-radius: 5px;
+        &:active,
+        &:focus {
+          outline: none;
+          border: 1.5px solid $primary-color;
+          box-shadow: 0 0 0 1px $primary-color;
+          padding: 1px 10px;
+        }
+      }
+      &__btn {
+        position: absolute;
+        right: 1.5px;
+        top: 1.5px;
+        background-color: white;
+        border: none;
+        height: 37px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        &:hover {
+          background-color: $primary-color-bg-hover;
+        }
+        &:focus {
+          outline: none;
+        }
+        &:active {
+          outline: none;
+          background-color: $primary-color-bg-hover;
+        }
+        &:focus-visible {
+          outline: none;
+        }
+        &__icon {
+          color: $text;
+          width: 28px;
+          &:hover {
+            color: $primary-color-hover;
+          }
+        }
+      }
+    }
+    &__notauth {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      &__login {
+        padding: 7px 14px;
+        font-weight: 400;
+        border-radius: 5px;
+        text-decoration: none;
+        color: $text;
+        &:hover {
+          background-color: $primary-color-bg-hover;
+          text-decoration: underline;
+          color: $primary-color;
+        }
+      }
+      &__register {
+        padding: 7px 14px;
+        font-weight: 400;
+        border-radius: 5px;
+        text-decoration: none;
+        color: $primary-color;
+        border: 1px solid $primary-color;
+        &:hover {
+          text-decoration: underline;
+          color: white;
+          background-color: $primary-color;
+        }
+      }
+    }
+    &__auth {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      &__noti {
+        padding: 6px;
+        &:hover {
+          background-color: $primary-color-bg-hover;
+        }
+        &:active {
+          background-color: $primary-color-bg-hover !important;
+          border-color: $primary-color-bg-hover !important;
+        }
+        &:focus {
+          outline: none;
+          border-color: white !important;
+        }
+        &:focus-visible {
+          outline: none;
+          border-color: white !important;
+        }
+        &__icon {
+          fill: $text;
+          padding: 6px 8px;
+          border-radius: 5px;
+          width: 40px;
+          height: 40px;
+          cursor: pointer;
+          &:hover,
+          &:active,
+          &:focus,
+          &:focus-visible {
+            fill: $primary-color-hover;
+            background-color: $primary-color-bg-hover;
+          }
+        }
+      }
+      &__avatar {
+        img {
+          background-color: #525252;
+          width: 32px;
+          height: 32px;
+          border-radius: 100%;
+        }
+        .MuiIconButton-root {
+          padding: 4px;
+          display: block;
+          height: 100%;
+          width: 100%;
+          border-radius: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &:hover {
+            background-color: $primary-color-bg-hover;
+          }
+        }
+      }
+    }
+  }
+}
+.popover_profile {
+  padding: 8px;
+  width: 230px;
+  box-shadow: 0 0 0 1px rgba(23, 23, 23, 0.05);
+  border-radius: 8px;
+  &__link {
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: $text-dark;
+    &__username {
+      font-size: 14px;
+      opacity: 0.75;
+    }
+    &:hover {
+      background-color: $primary-color-bg-hover;
+      color: $primary-color-hover;
+      border-radius: 8px;
+      text-decoration: underline;
+    }
+    &__name,
+    &__username {
+      margin: 0;
+    }
+  }
 }

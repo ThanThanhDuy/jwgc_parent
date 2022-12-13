@@ -8,6 +8,7 @@ import Login from "../pages/Login";
 import Home from "../pages/Home";
 import Layout from "../layout";
 import Category from "../pages/Category";
+import Register from "../pages/Register";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       {/* public routes */}
       <Route index element={<Navigate to="home" replace />} />
       <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
       {/* main layout */}
       <Route path="/" element={<Layout />}>
         <Route path="home" element={<Home />} />

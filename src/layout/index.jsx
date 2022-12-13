@@ -8,8 +8,14 @@ function Layout() {
   return (
     <div>
       <Header />
-      <Row>
-        <Col xs="12">
+      <Row
+        style={{
+          margin: 0,
+          backgroundColor: "#f5f5f5",
+          minHeight: "100vh",
+        }}
+      >
+        <Col xs="12" style={{ marginTop: "56px" }}>
           <Content />
         </Col>
       </Row>
