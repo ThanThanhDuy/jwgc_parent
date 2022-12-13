@@ -6,7 +6,7 @@ import InputField from "../../components/InputField/index";
 import { useNavigate } from "react-router-dom";
 import "./index.scss";
 
-function Login() {
+function Register() {
   const navigate = useNavigate();
 
   return (
@@ -15,34 +15,41 @@ function Login() {
         <meta charSet="utf-8" />
         <title>Đăng nhập</title>
       </Helmet>
-      <div className="pageLogin">
-        <div className="pageLogin--title">
-          <p className="pageLogin--title__hightLabel">Baby Community</p>
-          <span className="pageLogin--title__lowLabel">
+      <div className="pageRegister">
+        <div className="pageRegister--title">
+          <p className="pageRegister--title__hightLabel">Baby Community</p>
+          <span className="pageRegister--title__lowLabel">
             Baby Community giúp các bố mẹ kết nối <br /> và chia sẻ những khó
             khăn với nhau.
           </span>
         </div>
-        <div className="pageLogin--container">
-          <div className="pageLogin--container__form">
-            <div className="pageLogin--container__form__input">
+        <div className="pageRegister--container">
+          <div className="pageRegister--container__form">
+            <div className="pageRegister--container__form__input">
               <Formik
-                initialValues={{ username: "", password: "" }}
+                initialValues={{
+                  username: "",
+                  password: "",
+                  repassword: "",
+                  fullname: "",
+                }}
                 onSubmit={(values, { setErrors }) => {
-                  let check = true;
                   let errors = {};
                   if (!values.password) {
                     errors.password = "Mật khẩu không được để trống";
-                    check = false;
                   }
                   if (!values.username) {
                     errors.username = "Tài khoản không được để trống";
-                    check = false;
+                  }
+                  if (!values.fullname) {
+                    errors.fullname = "Họ và tên không được để trống";
+                  }
+                  if (!values.repassword) {
+                    errors.repassword = "Mật khẩu không được để trống";
+                  } else if (values.repassword !== values.password) {
+                    errors.repassword = "Mật khẩu không trùng khớp";
                   }
                   setErrors(errors);
-                  if (check) {
-                    navigate("/home");
-                  }
                 }}
               >
                 {({ values, errors, handleChange, handleSubmit }) => (
@@ -59,6 +66,17 @@ function Login() {
                       maxLength={20}
                     />
                     <InputField
+                      placeholder="Họ và tên"
+                      id="fullname"
+                      type="text"
+                      value={values.fullname}
+                      handleChange={handleChange}
+                      validate={{}}
+                      height={50}
+                      errors={errors.fullname}
+                      maxLength={20}
+                    />
+                    <InputField
                       placeholder="Mật khẩu"
                       id="password"
                       type="password"
@@ -69,32 +87,42 @@ function Login() {
                       errors={errors.password}
                       maxLength={20}
                     />
+                    <InputField
+                      placeholder="Nhập lại mật khẩu"
+                      id="repassword"
+                      type="password"
+                      value={values.repassword}
+                      handleChange={handleChange}
+                      validate={{}}
+                      height={50}
+                      errors={errors.repassword}
+                      maxLength={20}
+                    />
                     <Button
-                      className="pageLogin--container__form__btnSubmit"
+                      className="pageRegister--container__form__btnSubmit"
                       type="submit"
                       onClick={handleSubmit}
                     >
-                      Đăng nhập
+                      Đăng ký
                     </Button>
                   </Form>
                 )}
               </Formik>
             </div>
-            <div className="pageLogin--container__forgotPassword">
-              {/* eslint-disable-next-line */}
+            {/* <div className="pageRegister--container__forgotPassword">
               <a href="">Quên mật khẩu?</a>
-            </div>
+            </div> */}
             <div className="divider-30" />
-            <div className="pageLogin--container__btn">
+            <div className="pageRegister--container__btn">
               <Button
-                className="pageLogin--container__btn__btnRegiter"
+                className="pageRegister--container__btn__btnRegiter"
                 type="submit"
                 color="#ebecfe"
                 onClick={() => {
-                  navigate("/register");
+                  navigate("/login");
                 }}
               >
-                Tạo tài khoản mới
+                Đã có tài khoản?
               </Button>
             </div>
           </div>
@@ -104,4 +132,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

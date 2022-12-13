@@ -1,0 +1,113 @@
+@import "../../themes/colors/index.scss";
+
+.post {
+  width: 100%;
+  box-shadow: 0 0 0 1px $grey-900-01;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 10px;
+  &_container {
+    &_avatar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      &_img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 5px;
+        border: 1px solid $grey-900;
+      }
+    }
+    &_user {
+      display: flex;
+      flex-direction: column;
+      &_name {
+        font-size: 14px;
+        padding: 4px;
+        border-radius: 5px;
+        font-weight: 500;
+        text-decoration: none;
+        color: rgb(61, 61, 61);
+        margin-top: -4px;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.035);
+          color: rgb(61, 61, 61);
+        }
+      }
+      &_date {
+        font-size: 12px;
+        margin-left: 4px;
+        margin-top: -4px;
+      }
+    }
+    &_content {
+      padding-left: 45px;
+      &_title {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.2;
+        color: $grey-900;
+        display: block;
+        &:hover {
+          color: $primary-color-hover;
+        }
+      }
+      &_cate {
+        display: block;
+        margin-top: 4px;
+        margin-left: -7px;
+        padding: 4px 7px;
+        // border: 1px solid $form-border;
+        width: fit-content;
+        border-radius: 5px;
+        text-decoration: none;
+        &:hover {
+          background-color: rgba(23, 23, 23, 0.05);
+          box-shadow: inset 0 0 0 1px rgba(23, 23, 23, 0.05),
+            inset 0 0 0 1px rgba(23, 23, 23, 0.05),
+            inset 0 0 0 1px rgba(23, 23, 23, 0.05),
+            inset 0 0 0 1px rgba(23, 23, 23, 0.05);
+        }
+        &_link {
+          text-decoration: none;
+          color: $text;
+          font-size: 14px;
+        }
+      }
+      &_more {
+        margin-left: -8px;
+        display: flex;
+        align-items: center;
+        &_like {
+          display: flex;
+          align-items: center;
+          margin-top: 10px;
+          font-size: 14px;
+          color: #3d3d3d;
+          padding: 4px 12px 4px 8px;
+          border-radius: 5px;
+          width: fit-content;
+          &:hover {
+            background-color: rgba(23, 23, 23, 0.05);
+          }
+        }
+        &_comment {
+          display: flex;
+          align-items: center;
+          margin-top: 10px;
+          font-size: 14px;
+          color: #3d3d3d;
+          padding: 4px 12px 4px 8px;
+          border-radius: 5px;
+          width: fit-content;
+          &:hover {
+            background-color: rgba(23, 23, 23, 0.05);
+          }
+        }
+      }
+    }
+  }
+}
