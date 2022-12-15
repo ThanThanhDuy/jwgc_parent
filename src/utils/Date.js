@@ -3,8 +3,6 @@ import moment from "moment";
 const caculateDate = (date) => {
   const today = moment(moment().format("YYYY-MM-DD HH:mm:ss"));
   const postDate = moment(moment(date).format("YYYY-MM-DD HH:mm:ss"));
-  console.log(today);
-  console.log(postDate);
   if (today.isSame(postDate, "day")) {
     let seconds = today.diff(postDate, "seconds");
     if (seconds < 60) {

@@ -1,0 +1,31 @@
+@import "../../themes/colors/index.scss";
+
+.displayBlog__container {
+  &__title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  &__cate {
+    &__button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background-color: $primary-color-bg-hover;
+      width: fit-content;
+      cursor: pointer;
+      border: 1px solid $primary-color-bg-hover;
+      &:hover {
+        border: 1px solid $primary-color-hover;
+        color: $primary-color-hover;
+      }
+      img {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+      }
+    }
+  }
+  &__content {
+    padding-top: 32px;
+  }
+}
