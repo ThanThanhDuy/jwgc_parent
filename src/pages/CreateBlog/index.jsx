@@ -186,11 +186,13 @@ function CreateBlog() {
           </div>
           <div>
             <span style={{ fontSize: "14px" }}>
-              {dateDraft === "Đang lưu..."
-                ? "Vui lòng đợi..."
-                : `Lần sửa cuối vào ngày ${moment(dateDraft).format(
-                    "DD MMMM"
-                  )} lúc ${moment(dateDraft).format("HH:mm")}`}
+              {dateDraft
+                ? dateDraft === "Đang lưu..."
+                  ? "Vui lòng đợi..."
+                  : `Lần sửa cuối vào ngày ${moment(dateDraft).format(
+                      "DD MMMM"
+                    )} lúc ${moment(dateDraft).format("HH:mm")}`
+                : ""}
             </span>
           </div>
         </div>
