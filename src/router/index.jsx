@@ -9,6 +9,7 @@ import Home from "../pages/Home";
 import Layout from "../layout";
 import Category from "../pages/Category";
 import Register from "../pages/Register";
+import CreateBlog from "../pages/CreateBlog";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
         {/* private routes */}
         <Route element={<PrivateRoute />}>
           <Route path="category/:name" element={<Category />} />
+          <Route path="create-post" element={<CreateBlog />} />
         </Route>
       </Route>
       {/* not found */}

@@ -103,10 +103,6 @@ section {
 body {
   line-height: 1;
 }
-ol,
-ul {
-  list-style: none;
-}
 blockquote,
 q {
   quotes: none;
@@ -121,4 +117,7 @@ q:after {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+html {
+  height: 100%;
 }

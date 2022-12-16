@@ -1,19 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Button } from "reactstrap";
 import "./index.scss";
 
 function ButtonOutline(props) {
-  const { path, isLink = true, label, onClick } = props;
+  const { isLink = true, label, onClick } = props;
   return (
     <>
       {isLink ? (
-        <Link
+        <Button
+          color="#ebecfe"
           className={`button__outline ${isLink ? "button__outline__link" : ""}`}
-          to={path}
+          onClick={onClick}
         >
           {label}
-        </Link>
+        </Button>
       ) : (
         <Button
           className="button__outline__notlink"

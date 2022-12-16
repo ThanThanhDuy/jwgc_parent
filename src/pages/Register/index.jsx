@@ -32,6 +32,7 @@ function Register() {
                   password: "",
                   repassword: "",
                   fullname: "",
+                  email: "",
                 }}
                 onSubmit={(values, { setErrors }) => {
                   let errors = {};
@@ -43,6 +44,9 @@ function Register() {
                   }
                   if (!values.fullname) {
                     errors.fullname = "Họ và tên không được để trống";
+                  }
+                  if (!values.email) {
+                    errors.email = "Email không được để trống";
                   }
                   if (!values.repassword) {
                     errors.repassword = "Mật khẩu không được để trống";
@@ -74,6 +78,17 @@ function Register() {
                       validate={{}}
                       height={50}
                       errors={errors.fullname}
+                      maxLength={20}
+                    />
+                    <InputField
+                      placeholder="Email"
+                      id="email"
+                      type="email"
+                      value={values.email}
+                      handleChange={handleChange}
+                      validate={{}}
+                      height={50}
+                      errors={errors.email}
                       maxLength={20}
                     />
                     <InputField
