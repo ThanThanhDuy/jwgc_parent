@@ -10,6 +10,7 @@ import Layout from "../layout";
 import Category from "../pages/Category";
 import Register from "../pages/Register";
 import CreateBlog from "../pages/CreateBlog";
+import Blog from "../pages/Blog";
 
 function Router() {
   return (
@@ -21,6 +22,7 @@ function Router() {
       {/* main layout */}
       <Route path="/" element={<Layout />}>
         <Route path="home" element={<Home />} />
+        <Route path="blog/:name/:titleBlog/:codeBlog" element={<Blog />} />
         {/* private routes */}
         <Route element={<PrivateRoute />}>
           <Route path="category/:name" element={<Category />} />

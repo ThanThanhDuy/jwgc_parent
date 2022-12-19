@@ -6,7 +6,7 @@ import "./index.scss";
 
 function Layout() {
   return (
-    <div>
+    <div style={{ backgroundColor: "#f5f5f5" }}>
       <Header />
       <Row
         style={{
@@ -15,7 +15,7 @@ function Layout() {
           minHeight: "100vh",
         }}
       >
-        <Col xs="12" style={{ marginTop: "56px" }}>
+        <Col xs="12" style={{ marginTop: "56px", padding: 0 }}>
           <Content />
         </Col>
       </Row>
