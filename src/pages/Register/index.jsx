@@ -1,13 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Formik } from "formik";
 import { Button, Form } from "reactstrap";
 import InputField from "../../components/InputField/index";
 import { useNavigate } from "react-router-dom";
+import Loading from "../../components/Loading";
+import authService from "../../services/auth";
 import "./index.scss";
+import { useSetRecoilState } from "recoil";
+import { usernameState } from "../../stores/auth";
 
 function Register() {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const setUsername = useSetRecoilState(usernameState);
+
+  const handleRegister = async (username, password, fullname, email) => {
+    setLoading(true);
+    const res = await authService.register(username, password, fullname, email);
+    if (res && res.StatusCode === 200) {
+      setTimeout(() => {
+        setErrors([]);
+        setLoading(false);
+        setUsername(username);
+        // setIsAuth(true);
+        navigate("/login");
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        setLoading(false);
+        setErrors([res.Message]);
+      }, 1500);
+    }
+  };
 
   return (
     <div>
@@ -24,6 +50,23 @@ function Register() {
           </span>
         </div>
         <div className="pageRegister--container">
+          {errors.length > 0 && (
+            <div className="createBlog__container__editor__title__error">
+              <div className="createBlog__container__editor__title__error__label">
+                Rất tiếc, đã xảy ra lỗi:
+              </div>
+              <ul className="createBlog__container__editor__title__error__list">
+                {errors.map((error, index) => (
+                  <li
+                    className="createBlog__container__editor__title__error__list__item"
+                    key={index}
+                  >
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="pageRegister--container__form">
             <div className="pageRegister--container__form__input">
               <Formik
@@ -35,25 +78,40 @@ function Register() {
                   email: "",
                 }}
                 onSubmit={(values, { setErrors }) => {
+                  let check = true;
                   let errors = {};
                   if (!values.password) {
                     errors.password = "Mật khẩu không được để trống";
+                    check = false;
                   }
                   if (!values.username) {
                     errors.username = "Tài khoản không được để trống";
+                    check = false;
                   }
                   if (!values.fullname) {
                     errors.fullname = "Họ và tên không được để trống";
+                    check = false;
                   }
                   if (!values.email) {
                     errors.email = "Email không được để trống";
+                    check = false;
                   }
                   if (!values.repassword) {
                     errors.repassword = "Mật khẩu không được để trống";
+                    check = false;
                   } else if (values.repassword !== values.password) {
                     errors.repassword = "Mật khẩu không trùng khớp";
+                    check = false;
                   }
                   setErrors(errors);
+                  if (check) {
+                    handleRegister(
+                      values.username,
+                      values.password,
+                      values.fullname,
+                      values.email
+                    );
+                  }
                 }}
               >
                 {({ values, errors, handleChange, handleSubmit }) => (
@@ -113,13 +171,16 @@ function Register() {
                       errors={errors.repassword}
                       maxLength={20}
                     />
-                    <Button
+                    <button
                       className="pageRegister--container__form__btnSubmit"
                       type="submit"
                       onClick={handleSubmit}
                     >
-                      Đăng ký
-                    </Button>
+                      <div className="pageRegister--container__form__btnSubmit__box">
+                        <span>{loading ? "Đang đăng ký" : "Đăng ký"}</span>
+                        {loading && <Loading />}
+                      </div>
+                    </button>
                   </Form>
                 )}
               </Formik>

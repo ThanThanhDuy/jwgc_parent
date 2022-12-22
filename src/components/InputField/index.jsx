@@ -18,7 +18,7 @@ function InputField(props) {
   } = props;
 
   const handleBlur = (value) => {
-    console.log(`${id}:`, value);
+    // console.log(`${id}:`, value);
   };
 
   return (

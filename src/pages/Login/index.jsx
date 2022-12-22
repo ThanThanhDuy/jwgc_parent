@@ -1,16 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Formik } from "formik";
 import { Button, Form } from "reactstrap";
 import InputField from "../../components/InputField/index";
 import { useNavigate } from "react-router-dom";
 import "./index.scss";
+import authService from "../../services/auth";
+import localService from "../../services/local";
+import Loading from "../../components/Loading";
+import Alert from "@mui/material/Alert";
+import { useRecoilState } from "recoil";
+// import { useSetRecoilState } from "recoil";
+// import { isAuthState } from "../../stores/auth";
+import { usernameState } from "../../stores/auth";
 
 function Login() {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useRecoilState(usernameState);
+  // const setIsAuth = useSetRecoilState(isAuthState);
+
+  const handleLogin = async (username, password) => {
+    setLoading(true);
+    const res = await authService.login(username, password);
+    if (res && res.StatusCode === 200) {
+      localService.setUser(JSON.stringify(res.Data?.User));
+      localService.setAccessToken(res.Data?.AccessToken);
+      setTimeout(() => {
+        setErrors([]);
+        setLoading(false);
+        // setIsAuth(true);
+        setUsername("");
+        navigate("/home");
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        setLoading(false);
+        setErrors([res.Message]);
+      }, 1500);
+    }
+  };
 
   return (
     <div>
+      {username && (
+        <Alert onClose={() => {}}>Bạn đã đăng ký tài khoản thành công.</Alert>
+      )}
       <Helmet>
         <meta charSet="utf-8" />
         <title>Đăng nhập</title>
@@ -24,24 +60,44 @@ function Login() {
           </span>
         </div>
         <div className="pageLogin--container">
+          {errors.length > 0 && (
+            <div className="createBlog__container__editor__title__error">
+              <div className="createBlog__container__editor__title__error__label">
+                Rất tiếc, đã xảy ra lỗi:
+              </div>
+              <ul className="createBlog__container__editor__title__error__list">
+                {errors.map((error, index) => (
+                  <li
+                    className="createBlog__container__editor__title__error__list__item"
+                    key={index}
+                  >
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="pageLogin--container__form">
             <div className="pageLogin--container__form__input">
               <Formik
-                initialValues={{ username: "", password: "" }}
+                initialValues={{
+                  username: username ? username : "",
+                  password: "",
+                }}
                 onSubmit={(values, { setErrors }) => {
                   let check = true;
                   let errors = {};
-                  if (!values.password) {
-                    errors.password = "Mật khẩu không được để trống";
-                    check = false;
-                  }
                   if (!values.username) {
                     errors.username = "Tài khoản không được để trống";
                     check = false;
                   }
+                  if (!values.password) {
+                    errors.password = "Mật khẩu không được để trống";
+                    check = false;
+                  }
                   setErrors(errors);
                   if (check) {
-                    navigate("/home");
+                    handleLogin(values.username, values.password);
                   }
                 }}
               >
@@ -69,13 +125,16 @@ function Login() {
                       errors={errors.password}
                       maxLength={20}
                     />
-                    <Button
+                    <button
                       className="pageLogin--container__form__btnSubmit"
                       type="submit"
                       onClick={handleSubmit}
                     >
-                      Đăng nhập
-                    </Button>
+                      <div className="pageLogin--container__form__btnSubmit__box">
+                        <span>{loading ? "Đang đăng nhập" : "Đăng nhập"}</span>
+                        {loading && <Loading />}
+                      </div>
+                    </button>
                   </Form>
                 )}
               </Formik>

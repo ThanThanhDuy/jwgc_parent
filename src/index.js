@@ -10,6 +10,7 @@ import "antd/dist/reset.css";
 import { ConfigProvider } from "antd";
 import moment from "moment";
 import "moment/locale/vi";
+import RecoilNexus from "recoil-nexus";
 moment.locale("vi");
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -23,6 +24,7 @@ root.render(
       }}
     >
       <RecoilRoot>
+        <RecoilNexus />
         <BrowserRouter>
           <App />
         </BrowserRouter>

@@ -1,0 +1,38 @@
+@import "../../themes/colors/index.scss";
+
+.loading__container {
+  display: flex;
+  &__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: white;
+    margin: 0 4px;
+    animation: loading 1s infinite;
+    transform: translateY(5px);
+    &:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+@keyframes loading {
+  0% {
+    transform: translateY(5px);
+    background-color: white;
+  }
+  50% {
+    transform: translateY(-10px);
+    background-color: white;
+  }
+  100% {
+    transform: translateY(5px);
+    background-color: white;
+  }
+}
