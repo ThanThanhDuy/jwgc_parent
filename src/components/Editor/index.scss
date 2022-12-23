@@ -8,6 +8,11 @@
   }
   .ck-editor__main {
     // min-height: 100% !important;
+    padding: 0 64px;
+    border: none !important;
+  }
+  .ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+    border: none !important;
   }
   .ck-editor__top {
     position: sticky;
@@ -15,7 +20,7 @@
     z-index: 10;
   }
   .ck-editor__editable {
-    padding: 0 64px;
+    // padding: 0 64px;
     border: none;
     letter-spacing: 1px;
     min-height: calc(100vh - 57.79px - 107px - 80px - 56.88px - 130px);

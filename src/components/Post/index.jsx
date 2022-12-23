@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./index.scss";
 import moment from "moment";
 import { caculateDate } from "../../utils/Date";
@@ -7,8 +7,18 @@ import { ReactComponent as HeartIcon } from "../../assets/icons/heart.svg";
 import { ReactComponent as CommentIcon } from "../../assets/icons/comment.svg";
 
 function Post({ post }) {
+  const navigate = useNavigate();
+  const handleClickPost = () => {
+    navigate(
+      `/blog/${encodeURIComponent(post.User.Name)?.replaceAll(
+        "%20",
+        "-"
+      )}/${encodeURIComponent(post.Title)?.replaceAll("%20", "-")}/${post.Code}`
+    );
+  };
+
   return (
-    <div className="post">
+    <div className="post" onClick={handleClickPost}>
       <div className="post_container">
         <div className="post_container_avatar">
           <Link to="/">

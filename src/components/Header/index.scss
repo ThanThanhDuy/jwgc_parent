@@ -10,7 +10,7 @@
   width: 100%;
   z-index: 10;
   &__container {
-    margin: 0 200px;
+    margin: 0 calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2);
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
@@ -211,6 +211,9 @@
       margin: 0;
     }
   }
+  .MuiPopover-root {
+    max-height: calc(100vh - 56px - 32px);
+  }
 }
 .noBoxShadow {
   box-shadow: none !important;
@@ -235,4 +238,13 @@
   &:hover {
     background-color: $primary-color-hover !important;
   }
+}
+.ant-popover-placement-bottomRight {
+  padding: 0;
+}
+.ant-popover-arrow {
+  display: none !important;
+}
+.ant-popover-inner {
+  padding: 0 !important;
 }
