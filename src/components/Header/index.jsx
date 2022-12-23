@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { Button as Btn, Input } from "reactstrap";
 import { UilSearch } from "@iconscout/react-unicons";
@@ -18,11 +18,17 @@ import {
 } from "../../stores/blog";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
+import { isAuthState } from "../../stores/auth";
+import userService from "../../services/user";
+import { userState } from "../../stores/user";
+import userAvatar from "../../assets/icons/user.png";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
   // eslint-disable-next-line
-  const [isAuth, setIsAuth] = useState(true);
+  // const [isAuth, setIsAuth] = useState(true);
+  const [user, setUser] = useRecoilState(userState);
+  const [isAuth, setIsAuth] = useRecoilState(isAuthState);
   const [isEdit, setIsEdit] = useRecoilState(isEditState);
   const [titleBlog, setTitleBlog] = useRecoilState(titleBlogState);
   const [contentBlog, setContentBlog] = useRecoilState(contentBlogState);
@@ -35,6 +41,22 @@ function Header() {
     e.preventDefault();
     console.log(searchValue);
   };
+
+  useEffect(() => {
+    if (!location?.pathname.includes("create-post")) {
+      const handleGetProfile = async () => {
+        const res = await userService.getProfile();
+        if (res && res.StatusCode === 200) {
+          setIsAuth(true);
+          setUser(res.Data);
+        } else {
+          setIsAuth(false);
+        }
+      };
+      handleGetProfile();
+    }
+    // eslint-disable-next-line
+  }, [location?.pathname]);
 
   const handleClickButton = (value) => {
     if (value === "Chỉnh sửa") {
@@ -158,10 +180,10 @@ function Header() {
                       <Link className="popover_profile__link">
                         <div>
                           <p className="popover_profile__link__name">
-                            Thân Thanh Duy
+                            {user?.Name}
                           </p>
                           <p className="popover_profile__link__username">
-                            @thanthanhduy
+                            @{user?.UserName}
                           </p>
                         </div>
                       </Link>
@@ -179,7 +201,7 @@ function Header() {
                     href="#"
                   >
                     <img
-                      src="https://res.cloudinary.com/practicaldev/image/fetch/s--PINMBAvy--/c_fill,f_auto,fl_progressive,h_320,q_auto,w_320/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/863543/44bae2e1-fd14-460d-97ae-c1f4adee6980.png"
+                      src={user?.AvatarPath ? user?.AvatarPath : userAvatar}
                       alt=""
                     />
                   </IconButton>
