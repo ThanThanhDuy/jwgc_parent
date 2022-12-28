@@ -9,26 +9,30 @@ import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { Popover } from "antd";
 import IconButton from "@mui/material/IconButton";
 import ButtonHover from "../ButtonHover";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { isEditState } from "../../stores/editor";
 import {
   titleBlogState,
   contentBlogState,
   cateBlogState,
+  scrollPositionState,
 } from "../../stores/blog";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
-import { isAuthState } from "../../stores/auth";
+// import { isAuthState } from "../../stores/auth";
 import userService from "../../services/user";
 import { userState } from "../../stores/user";
 import userAvatar from "../../assets/icons/user.png";
+import localService from "../../services/local";
+import { listBlogProfileState } from "../../stores/profile";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
+  // const [open, setOpen] = useState(false);
   // eslint-disable-next-line
   // const [isAuth, setIsAuth] = useState(true);
   const [user, setUser] = useRecoilState(userState);
-  const [isAuth, setIsAuth] = useRecoilState(isAuthState);
+  // const [isAuth, setIsAuth] = useRecoilState(isAuthState);
   const [isEdit, setIsEdit] = useRecoilState(isEditState);
   const [titleBlog, setTitleBlog] = useRecoilState(titleBlogState);
   const [contentBlog, setContentBlog] = useRecoilState(contentBlogState);
@@ -36,6 +40,8 @@ function Header() {
   const [cateBlog, setCateBlog] = useRecoilState(cateBlogState);
   const location = useLocation();
   const navigate = useNavigate();
+  const setScrollPosition = useSetRecoilState(scrollPositionState);
+  const setListBlogProfileState = useSetRecoilState(listBlogProfileState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -47,10 +53,10 @@ function Header() {
       const handleGetProfile = async () => {
         const res = await userService.getProfile();
         if (res && res.StatusCode === 200) {
-          setIsAuth(true);
+          // setIsAuth(true);
           setUser(res.Data);
-        } else {
-          setIsAuth(false);
+        } else if (res && res.StatusCode === 401) {
+          // setIsAuth(false);
         }
       };
       handleGetProfile();
@@ -82,10 +88,17 @@ function Header() {
       onOk() {
         setContentBlog("");
         setTitleBlog("");
-        setCateBlog(2);
+        setCateBlog(0);
         navigate(-1);
       },
     });
+  };
+
+  const handleProfile = () => {
+    if (!location?.pathname.includes(`${user?.UserName}`)) {
+      setListBlogProfileState([]);
+    }
+    navigate(`/profile/${user?.UserName}`);
   };
 
   return (
@@ -107,7 +120,7 @@ function Header() {
             }}
           >
             <div className="header__container__logo">
-              <Link to="/">Baby</Link>
+              <Link to="/home">Baby</Link>
             </div>
             {location?.pathname.includes("create-post") ? (
               <div className="header__container__boxCreatePost">
@@ -149,7 +162,7 @@ function Header() {
             <div>
               <ButtonHover icon={<Close />} onClick={handleClickButton} />
             </div>
-          ) : !isAuth ? (
+          ) : !localService.getAccessToken() ? (
             <div className="header__container__notauth">
               <Link className="header__container__notauth__login" to="/login">
                 Đăng nhập
@@ -168,16 +181,21 @@ function Header() {
                 label="Tạo bài viết"
                 onClick={() => {
                   setIsEdit(true);
+                  setScrollPosition(window.pageYOffset);
                   navigate("create-post");
                 }}
               />
               <Noti className="header__container__auth__noti__icon" />
               <div className="header__container__auth__avatar">
                 <Popover
+                  getPopupContainer={(trigger) => trigger.parentElement}
                   placement="bottomRight"
                   content={() => (
                     <div className="popover_profile">
-                      <Link className="popover_profile__link">
+                      <span
+                        className="popover_profile__link"
+                        onClick={handleProfile}
+                      >
                         <div>
                           <p className="popover_profile__link__name">
                             {user?.Name}
@@ -186,7 +204,7 @@ function Header() {
                             @{user?.UserName}
                           </p>
                         </div>
-                      </Link>
+                      </span>
                       <div className="divider-10"></div>
                       <div>
                         <Link className="popover_profile__link">Đăng xuất</Link>

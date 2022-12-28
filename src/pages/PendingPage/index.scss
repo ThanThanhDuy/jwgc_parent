@@ -1,0 +1,38 @@
+@import "../../themes/colors/index.scss";
+
+.blog__container__noti {
+  &__pending {
+    background-color: $yellow-color-bg;
+  }
+  &__active {
+    background-color: $green-color-bg;
+  }
+  &__inactive {
+    background-color: $danger-color-bg;
+  }
+  margin-bottom: 16px;
+  border-radius: 8px;
+  padding: 16px;
+  width: 900px;
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+    &__pending {
+      color: $yellow-color;
+    }
+    &__active {
+      color: $green-color;
+    }
+    &__inactive {
+      color: $danger-color-text;
+    }
+  }
+  &__des {
+    margin-left: -8px;
+    color: $text-dark;
+    font-size: 16px;
+    letter-spacing: 0.3px;
+  }
+}

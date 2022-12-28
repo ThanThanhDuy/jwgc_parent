@@ -1,17 +1,18 @@
 @import "../../themes/colors/index.scss";
 
 .blog__container {
-  margin: 0 calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2);
+  margin: 16px calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2) 0;
   padding: 0 16px 16px;
   display: flex;
   gap: 15px;
   width: calc(900px + 58.91px + 346px + 30px);
   &__main {
-    width: 900px;
+    max-width: 900px;
+    min-width: 900px;
     background: #fff;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
-    margin-top: 16px;
+    // margin-top: 16px;
     &__content {
       padding: 32px 64px 32px;
       user-select: none;
@@ -104,7 +105,8 @@
     position: sticky;
     top: calc(56px + 16px);
     align-self: flex-start;
-    width: 58.91px;
+    min-width: 58.91px;
+    max-width: 58.91px;
     padding-top: 30px;
     display: flex;
     flex-direction: column;
@@ -130,7 +132,7 @@
         }
         &__active {
           color: $primary-color;
-          box-shadow: 0 0 0 2px $primary-color;
+          // box-shadow: 0 0 0 2px $primary-color;
         }
       }
       .text__like {
@@ -157,7 +159,7 @@
         }
         &__active {
           color: $primary-color;
-          box-shadow: 0 0 0 2px $primary-color;
+          // box-shadow: 0 0 0 2px $primary-color;
         }
       }
       .text__dislike {
@@ -178,7 +180,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 21px;
+        // margin-bottom: 21px;
         &:hover {
           color: $green-color-text;
           background-color: $green-color-bg;
@@ -198,7 +200,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 21px;
+        margin-bottom: 5px;
         &:hover {
           color: $yellow-color;
           background-color: $yellow-color-bg;
@@ -206,6 +208,46 @@
         &__active {
           color: rgba(245, 158, 11, 0.8);
           box-shadow: 0 0 0 2px $yellow-color;
+        }
+      }
+      .icon__edit {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        padding: 6px 6px 8px 8px;
+        border-radius: 100%;
+        color: $text-dark;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 5px;
+        &:hover {
+          color: $green-color-text;
+          background-color: $green-color-bg;
+        }
+        &__active {
+          color: rgba(0, 106, 18, 0.8);
+          box-shadow: 0 0 0 2px $green-color-text;
+        }
+      }
+      .icon__delete {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        padding: 8px 8px 6px;
+        border-radius: 100%;
+        color: $text-dark;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 5px;
+        &:hover {
+          color: $danger-color-text;
+          background-color: $danger-color-bg;
+        }
+        &__active {
+          color: rgba(185, 28, 28, 0.8);
+          box-shadow: 0 0 0 2px $danger-color-text;
         }
       }
       .icon__more {

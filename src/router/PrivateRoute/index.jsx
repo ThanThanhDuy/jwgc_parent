@@ -1,11 +1,9 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { isAuthState } from "../../stores/auth";
+import localService from "../../services/local";
 
 function PrivateRoute() {
-  // const isAuth = true;
-  const isAuth = useRecoilValue(isAuthState);
+  const isAuth = localService.getAccessToken() ? true : false;
 
   return isAuth ? <Outlet /> : <Navigate to="/login" />;
 }

@@ -2,27 +2,31 @@ import React from "react";
 import "./index.scss";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import userAvatar from "../../assets/icons/user.png";
+import localService from "../../services/local";
 
-function Author() {
+function Author({ user }) {
   return (
     <div className="author__container">
       <div className="author__container__header">
         <Link>
           <img
             className="author__container__header__avatar"
-            src="https://picsum.photos/200/300"
+            src={user?.AvatarPath ? user?.AvatarPath : userAvatar}
             alt="author"
           />
         </Link>
         <div className="author__container__header__name">
-          <Link>Nguyễn Thị Thanh Như</Link>
+          <Link>{user.Name}</Link>
         </div>
       </div>
-      <div className="author__container__follow">
-        <div className="author__container__follow__btn">
-          <span>Theo dõi</span>
+      {user.Code && user.Code !== localService.getUser().Code && (
+        <div className="author__container__follow">
+          <div className="author__container__follow__btn">
+            <span>Theo dõi</span>
+          </div>
         </div>
-      </div>
+      )}
       <div className="author__container__infor">
         <div className="author__container__infor__item">
           <p className="author__container__infor__item__title">Ngày tham gia</p>

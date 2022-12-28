@@ -1,8 +1,7 @@
 import axios from "axios";
 import Qs from "qs";
 import localService from "../services/local";
-import { isAuthState } from "../stores/auth";
-import { setRecoil } from "recoil-nexus";
+// import { redirect } from "react-router-dom";
 
 const axiosClient = axios.create({
   baseURL: "https://www.jwgc-api.click/api/v1/",
@@ -25,16 +24,14 @@ axiosClient.interceptors.request.use(async (config) => {
 axiosClient.interceptors.response.use(
   (response) => {
     if (response && response.data) {
-      if (response.data.StatusCode === 401) {
-        setRecoil(isAuthState, false);
-      }
-      setRecoil(isAuthState, true);
       return response.data;
     }
     return response;
   },
   (error) => {
     if (error.response.data.StatusCode === 401) {
+      localService.removeAccessToken();
+      localService.removeUser();
     }
     throw error.response.data;
   }

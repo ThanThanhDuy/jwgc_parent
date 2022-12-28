@@ -57,6 +57,9 @@
     }
     &__cate {
       padding: 0px 64px 30px;
+      .MuiSelect-root {
+        min-height: 39px;
+      }
     }
     &__control {
       display: flex;
@@ -77,6 +80,31 @@
       }
       &__draft {
         padding: 8px 16px;
+        color: $primary-color;
+        border-radius: 8px;
+        cursor: pointer;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 0 0 1px $primary-color;
+        &:hover {
+          background-color: $primary-color-bg-hover;
+          color: $primary-color-hover;
+        }
+      }
+      &__draft__saving {
+        padding: 8px 16px;
+        color: $text-dark;
+        border-radius: 8px;
+        cursor: pointer;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        background-color: $primary-color-bg-hover;
+        color: $primary-color-hover;
+      }
+      &__deletedraft {
+        padding: 8px 16px;
         color: $text-dark;
         border-radius: 8px;
         cursor: pointer;
@@ -88,7 +116,7 @@
           color: $primary-color-hover;
         }
       }
-      &__draft__saving {
+      &__deletedraft__deleting {
         padding: 8px 16px;
         color: $text-dark;
         border-radius: 8px;

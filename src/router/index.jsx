@@ -11,6 +11,8 @@ import Category from "../pages/Category";
 import Register from "../pages/Register";
 import CreateBlog from "../pages/CreateBlog";
 import Blog from "../pages/Blog";
+import Profile from "../pages/Profile";
+import PendingPage from "../pages/PendingPage";
 
 function Router() {
   return (
@@ -19,6 +21,7 @@ function Router() {
       <Route index element={<Navigate to="home" replace />} />
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
+      <Route path="reset-password/:token" element={<Register />} />
       {/* main layout */}
       <Route path="/" element={<Layout />}>
         <Route path="home" element={<Home />} />
@@ -27,6 +30,11 @@ function Router() {
         <Route element={<PrivateRoute />}>
           <Route path="category/:name" element={<Category />} />
           <Route path="create-post" element={<CreateBlog />} />
+          <Route path="profile/:username" element={<Profile />} />
+          <Route
+            path="pending/:titleBlog/:codeBlog"
+            element={<PendingPage />}
+          />
         </Route>
       </Route>
       {/* not found */}

@@ -16,7 +16,7 @@ import {
   faThumbsDown as faThumbsDownSolid,
 } from "@fortawesome/free-solid-svg-icons";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
-import { STATUS_BLOG } from "../../constants/statusBlog";
+import { REACTION_BLOG } from "../../constants/reactionBlog";
 
 function CommentReply({ item, index }) {
   const [status, setStatus] = useState(item?.isLike);
@@ -26,33 +26,36 @@ function CommentReply({ item, index }) {
   const [error, setError] = useState([]);
 
   const handleClickReaction = (value) => {
-    if (value === STATUS_BLOG["like"] && status === STATUS_BLOG["noReaction"]) {
-      setStatus(STATUS_BLOG["like"]);
-    } else if (
-      value === STATUS_BLOG["like"] &&
-      status === STATUS_BLOG["dislike"]
+    if (
+      value === REACTION_BLOG["like"] &&
+      status === REACTION_BLOG["noReaction"]
     ) {
-      setStatus(STATUS_BLOG["like"]);
+      setStatus(REACTION_BLOG["like"]);
     } else if (
-      value === STATUS_BLOG["like"] &&
-      status === STATUS_BLOG["like"]
+      value === REACTION_BLOG["like"] &&
+      status === REACTION_BLOG["dislike"]
     ) {
-      setStatus(STATUS_BLOG["noReaction"]);
+      setStatus(REACTION_BLOG["like"]);
     } else if (
-      value === STATUS_BLOG["dislike"] &&
-      status === STATUS_BLOG["noReaction"]
+      value === REACTION_BLOG["like"] &&
+      status === REACTION_BLOG["like"]
     ) {
-      setStatus(STATUS_BLOG["dislike"]);
+      setStatus(REACTION_BLOG["noReaction"]);
     } else if (
-      value === STATUS_BLOG["dislike"] &&
-      status === STATUS_BLOG["like"]
+      value === REACTION_BLOG["dislike"] &&
+      status === REACTION_BLOG["noReaction"]
     ) {
-      setStatus(STATUS_BLOG["dislike"]);
+      setStatus(REACTION_BLOG["dislike"]);
     } else if (
-      value === STATUS_BLOG["dislike"] &&
-      status === STATUS_BLOG["dislike"]
+      value === REACTION_BLOG["dislike"] &&
+      status === REACTION_BLOG["like"]
     ) {
-      setStatus(STATUS_BLOG["noReaction"]);
+      setStatus(REACTION_BLOG["dislike"]);
+    } else if (
+      value === REACTION_BLOG["dislike"] &&
+      status === REACTION_BLOG["dislike"]
+    ) {
+      setStatus(REACTION_BLOG["noReaction"]);
     }
   };
 
@@ -191,25 +194,29 @@ function CommentReply({ item, index }) {
               <Tooltip title="Thích" placement="bottom">
                 <div
                   className={`commentReply__container__content__control__like__box ${
-                    status === STATUS_BLOG["like"]
+                    status === REACTION_BLOG["like"]
                       ? "commentReply__container__content__control__like__box__active"
                       : ""
                   }`}
-                  onClick={() => handleClickReaction(STATUS_BLOG["like"])}
+                  onClick={() => handleClickReaction(REACTION_BLOG["like"])}
                 >
                   <FontAwesomeIcon
                     icon={
-                      status === STATUS_BLOG["like"]
+                      status === REACTION_BLOG["like"]
                         ? faThumbsUpSolid
                         : faThumbsUpRegular
                     }
                     className={`icon__like ${
-                      status === STATUS_BLOG["like"] ? "icon__like__active" : ""
+                      status === REACTION_BLOG["like"]
+                        ? "icon__like__active"
+                        : ""
                     }`}
                   />
                   <span
                     className={`text__like ${
-                      status === STATUS_BLOG["like"] ? "text__like__active" : ""
+                      status === REACTION_BLOG["like"]
+                        ? "text__like__active"
+                        : ""
                     }`}
                   >
                     {item?.like} lượt thích
@@ -221,27 +228,27 @@ function CommentReply({ item, index }) {
               <Tooltip title="Không thích" placement="top">
                 <div
                   className={`commentReply__container__content__control__dislike__box ${
-                    status === STATUS_BLOG["dislike"]
+                    status === REACTION_BLOG["dislike"]
                       ? "commentReply__container__content__control__dislike__box__active"
                       : ""
                   }`}
-                  onClick={() => handleClickReaction(STATUS_BLOG["dislike"])}
+                  onClick={() => handleClickReaction(REACTION_BLOG["dislike"])}
                 >
                   <FontAwesomeIcon
                     icon={
-                      status === STATUS_BLOG["dislike"]
+                      status === REACTION_BLOG["dislike"]
                         ? faThumbsDownSolid
                         : faThumbsDownRegular
                     }
                     className={`icon__dislike ${
-                      status === STATUS_BLOG["dislike"]
+                      status === REACTION_BLOG["dislike"]
                         ? "icon__dislike__active"
                         : ""
                     }`}
                   />
                   <span
                     className={`text__dislike ${
-                      status === STATUS_BLOG["dislike"]
+                      status === REACTION_BLOG["dislike"]
                         ? "text__dislike__active"
                         : ""
                     }`}

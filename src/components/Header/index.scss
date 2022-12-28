@@ -8,7 +8,7 @@
   position: fixed;
   background-color: white;
   width: 100%;
-  z-index: 10;
+  z-index: 100;
   &__container {
     margin: 0 calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2);
     padding: 0 16px;
@@ -27,6 +27,7 @@
         border-radius: 5px;
         letter-spacing: 1px;
         text-decoration: none;
+        cursor: pointer;
       }
     }
     &__search {
@@ -196,6 +197,7 @@
     padding: 8px 16px;
     text-decoration: none;
     color: $text-dark;
+    cursor: pointer;
     &__username {
       font-size: 14px;
       opacity: 0.75;

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./index.scss";
-import localService from "../../services/local";
 import DisplayBlog from "../../components/DisplayBlog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,6 +7,8 @@ import {
   faThumbsDown as faThumbsDownRegular,
   faBookmark as faBookmarkRegular,
   faComment as faCommentRegular,
+  faPenToSquare,
+  faTrashAlt,
 } from "@fortawesome/free-regular-svg-icons";
 import {
   faThumbsUp as faThumbsUpSolid,
@@ -21,7 +22,15 @@ import ListComment from "../../components/ListComment";
 import { Popover } from "antd";
 import Author from "../../components/Author";
 import { Link } from "react-router-dom";
+import { BLOG } from "../../constants/blog";
+import { useParams } from "react-router-dom";
+import blogService from "../../services/blog";
+import { CATE_ICON } from "../../assets/icons/cateIcon";
+import userService from "../../services/user";
+import { Helmet } from "react-helmet";
+import { REACTION_BLOG } from "../../constants/reactionBlog";
 
+// eslint-disable-next-line
 const data = [
   {
     id: 1,
@@ -119,45 +128,114 @@ const dataAuthor = [
 ];
 
 function Blog() {
-  const [titleBlog, setTitleBlog] = useState("");
-  const [contentBlog, setContentBlog] = useState("");
-  const [cateBlog, setCateBlog] = useState(2);
-  const [status, setStatus] = useState("");
+  const [cateBlog, setCateBlog] = useState(0);
+  const [totalLike, setTotalLike] = useState(0);
+  const [totalDislike, setTotalDislike] = useState(0);
+  const [blog, setBlog] = useState({});
+  const [status, setStatus] = useState(0);
   const [bookmark, setBookmark] = useState(false);
   const [comment, setComment] = useState("");
   const [openSubmitComment, setOpenSubmitComment] = useState(false);
   const [isSendingComment, setIsSendingComment] = useState(false);
+  const [listComment, setListComment] = useState([]);
+  const [userAuthor, setUserAuthor] = useState({});
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [isDone, setIsDone] = useState(false);
+
   // eslint-disable-next-line
   const [error, setError] = useState([]);
+  const params = useParams();
 
   useEffect(() => {
-    const blogContent = localService.getblogContent();
-    if (blogContent) {
-      setContentBlog(blogContent);
-    }
-    const blogTitle = localService.getblogTitle();
-    if (blogTitle) {
-      setTitleBlog(blogTitle);
-    }
-    const blogCategory = localService.getBlogCategory();
-    if (blogCategory) {
-      setCateBlog(Number(blogCategory));
-    }
-  }, []);
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+    const handleGetBlog = async () => {
+      setLoading(true);
+      const data = {
+        Code: params.codeBlog,
+        Title: "",
+        ConcernCategoryCode: "",
+        Page: BLOG.pageDefault,
+        PageSize: 1,
+      };
+      const res = await blogService.getBlog(data);
+      if (res && res.StatusCode === 200) {
+        setTimeout(() => {
+          setBlog(res.Data?.Items[0]);
+          setTotalLike(res.Data?.Items[0]?.BlogReactions?.TotalLike);
+          setTotalDislike(res.Data?.Items[0]?.BlogReactions?.TotalDislike);
+          setCateBlog({
+            Id: res.Data?.Items[0]?.ConcernCategory.Id,
+            Label: res.Data?.Items[0]?.ConcernCategory.Name,
+            Icon: CATE_ICON[res.Data?.Items[0]?.ConcernCategory.Name],
+          });
+          setListComment(res.Data?.Items[0]?.BlogComments);
+          setUserAuthor(res.Data?.Items[0]?.User);
+          setStatus(res.Data?.Items[0]?.IsReaction);
+          setLoading(false);
+          setIsDone(true);
+        }, 500);
+      } else {
+        setLoading(false);
+        setIsDone(true);
+      }
+    };
+    handleGetBlog();
+    const handleGetProfile = async () => {
+      const res = await userService.getProfile();
+      if (res && res.StatusCode === 200) {
+        setUser(res.Data);
+      }
+    };
+    handleGetProfile();
+  }, [params.codeBlog]);
 
-  const handleClickReaction = (value) => {
-    if (value === "like" && status === "") {
-      setStatus("like");
-    } else if (value === "like" && status === "dislike") {
-      setStatus("like");
-    } else if (value === "like" && status === "like") {
-      setStatus("");
-    } else if (value === "dislike" && status === "") {
-      setStatus("dislike");
-    } else if (value === "dislike" && status === "like") {
-      setStatus("dislike");
-    } else if (value === "dislike" && status === "dislike") {
-      setStatus("");
+  const handleClickReaction = async (value) => {
+    let statusTmp = status;
+    let totalLikeTmp = totalLike;
+    let totalDislikeTmp = totalDislike;
+    if (value === REACTION_BLOG.like && status === REACTION_BLOG.default) {
+      statusTmp = REACTION_BLOG.like;
+      totalLikeTmp = totalLike + 1;
+    } else if (
+      value === REACTION_BLOG.like &&
+      status === REACTION_BLOG.dislike
+    ) {
+      statusTmp = REACTION_BLOG.like;
+      totalLikeTmp = totalLike + 1;
+      totalDislikeTmp = totalDislike - 1;
+    } else if (value === REACTION_BLOG.like && status === REACTION_BLOG.like) {
+      statusTmp = REACTION_BLOG.default;
+      totalLikeTmp = totalLike - 1;
+    } else if (
+      value === REACTION_BLOG.dislike &&
+      status === REACTION_BLOG.default
+    ) {
+      statusTmp = REACTION_BLOG.dislike;
+      totalDislikeTmp = totalDislike + 1;
+    } else if (
+      value === REACTION_BLOG.dislike &&
+      status === REACTION_BLOG.like
+    ) {
+      statusTmp = REACTION_BLOG.dislike;
+      totalLikeTmp = totalLike - 1;
+      totalDislikeTmp = totalDislike + 1;
+    } else if (
+      value === REACTION_BLOG.dislike &&
+      status === REACTION_BLOG.dislike
+    ) {
+      statusTmp = REACTION_BLOG.default;
+      totalDislikeTmp = totalDislike - 1;
+    }
+    const res = await blogService.reactionBlog(blog.Code, statusTmp);
+    if (res && res.StatusCode === 200) {
+      setStatus(statusTmp);
+      setTotalLike(totalLikeTmp);
+      setTotalDislike(totalDislikeTmp);
     }
   };
 
@@ -219,161 +297,215 @@ function Blog() {
 
   return (
     <>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>
+          {decodeURIComponent(params.titleBlog?.replaceAll("-", "%20"))}
+        </title>
+      </Helmet>
       <div className="blog__container">
         <div className="blog__container__reaction">
-          <div className="blog__container__reaction__icon">
-            <Tooltip title="Thích" placement="top">
-              <FontAwesomeIcon
-                onClick={() => handleClickReaction("like")}
-                icon={status === "like" ? faThumbsUpSolid : faThumbsUpRegular}
-                className={`icon__like ${
-                  status === "like" ? "icon__like__active" : ""
-                }`}
-              />
-            </Tooltip>
-            <span
-              className={`text__like ${
-                status === "like" ? "text__like__active" : ""
-              }`}
-            >
-              0
-            </span>
-          </div>
-          <div className="blog__container__reaction__icon">
-            <Tooltip title="Không thích" placement="top">
-              <FontAwesomeIcon
-                onClick={() => handleClickReaction("dislike")}
-                icon={
-                  status === "dislike" ? faThumbsDownSolid : faThumbsDownRegular
-                }
-                className={`icon__dislike ${
-                  status === "dislike" ? "icon__dislike__active" : ""
-                }`}
-              />
-            </Tooltip>
-            <span
-              className={`text__dislike ${
-                status === "dislike" ? "text__dislike__active" : ""
-              }`}
-            >
-              0
-            </span>
-          </div>
-          <div className="blog__container__reaction__icon">
-            <Tooltip title="Bình luận" placement="top">
-              <FontAwesomeIcon
-                onClick={() => handleComment()}
-                icon={faCommentRegular}
-                className={`icon__comment`}
-              />
-            </Tooltip>
-          </div>
-          <div className="blog__container__reaction__icon">
-            <Tooltip title="Lưu bài viết" placement="top">
-              <FontAwesomeIcon
-                onClick={() => handleBookMark()}
-                icon={bookmark ? faBookmarkSolid : faBookmarkRegular}
-                className={`icon__bookmark ${
-                  bookmark ? "icon__bookmark__active" : ""
-                }`}
-              />
-            </Tooltip>
-          </div>
-          <div className="blog__container__reaction__icon">
-            <Popover
-              placement="rightTop"
-              content={() => (
-                <div className="popover_profile">
-                  <div>
-                    <span className="comment__container__content__header__more__item">
-                      Chia sẻ bài viết
-                    </span>
-                  </div>
-                  <div>
-                    <span className="comment__container__content__header__more__item">
-                      Báo cáo bài viết
-                    </span>
-                  </div>
+          {isDone && (
+            <>
+              <div className="blog__container__reaction__icon">
+                <Tooltip title="Thích" placement="top">
+                  <FontAwesomeIcon
+                    onClick={() => handleClickReaction(REACTION_BLOG.like)}
+                    icon={
+                      status === REACTION_BLOG.like
+                        ? faThumbsUpSolid
+                        : faThumbsUpRegular
+                    }
+                    className={`icon__like ${
+                      status === REACTION_BLOG.like ? "icon__like__active" : ""
+                    }`}
+                  />
+                </Tooltip>
+                <span
+                  className={`text__like ${
+                    status === REACTION_BLOG.like ? "text__like__active" : ""
+                  }`}
+                >
+                  {totalLike}
+                </span>
+              </div>
+              <div className="blog__container__reaction__icon">
+                <Tooltip title="Không thích" placement="top">
+                  <FontAwesomeIcon
+                    onClick={() => handleClickReaction(REACTION_BLOG.dislike)}
+                    icon={
+                      status === REACTION_BLOG.dislike
+                        ? faThumbsDownSolid
+                        : faThumbsDownRegular
+                    }
+                    className={`icon__dislike ${
+                      status === REACTION_BLOG.dislike
+                        ? "icon__dislike__active"
+                        : ""
+                    }`}
+                  />
+                </Tooltip>
+                <span
+                  className={`text__dislike ${
+                    status === REACTION_BLOG.dislike
+                      ? "text__dislike__active"
+                      : ""
+                  }`}
+                >
+                  {totalDislike}
+                </span>
+              </div>
+              <div className="blog__container__reaction__icon">
+                <Tooltip title="Bình luận" placement="top">
+                  <FontAwesomeIcon
+                    onClick={() => handleComment()}
+                    icon={faCommentRegular}
+                    className={`icon__comment`}
+                  />
+                </Tooltip>
+              </div>
+              {userAuthor.Code === user.Code && (
+                <div className="blog__container__reaction__icon">
+                  <Tooltip title="Sửa bài viết" placement="top">
+                    <FontAwesomeIcon
+                      onClick={() => handleComment()}
+                      icon={faPenToSquare}
+                      className="icon__edit"
+                    />
+                  </Tooltip>
                 </div>
               )}
-              trigger="click"
-            >
-              <FontAwesomeIcon icon={faEllipsisH} className={`icon__more`} />
-            </Popover>
-          </div>
+              {userAuthor.Code === user.Code && (
+                <div className="blog__container__reaction__icon">
+                  <Tooltip title="Xóa bài viết" placement="top">
+                    <FontAwesomeIcon
+                      onClick={() => handleComment()}
+                      icon={faTrashAlt}
+                      className="icon__delete"
+                    />
+                  </Tooltip>
+                </div>
+              )}
+              {userAuthor.Code !== user.Code && (
+                <div className="blog__container__reaction__icon">
+                  <Tooltip title="Lưu bài viết" placement="top">
+                    <FontAwesomeIcon
+                      onClick={() => handleBookMark()}
+                      icon={bookmark ? faBookmarkSolid : faBookmarkRegular}
+                      className={`icon__bookmark ${
+                        bookmark ? "icon__bookmark__active" : ""
+                      }`}
+                    />
+                  </Tooltip>
+                </div>
+              )}
+              {userAuthor.Code !== user.Code && (
+                <div className="blog__container__reaction__icon">
+                  <Popover
+                    placement="rightTop"
+                    content={() => (
+                      <div className="popover_profile">
+                        <div>
+                          <span className="comment__container__content__header__more__item">
+                            Chia sẻ bài viết
+                          </span>
+                        </div>
+                        <div>
+                          <span className="comment__container__content__header__more__item">
+                            Báo cáo bài viết
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    trigger="click"
+                  >
+                    <FontAwesomeIcon
+                      icon={faEllipsisH}
+                      className={`icon__more`}
+                    />
+                  </Popover>
+                </div>
+              )}
+            </>
+          )}
         </div>
         <div className="blog__container__main">
           <div className="blog__container__main__content">
             <DisplayBlog
-              titleBlog={titleBlog}
+              titleBlog={blog?.Title}
               cateBlog={cateBlog}
-              contentBlog={contentBlog}
+              contentBlog={blog?.Content}
+              loading={loading}
             />
           </div>
           <div className="divider-10"></div>
           <div className="blog__container__main__comment" id="comment">
             <div className="blog__container__main__comment__title">
-              <span>Bình luận (16)</span>
+              <span>Bình luận ({listComment.length})</span>
             </div>
-            <div className="blog__container__main__comment__you">
-              <div>
-                <img
-                  className="blog__container__main__comment__you__avatar"
-                  src="https://res.cloudinary.com/practicaldev/image/fetch/s--PINMBAvy--/c_fill,f_auto,fl_progressive,h_320,q_auto,w_320/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/863543/44bae2e1-fd14-460d-97ae-c1f4adee6980.png"
-                  alt=""
-                />
-              </div>
-              <div className="blog__container__main__comment__you__input">
-                {error.length > 0 && (
-                  <div className="blog__container__main__comment__you__input__error">
-                    <div className="blog__container__main__comment__you__input__error__title">
-                      <span>Rất tiếc, đã xảy ra lỗi:</span>
-                    </div>
-                    <div>
-                      <ul>
-                        {error?.map((item, index) => (
-                          <li key={index}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
+            {isDone && (
+              <>
+                <div className="blog__container__main__comment__you">
+                  <div>
+                    <img
+                      className="blog__container__main__comment__you__avatar"
+                      src="https://res.cloudinary.com/practicaldev/image/fetch/s--PINMBAvy--/c_fill,f_auto,fl_progressive,h_320,q_auto,w_320/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/863543/44bae2e1-fd14-460d-97ae-c1f4adee6980.png"
+                      alt=""
+                    />
                   </div>
-                )}
-                <TextareaAutosize
-                  placeholder="Viết bình luận của bạn..."
-                  className={`blog__container__main__comment__you__input__text`}
-                  value={comment}
-                  onChange={(e) => handleChangeComment(e.target.value)}
-                  onFocus={() => setOpenSubmitComment(true)}
-                />
-                {(comment || openSubmitComment) && (
-                  <div className="blog__container__main__comment__you__input__control">
-                    <div
-                      className="blog__container__main__comment__you__input__control__btnSend"
-                      onClick={handleSendComment}
-                    >
-                      {isSendingComment ? "Đang gửi..." : "Bình luận"}
-                    </div>
-                    <div
-                      className="blog__container__main__comment__you__input__control__btnCancel"
-                      onClick={handleCancelComment}
-                    >
-                      Hủy
-                    </div>
+                  <div className="blog__container__main__comment__you__input">
+                    {error.length > 0 && (
+                      <div className="blog__container__main__comment__you__input__error">
+                        <div className="blog__container__main__comment__you__input__error__title">
+                          <span>Rất tiếc, đã xảy ra lỗi:</span>
+                        </div>
+                        <div>
+                          <ul>
+                            {error?.map((item, index) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    <TextareaAutosize
+                      placeholder="Viết bình luận của bạn..."
+                      className={`blog__container__main__comment__you__input__text`}
+                      value={comment}
+                      onChange={(e) => handleChangeComment(e.target.value)}
+                      onFocus={() => setOpenSubmitComment(true)}
+                    />
+                    {(comment || openSubmitComment) && (
+                      <div className="blog__container__main__comment__you__input__control">
+                        <div
+                          className="blog__container__main__comment__you__input__control__btnSend"
+                          onClick={handleSendComment}
+                        >
+                          {isSendingComment ? "Đang gửi..." : "Bình luận"}
+                        </div>
+                        <div
+                          className="blog__container__main__comment__you__input__control__btnCancel"
+                          onClick={handleCancelComment}
+                        >
+                          Hủy
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              </>
+            )}
             <div className="blog__container__main__comment__otherComment">
-              <ListComment listComment={data} />
+              <ListComment listComment={listComment} />
             </div>
           </div>
         </div>
         <div className="blog__container__author">
-          <Author />
+          <Author user={userAuthor} />
           <div className="blog__author">
             <div className="blog__author__header">
               <p>Bài viết khác của</p>
-              <Link>Nguyễn Thị Thanh Như</Link>
+              <Link>{userAuthor.Name}</Link>
             </div>
             <div className="rank__container__list">
               {dataAuthor.map((item, index) => {

@@ -7,9 +7,11 @@ function TabItem(props) {
 
   return (
     <Link className="tab__item" to="/home">
-      <div className="tab__item__icon">
-        <img src={Icon} alt={label} />
-      </div>
+      {Icon && (
+        <div className="tab__item__icon">
+          <img src={Icon} alt={label} />
+        </div>
+      )}
       {label}
     </Link>
   );

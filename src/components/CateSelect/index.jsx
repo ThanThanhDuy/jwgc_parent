@@ -6,11 +6,7 @@ import OptionUnstyled, {
 import PopperUnstyled from "@mui/base/PopperUnstyled";
 import { styled } from "@mui/system";
 import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
-import babysleep from "../../assets/icons/babysleep.png";
-import babyeat from "../../assets/icons/babyeat.png";
-import babyplay from "../../assets/icons/babyplay.png";
-import babylearn from "../../assets/icons/babylearn.png";
-import tip from "../../assets/icons/tip.png";
+import hashtag from "../../assets/icons/hashtag.png";
 
 const grey = {
   50: "#f6f8fa",
@@ -143,42 +139,16 @@ const CustomSelect = React.forwardRef(function CustomSelect(props, ref) {
 
   return <SelectUnstyled {...props} ref={ref} slots={slots} />;
 });
-const data = [
-  {
-    Icon: babyeat,
-    label: "Chăm sóc bữa ăn cho bé",
-    code: "2",
-  },
-  {
-    Icon: babysleep,
-    label: "Chăm sóc giấc ngủ cho bé",
-    code: "3",
-  },
-  {
-    Icon: babyplay,
-    label: "Vui chơi cùng bé",
-    code: "4",
-  },
-  {
-    Icon: babylearn,
-    label: "Học tập cùng bé",
-    code: "5",
-  },
-  {
-    Icon: tip,
-    label: "Tip, mẹo vặt",
-    code: "6",
-  },
-];
-export default function CateSelect({ onChange, value }) {
+
+export default function CateSelect({ onChange, value, dataCate }) {
   const handleChangeSelect = (e, newValue) => {
     onChange(newValue);
   };
 
   return (
     <CustomSelect value={value} onChange={handleChangeSelect}>
-      {data.map((item) => (
-        <StyledOption value={Number(item.code)} key={item.code}>
+      {dataCate?.map((item) => (
+        <StyledOption value={item.Id} key={item.Id}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <img
               style={{
@@ -187,10 +157,10 @@ export default function CateSelect({ onChange, value }) {
                 marginRight: "8px",
                 display: "block",
               }}
-              src={item.Icon}
+              src={item.Icon ? item.Icon : hashtag}
               alt="icon"
             />
-            <span style={{ display: "block" }}>{item.label}</span>
+            <span style={{ display: "block" }}>{item.Label}</span>
           </div>
         </StyledOption>
       ))}
