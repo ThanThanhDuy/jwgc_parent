@@ -21,16 +21,6 @@ export const cateDisplayState = atom({
   default: {},
 });
 
-export const listBlogState = atom({
-  key: "listBlogState",
-  default: [],
-});
-
-export const pageCountState = atom({
-  key: "pageCountState",
-  default: 1,
-});
-
 export const currentPageState = atom({
   key: "currentPageState",
   default: BLOG.pageDefault,

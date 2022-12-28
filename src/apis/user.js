@@ -4,6 +4,11 @@ class UserApi {
     const url = `users/profile`;
     return axiosClient.post(url, params);
   }
+
+  async getProfileByUsername(userName) {
+    const url = `users/profile/${userName}`;
+    return axiosClient.get(url);
+  }
 }
 
 const userApi = new UserApi();

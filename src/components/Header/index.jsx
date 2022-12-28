@@ -16,6 +16,7 @@ import {
   contentBlogState,
   cateBlogState,
   scrollPositionState,
+  currentPageState,
 } from "../../stores/blog";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
@@ -24,15 +25,14 @@ import userService from "../../services/user";
 import { userState } from "../../stores/user";
 import userAvatar from "../../assets/icons/user.png";
 import localService from "../../services/local";
-import { listBlogProfileState } from "../../stores/profile";
+import {
+  currentPageProfileState,
+  scrollPositionProfileState,
+} from "../../stores/profile";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
-  // const [open, setOpen] = useState(false);
-  // eslint-disable-next-line
-  // const [isAuth, setIsAuth] = useState(true);
   const [user, setUser] = useRecoilState(userState);
-  // const [isAuth, setIsAuth] = useRecoilState(isAuthState);
   const [isEdit, setIsEdit] = useRecoilState(isEditState);
   const [titleBlog, setTitleBlog] = useRecoilState(titleBlogState);
   const [contentBlog, setContentBlog] = useRecoilState(contentBlogState);
@@ -41,7 +41,11 @@ function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const setScrollPosition = useSetRecoilState(scrollPositionState);
-  const setListBlogProfileState = useSetRecoilState(listBlogProfileState);
+  const setCurrentPage = useSetRecoilState(currentPageState);
+  const setScrollPositionProfile = useSetRecoilState(
+    scrollPositionProfileState
+  );
+  const setCurrentPageProfile = useSetRecoilState(currentPageProfileState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,9 +84,9 @@ function Header() {
 
   const confirm = () => {
     Modal.confirm({
-      title: "Bạn có muốn thoát không ?",
+      title: "Bạn có muốn thoát không?",
       icon: <ExclamationCircleOutlined />,
-      content: "Nội dung chưa được lưu sẽ bị mất",
+      content: "Nội dung bạn đã nhập sẽ bị mất.",
       okText: "Thoát",
       cancelText: "Hủy",
       onOk() {
@@ -95,37 +99,53 @@ function Header() {
   };
 
   const handleProfile = () => {
-    if (!location?.pathname.includes(`${user?.UserName}`)) {
-      setListBlogProfileState([]);
-    }
+    setScrollPositionProfile(0);
+    setCurrentPageProfile(1);
     navigate(`/profile/${user?.UserName}`);
+  };
+
+  const handleHome = () => {
+    setScrollPosition(0);
+    setCurrentPage(1);
+    navigate(`/home`);
   };
 
   return (
     <>
       <div
         className={`header ${
-          location?.pathname.includes("create-post") ? "noBoxShadow" : ""
+          location?.pathname.includes("create-post") ||
+          location?.pathname.includes("edit")
+            ? "noBoxShadow"
+            : ""
         }`}
       >
         <div
           className={`header__container ${
-            location?.pathname.includes("create-post") ? "containerV2" : ""
+            location?.pathname.includes("create-post") ||
+            location?.pathname.includes("edit")
+              ? "containerV2"
+              : ""
           }`}
         >
           <div
             style={{
               display: "flex",
-              width: location?.pathname.includes("create-post") ? "100%" : "",
+              width:
+                location?.pathname.includes("create-post") ||
+                location?.pathname.includes("edit")
+                  ? "100%"
+                  : "",
             }}
           >
             <div className="header__container__logo">
-              <Link to="/home">Baby</Link>
+              <span onClick={handleHome}>Baby</span>
             </div>
-            {location?.pathname.includes("create-post") ? (
+            {location?.pathname.includes("create-post") ||
+            location?.pathname.includes("edit") ? (
               <div className="header__container__boxCreatePost">
                 <div className="header__container__boxCreatePost__title">
-                  <span>Tạo bài viết</span>
+                  <span>Cập nhật bài viết</span>
                 </div>
                 <div className="header__container__boxCreatePost__controlEditor">
                   <ButtonHover
@@ -158,7 +178,8 @@ function Header() {
               </form>
             )}
           </div>
-          {location?.pathname.includes("create-post") ? (
+          {location?.pathname.includes("create-post") ||
+          location?.pathname.includes("edit") ? (
             <div>
               <ButtonHover icon={<Close />} onClick={handleClickButton} />
             </div>

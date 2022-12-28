@@ -20,7 +20,7 @@ function Author({ user }) {
           <Link>{user.Name}</Link>
         </div>
       </div>
-      {user.Code && user.Code !== localService.getUser().Code && (
+      {user.Code && user.Code !== localService.getUser()?.Code && (
         <div className="author__container__follow">
           <div className="author__container__follow__btn">
             <span>Theo dõi</span>

@@ -7,7 +7,10 @@ import { ReactComponent as HeartIcon } from "../../assets/icons/heart.svg";
 import { ReactComponent as CommentIcon } from "../../assets/icons/comment.svg";
 import { useSetRecoilState } from "recoil";
 import { scrollPositionState } from "../../stores/blog";
-import { scrollPositionProfileState } from "../../stores/profile";
+import {
+  currentPageProfileState,
+  scrollPositionProfileState,
+} from "../../stores/profile";
 
 function Post({ post }) {
   const navigate = useNavigate();
@@ -16,6 +19,7 @@ function Post({ post }) {
     scrollPositionProfileState
   );
   const location = useLocation();
+  const setCurrentPageProfile = useSetRecoilState(currentPageProfileState);
 
   const handleClickPost = () => {
     if (location?.pathname.includes("home")) {
@@ -23,32 +27,45 @@ function Post({ post }) {
     } else {
       setScrollPositionProfile(window.pageYOffset);
     }
-    navigate(
-      `/blog/${encodeURIComponent(post.User.Name)?.replaceAll(
-        "%20",
-        "-"
-      )}/${encodeURIComponent(post.Title)?.replaceAll("%20", "-")}/${post.Code}`
-    );
+    if (post.Status === 1) {
+      navigate(
+        `/blog/${encodeURIComponent(post.User.Name)?.replaceAll(
+          "%20",
+          "-"
+        )}/${encodeURIComponent(post.Title)?.replaceAll("%20", "-")}/${
+          post.Code
+        }`
+      );
+    } else {
+      navigate(
+        `/pending/${encodeURIComponent(post.Title)?.replaceAll("%20", "-")}/${
+          post.Code
+        }`
+      );
+    }
+  };
+
+  const handleProfile = () => {
+    setCurrentPageProfile(1);
+    setScrollPositionProfile(0);
+    navigate(`/profile/${post.User?.UserName}`);
   };
 
   return (
     <div className="post">
       <div className="post_container">
         <div className="post_container_avatar">
-          <Link to={`${post.User.Username}`}>
+          <span onClick={handleProfile}>
             <img
               className="post_container_avatar_img"
               src={post?.User?.AvatarPath}
               alt="avatar"
             />
-          </Link>
+          </span>
           <div className="post_container_user">
-            <Link
-              to={`${post.User.Username}`}
-              className="post_container_user_name"
-            >
+            <span className="post_container_user_name" onClick={handleProfile}>
               {post.User.Name}
-            </Link>
+            </span>
             <span
               className="post_container_user_date"
               onClick={handleClickPost}

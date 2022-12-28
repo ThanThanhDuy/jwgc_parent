@@ -39,6 +39,20 @@ class BlogApi {
       },
     });
   }
+
+  async updateBlog(params) {
+    const url = `${this.PREFIX}`;
+    return axiosClient.put(url, params);
+  }
+
+  async deleteBlog(code) {
+    const url = `${this.PREFIX}`;
+    return axiosClient.delete(url, {
+      data: {
+        Code: code,
+      },
+    });
+  }
 }
 
 const blogApi = new BlogApi();

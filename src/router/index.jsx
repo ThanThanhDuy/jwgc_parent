@@ -13,6 +13,7 @@ import CreateBlog from "../pages/CreateBlog";
 import Blog from "../pages/Blog";
 import Profile from "../pages/Profile";
 import PendingPage from "../pages/PendingPage";
+import UpdateBlog from "../pages/UpdateBlog";
 
 function Router() {
   return (
@@ -35,6 +36,7 @@ function Router() {
             path="pending/:titleBlog/:codeBlog"
             element={<PendingPage />}
           />
+          <Route path="edit/:titleBlog/:codeBlog" element={<UpdateBlog />} />
         </Route>
       </Route>
       {/* not found */}
