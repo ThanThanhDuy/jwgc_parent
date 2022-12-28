@@ -12,39 +12,84 @@ import {
   titleBlogState,
   contentBlogState,
   cateBlogState,
+  cateDisplayState,
 } from "../../stores/blog";
 import moment from "moment";
+import cateBlogService from "../../services/cateBlog";
+import { CATE_ICON } from "../../assets/icons/cateIcon";
+import blogService from "../../services/blog";
+import { Modal, notification } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 function CreateBlog() {
   const isEdit = useRecoilValue(isEditState);
-  // eslint-disable-next-line
-  // const [title, setTitle] = useState("");
-  // const [data, setData] = useState("");
   const [title, setTitle] = useRecoilState(titleBlogState);
   const [data, setData] = useRecoilState(contentBlogState);
   const [isLoadingSaveDraft, setIsLoadingSaveDraft] = useState(false);
   const [isSavedDraft, setIsSavedDraft] = useState(false);
+  const [isLoadingDeleteDraft, setIsLoadingDeleteDraft] = useState(false);
+  const [isDeletedDraft, setIsDeletedDraft] = useState(false);
   const [errors, setErrors] = useState([]);
   const [cate, setCate] = useRecoilState(cateBlogState);
+  const [cateDisplay, setCateDisplay] = useRecoilState(cateDisplayState);
   const [dateDraft, setDateDraft] = useState("");
+  const [dataCate, setDataCate] = useState([]);
+  const navigate = useNavigate();
+
+  const [api, contextHolder] = notification.useNotification();
+  const openNotificationWithIcon = (type, message) => {
+    api[type]({
+      message,
+    });
+  };
 
   useLayoutEffect(() => {
-    const blogContent = localService.getblogContent();
-    if (blogContent) {
-      setData(blogContent);
-    }
-    const blogTitle = localService.getblogTitle();
-    if (blogTitle) {
-      setTitle(blogTitle);
-    }
-    const blogCategory = localService.getBlogCategory();
-    if (blogCategory) {
-      setCate(Number(blogCategory));
-    }
-    const dateSaveDraft = localService.getDateSaveDraft();
-    if (dateSaveDraft) {
-      setDateDraft(dateSaveDraft);
-    }
+    const handleGetCateBlog = async () => {
+      const res = await cateBlogService.getCateBlog();
+      if (res && res.StatusCode === 200) {
+        setCate(res.Data[0].Id);
+        setCateDisplay({
+          Id: res.Data[0].Id,
+          Label: res.Data[0].Name,
+          Icon: CATE_ICON[res.Data[0].Name],
+        });
+        setDataCate(
+          res?.Data.map((item) => {
+            return {
+              Id: item.Id,
+              Label: item.Name,
+              Code: item.Code,
+              Icon: CATE_ICON[item.Name],
+            };
+          })
+        );
+      }
+      const blogContent = localService.getblogContent();
+      if (blogContent) {
+        setData(blogContent);
+      }
+      const blogTitle = localService.getblogTitle();
+      if (blogTitle) {
+        setTitle(blogTitle);
+      }
+      const blogCategory = localService.getBlogCategory();
+      if (blogCategory) {
+        setCate(Number(blogCategory));
+        const item = res.Data.find((item) => item.Id === Number(blogCategory));
+        setCateDisplay({
+          Id: item.Id,
+          Label: item.Name,
+          Icon: CATE_ICON[item.Name],
+        });
+      }
+      const dateSaveDraft = localService.getDateSaveDraft();
+      if (dateSaveDraft) {
+        setDateDraft(dateSaveDraft);
+      }
+    };
+    handleGetCateBlog();
+
     // eslint-disable-next-line
   }, []);
 
@@ -85,14 +130,59 @@ function CreateBlog() {
     }
     setTimeout(() => {
       setIsSavedDraft(false);
-    }, 3000);
+    }, 2000);
+  };
+
+  const handleDeleteDraft = () => {
+    Modal.confirm({
+      title: "Bạn có chắc chắn muốn xóa bản nháp này không?",
+      icon: <ExclamationCircleOutlined />,
+      content: "Bản nháp sẽ bị xóa vĩnh viễn",
+      okText: "Xóa",
+      cancelText: "Hủy",
+      onOk() {
+        if (isDeletedDraft) return;
+        setIsLoadingDeleteDraft(true);
+        localService.removeblogContent();
+        localService.removeblogTitle();
+        localService.removeBlogCategory();
+        setTimeout(() => {
+          setIsDeletedDraft(true);
+          setIsLoadingDeleteDraft(false);
+          setDateDraft("");
+          setData("");
+          setTitle("");
+          localService.removeDateSaveDraft();
+          setCate(dataCate[0].Id);
+          const item = dataCate.find((item) => item.Id === 0);
+          setCateDisplay({
+            Id: item.Id,
+            Label: item.Label,
+            Icon: CATE_ICON[item.Label],
+          });
+        }, 1000);
+        setTimeout(() => {
+          openNotificationWithIcon("success", "Xóa bản nháp thành công");
+        }, 1001);
+
+        setTimeout(() => {
+          setIsDeletedDraft(false);
+        }, 2000);
+      },
+    });
   };
 
   const handleChangeCate = (value) => {
     setCate(value);
+    const item = dataCate.find((item) => item.Id === value);
+    setCateDisplay({
+      Id: item.Id,
+      Label: item.Label,
+      Icon: CATE_ICON[item.Label],
+    });
   };
 
-  const handleSaveBlog = () => {
+  const handleSaveBlog = async () => {
     let error = [];
     if (title === "") {
       error.push("Tiêu đề: không được để trống");
@@ -103,101 +193,144 @@ function CreateBlog() {
     if (error.length > 0) {
       setErrors(error);
     } else {
-      console.log(title);
-      console.log(data);
-      console.log(cate);
-      console.log("Save blog");
+      const { Code } = dataCate.find((item) => item.Id === cate);
+      const res = await blogService.publishBlog(title, Code, data);
+      if (res && res.StatusCode === 200) {
+        setCate(dataCate[0].Id);
+        setCateDisplay({
+          Id: dataCate[0].Id,
+          Label: dataCate[0].Label,
+          Icon: CATE_ICON[dataCate[0].Label],
+        });
+        localService.removeAll();
+        setData("");
+        setTitle("");
+        navigate(`/pending/${res.Data.Title}/${res.Data.Code}`);
+      } else {
+        setErrors([res.Message]);
+      }
     }
   };
 
   return (
-    <div className="createBlog__container">
-      {isEdit ? (
-        <div className="createBlog__container__editor">
-          {errors.length > 0 && (
-            <div className="createBlog__container__editor__title__error">
-              <div className="createBlog__container__editor__title__error__label">
-                Rất tiếc, đã xảy ra lỗi:
-              </div>
-              <ul className="createBlog__container__editor__title__error__list">
-                {errors.map((error, index) => (
-                  <li
-                    className="createBlog__container__editor__title__error__list__item"
-                    key={index}
-                  >
-                    {error}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <div className="createBlog__container__editor__title">
-            <TextareaAutosize
-              className="createBlog__container__editor__title__text"
-              placeholder="Tiêu đề bài viết"
-              value={title}
-              onChange={(e) => handleTitle(e.target)}
-            />
-          </div>
-          <div className="createBlog__container__editor__cate">
-            <CateSelect onChange={handleChangeCate} value={cate} />
-          </div>
-          <EditorBlog onChangeEditor={onChangeEditor} data={data} />
-        </div>
-      ) : (
-        <div className="createBlog__container__preview">
-          <DisplayBlog titleBlog={title} cateBlog={cate} contentBlog={data} />
-        </div>
-      )}
-      {isEdit && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "900px",
-            alignItems: "center",
-            marginTop: "20px",
-          }}
-        >
-          <div className="createBlog__container__editor__control">
-            {!isLoadingSaveDraft && (
-              <div
-                className="createBlog__container__editor__control__save"
-                onClick={handleSaveBlog}
-              >
-                Đăng bài
+    <>
+      {contextHolder}
+
+      <div className="createBlog__container">
+        {isEdit ? (
+          <div className="createBlog__container__editor">
+            {errors.length > 0 && (
+              <div className="createBlog__container__editor__title__error">
+                <div className="createBlog__container__editor__title__error__label">
+                  Rất tiếc, đã xảy ra lỗi:
+                </div>
+                <ul className="createBlog__container__editor__title__error__list">
+                  {errors.map((error, index) => (
+                    <li
+                      className="createBlog__container__editor__title__error__list__item"
+                      key={index}
+                    >
+                      {error}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
-            <div
-              className={`createBlog__container__editor__control__draft ${
-                isLoadingSaveDraft
-                  ? "createBlog__container__editor__control__draft__saving"
-                  : ""
-              }`}
-              onClick={handleSaveDraft}
-            >
-              {isLoadingSaveDraft
-                ? "Đang lưu nháp..."
-                : isSavedDraft
-                ? "Đã lưu nháp"
-                : "Lưu nháp"}
-              {isSavedDraft && <UilCheck color="green" />}
+            <div className="createBlog__container__editor__title">
+              <TextareaAutosize
+                className="createBlog__container__editor__title__text"
+                placeholder="Tiêu đề bài viết"
+                value={title}
+                onChange={(e) => handleTitle(e.target)}
+              />
+            </div>
+            <div className="createBlog__container__editor__cate">
+              <CateSelect
+                dataCate={dataCate}
+                onChange={handleChangeCate}
+                value={cate}
+              />
+            </div>
+            <EditorBlog onChangeEditor={onChangeEditor} data={data} />
+          </div>
+        ) : (
+          <div className="createBlog__container__preview">
+            <DisplayBlog
+              titleBlog={title}
+              cateBlog={cateDisplay}
+              contentBlog={data}
+            />
+          </div>
+        )}
+        {isEdit && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "900px",
+              alignItems: "center",
+              marginTop: "20px",
+            }}
+          >
+            <div className="createBlog__container__editor__control">
+              {!isLoadingSaveDraft && !isLoadingDeleteDraft && (
+                <div
+                  className="createBlog__container__editor__control__save"
+                  onClick={handleSaveBlog}
+                >
+                  Đăng bài
+                </div>
+              )}
+              {!isLoadingDeleteDraft && (
+                <div
+                  className={`createBlog__container__editor__control__draft ${
+                    isLoadingSaveDraft
+                      ? "createBlog__container__editor__control__draft__saving"
+                      : ""
+                  }`}
+                  onClick={handleSaveDraft}
+                >
+                  {isLoadingSaveDraft
+                    ? "Đang lưu nháp..."
+                    : isSavedDraft
+                    ? "Đã lưu nháp"
+                    : "Lưu nháp"}
+                  {isSavedDraft && <UilCheck color="green" />}
+                </div>
+              )}
+              {!isLoadingSaveDraft && localService.getDateSaveDraft() && (
+                <div
+                  className={`createBlog__container__editor__control__deletedraft ${
+                    isLoadingDeleteDraft
+                      ? "createBlog__container__editor__control__deletedraft__deleting"
+                      : ""
+                  }`}
+                  onClick={handleDeleteDraft}
+                >
+                  {isLoadingDeleteDraft
+                    ? "Đang xóa nháp..."
+                    : isDeletedDraft
+                    ? "Đã xóa nháp"
+                    : "Xóa nháp"}
+                  {isDeletedDraft && <UilCheck color="green" />}
+                </div>
+              )}
+            </div>
+            <div>
+              <span style={{ fontSize: "14px" }}>
+                {dateDraft
+                  ? dateDraft === "Đang lưu..."
+                    ? "Vui lòng đợi..."
+                    : `Lần sửa cuối vào ngày ${moment(dateDraft).format(
+                        "DD MMMM"
+                      )} lúc ${moment(dateDraft).format("HH:mm")}`
+                  : ""}
+              </span>
             </div>
           </div>
-          <div>
-            <span style={{ fontSize: "14px" }}>
-              {dateDraft
-                ? dateDraft === "Đang lưu..."
-                  ? "Vui lòng đợi..."
-                  : `Lần sửa cuối vào ngày ${moment(dateDraft).format(
-                      "DD MMMM"
-                    )} lúc ${moment(dateDraft).format("HH:mm")}`
-                : ""}
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
 

@@ -60,8 +60,14 @@ class LocalService {
   removeUser() {
     localStorage.removeItem("user");
   }
-  removeToken() {
+  removeAccessToken() {
     localStorage.removeItem("accessToken");
+  }
+  removeAll() {
+    this.removeBlogCategory();
+    this.removeblogContent();
+    this.removeblogTitle();
+    this.removeDateSaveDraft();
   }
 }
 const localService = new LocalService();

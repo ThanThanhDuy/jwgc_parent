@@ -1,0 +1,18 @@
+@import "./themes/colors/index.scss";
+
+.app {
+  position: relative;
+}
+.scrollTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 5px;
+  border-radius: 8px;
+  background-color: $primary-color;
+  display: none;
+  cursor: pointer;
+  &:hover {
+    background-color: $primary-color-hover;
+  }
+}

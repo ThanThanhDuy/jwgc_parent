@@ -1,7 +1,10 @@
 import React from "react";
 import Post from "../Post";
+import ButtonOutline from "../../components/ButtonOutline";
 import "./index.scss";
+import { Skeleton } from "antd";
 
+// eslint-disable-next-line
 const data = [
   {
     Code: "1",
@@ -66,12 +69,45 @@ const cate = [
   },
 ];
 
-function ListBlog() {
+function ListBlog({
+  listBlog,
+  pageCount,
+  currentPage,
+  handleLoadMore,
+  loading,
+}) {
   return (
     <div className="listblog__container">
-      {data.map((item, index) => {
-        return <Post post={item} key={item.Code} />;
-      })}
+      {loading ? (
+        <>
+          {["", ""].map((item, index) => {
+            return (
+              <div className="post" key={index}>
+                <Skeleton
+                  avatar
+                  paragraph={{
+                    rows: 3,
+                  }}
+                />
+              </div>
+            );
+          })}
+        </>
+      ) : (
+        listBlog &&
+        listBlog.map((item) => {
+          return <Post post={item} key={item.Code} />;
+        })
+      )}
+      {pageCount > 1 && currentPage !== pageCount && (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ButtonOutline
+            label="Xem thêm"
+            isLink={false}
+            onClick={handleLoadMore}
+          />
+        </div>
+      )}
     </div>
   );
 }
