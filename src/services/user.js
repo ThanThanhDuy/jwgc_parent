@@ -12,6 +12,15 @@ class UserService {
     }
     return response;
   }
+
+  async getProfileByUsername({ userName }) {
+    try {
+      var response = await userApi.getProfileByUsername(userName);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const userService = new UserService();
 export default userService;

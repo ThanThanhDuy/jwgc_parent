@@ -65,7 +65,6 @@ class BlogService {
     Page,
     PageSize,
   }) {
-    console.log(Status);
     const params = {};
     Code && (params.Code = Code);
     Title && (params.Title = Title);
@@ -75,6 +74,30 @@ class BlogService {
     PageSize && (params["Paging.PageSize"] = PageSize);
     try {
       var response = await blogApi.getMyBlog(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async updateBlog(code, title, cateId, content) {
+    const params = {
+      Code: code,
+      Title: title,
+      ConcernCategoryCode: cateId.toString(),
+      Content: content,
+    };
+    try {
+      var response = await blogApi.updateBlog(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async deleteBlog(code) {
+    try {
+      var response = await blogApi.deleteBlog(code);
     } catch (error) {
       return error;
     }

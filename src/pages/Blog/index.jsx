@@ -21,7 +21,7 @@ import TextareaAutosize from "@mui/material/TextareaAutosize";
 import ListComment from "../../components/ListComment";
 import { Popover } from "antd";
 import Author from "../../components/Author";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BLOG } from "../../constants/blog";
 import { useParams } from "react-router-dom";
 import blogService from "../../services/blog";
@@ -29,6 +29,8 @@ import { CATE_ICON } from "../../assets/icons/cateIcon";
 import userService from "../../services/user";
 import { Helmet } from "react-helmet";
 import { REACTION_BLOG } from "../../constants/reactionBlog";
+import { Modal, notification } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 // eslint-disable-next-line
 const data = [
@@ -142,10 +144,9 @@ function Blog() {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [isDone, setIsDone] = useState(false);
-
-  // eslint-disable-next-line
   const [error, setError] = useState([]);
   const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo({
@@ -295,6 +296,39 @@ function Blog() {
     }
   };
 
+  const handleEdit = () => {
+    navigate(
+      `/edit/${encodeURIComponent(blog.Title)?.replaceAll("%20", "-")}/${
+        blog.Code
+      }`
+    );
+  };
+
+  const handleDelete = async () => {
+    Modal.confirm({
+      title: "Bạn có chắc chắn muốn xóa bài viết này không?",
+      icon: <ExclamationCircleOutlined />,
+      content: "Bài viết sẽ không thể khôi phục lại sau khi xóa",
+      okText: "Xóa",
+      cancelText: "Hủy",
+      async onOk() {
+        const res = await blogService.deleteBlog(blog.Code);
+        if (res && res.StatusCode === 200) {
+          navigate("/home");
+          notification.open({
+            type: "success",
+            message: "Xóa bài viết thành công",
+          });
+        } else {
+          notification.open({
+            type: "error",
+            message: "Xóa bài viết thất bại",
+          });
+        }
+      },
+    });
+  };
+
   return (
     <>
       <Helmet>
@@ -364,29 +398,33 @@ function Blog() {
                   />
                 </Tooltip>
               </div>
-              {userAuthor.Code === user.Code && (
-                <div className="blog__container__reaction__icon">
+              {userAuthor?.Code === user?.Code && (
+                <div
+                  className="blog__container__reaction__icon"
+                  onClick={handleEdit}
+                >
                   <Tooltip title="Sửa bài viết" placement="top">
                     <FontAwesomeIcon
-                      onClick={() => handleComment()}
                       icon={faPenToSquare}
                       className="icon__edit"
                     />
                   </Tooltip>
                 </div>
               )}
-              {userAuthor.Code === user.Code && (
-                <div className="blog__container__reaction__icon">
+              {userAuthor?.Code === user?.Code && (
+                <div
+                  className="blog__container__reaction__icon"
+                  onClick={handleDelete}
+                >
                   <Tooltip title="Xóa bài viết" placement="top">
                     <FontAwesomeIcon
-                      onClick={() => handleComment()}
                       icon={faTrashAlt}
                       className="icon__delete"
                     />
                   </Tooltip>
                 </div>
               )}
-              {userAuthor.Code !== user.Code && (
+              {userAuthor?.Code !== user?.Code && (
                 <div className="blog__container__reaction__icon">
                   <Tooltip title="Lưu bài viết" placement="top">
                     <FontAwesomeIcon

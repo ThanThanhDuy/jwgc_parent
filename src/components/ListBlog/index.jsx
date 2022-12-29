@@ -82,7 +82,7 @@ function ListBlog({
         <>
           {["", ""].map((item, index) => {
             return (
-              <div className="post" key={index}>
+              <div className="post" key={index} style={{ padding: "16px" }}>
                 <Skeleton
                   avatar
                   paragraph={{

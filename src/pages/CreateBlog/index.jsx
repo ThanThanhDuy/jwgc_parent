@@ -21,6 +21,7 @@ import blogService from "../../services/blog";
 import { Modal, notification } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 function CreateBlog() {
   const isEdit = useRecoilValue(isEditState);
@@ -109,20 +110,33 @@ function CreateBlog() {
 
   const handleSaveDraft = () => {
     if (isSavedDraft) return;
-    setIsLoadingSaveDraft(true);
     let date = new Date();
     let error = [];
     if (title !== "") {
-      setDateDraft("Đang lưu...");
-      localService.setblogContent(data);
-      localService.setblogTitle(title);
-      localService.setBlogCategory(cate);
-      localService.setDateSaveDraft(date);
-      setTimeout(() => {
-        setIsSavedDraft(true);
-        setIsLoadingSaveDraft(false);
-        setDateDraft(date);
-      }, 1000);
+      Modal.confirm({
+        title: "Bạn có chắc chắn muốn lưu nháp",
+        icon: <ExclamationCircleOutlined />,
+        content: "Bài viết sẽ được lưu vào danh sách nháp",
+        okText: "Lưu",
+        cancelText: "Hủy",
+        async onOk() {
+          setIsLoadingSaveDraft(true);
+          setDateDraft("Đang lưu...");
+          localService.setblogContent(data);
+          localService.setblogTitle(title);
+          localService.setBlogCategory(cate);
+          localService.setDateSaveDraft(date);
+          setTimeout(() => {
+            setIsSavedDraft(true);
+            setIsLoadingSaveDraft(false);
+            setDateDraft(date);
+          }, 1000);
+          notification.open({
+            type: "success",
+            message: "Lưu nháp thành công",
+          });
+        },
+      });
     } else {
       error.push("Tiêu đề: không được để trống");
       setErrors(error);
@@ -162,7 +176,11 @@ function CreateBlog() {
           });
         }, 1000);
         setTimeout(() => {
-          openNotificationWithIcon("success", "Xóa bản nháp thành công");
+          // openNotificationWithIcon("success", "Xóa bản nháp thành công");
+          notification.open({
+            type: "success",
+            message: "Xóa bản nháp thành công",
+          });
         }, 1001);
 
         setTimeout(() => {
@@ -193,30 +211,52 @@ function CreateBlog() {
     if (error.length > 0) {
       setErrors(error);
     } else {
-      const { Code } = dataCate.find((item) => item.Id === cate);
-      const res = await blogService.publishBlog(title, Code, data);
-      if (res && res.StatusCode === 200) {
-        setCate(dataCate[0].Id);
-        setCateDisplay({
-          Id: dataCate[0].Id,
-          Label: dataCate[0].Label,
-          Icon: CATE_ICON[dataCate[0].Label],
-        });
-        localService.removeAll();
-        setData("");
-        setTitle("");
-        navigate(`/pending/${res.Data.Title}/${res.Data.Code}`);
-      } else {
-        setErrors([res.Message]);
-      }
+      Modal.confirm({
+        title: "Bạn có chắc chắn muốn đăng bài viết này không?",
+        icon: <ExclamationCircleOutlined />,
+        content: "Bài viết sẽ được kiểm duyệt trước khi được đăng",
+        okText: "Đăng",
+        cancelText: "Hủy",
+        async onOk() {
+          const { Code } = dataCate.find((item) => item.Id === cate);
+          const res = await blogService.publishBlog(title, Code, data);
+          if (res && res.StatusCode === 200) {
+            setCate(dataCate[0].Id);
+            setCateDisplay({
+              Id: dataCate[0].Id,
+              Label: dataCate[0].Label,
+              Icon: CATE_ICON[dataCate[0].Label],
+            });
+            localService.removeAll();
+            setData("");
+            setTitle("");
+            navigate(`/pending/${res.Data.Title}/${res.Data.Code}`);
+            notification.open({
+              type: "success",
+              message: "Đăng bài viết thành công",
+              description: res.Message,
+            });
+          } else {
+            setErrors([res.Message]);
+            notification.open({
+              type: "error",
+              message: "Xóa bài viết thành công",
+              description: res.Message,
+            });
+          }
+        },
+      });
     }
   };
 
   return (
     <>
       {contextHolder}
-
       <div className="createBlog__container">
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>Tạo blog</title>
+        </Helmet>
         {isEdit ? (
           <div className="createBlog__container__editor">
             {errors.length > 0 && (
