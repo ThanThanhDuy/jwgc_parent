@@ -33,12 +33,17 @@ function Login() {
         // setIsAuth(true);
         setUsername("");
         navigate("/home");
-      }, 1500);
+      }, 1000);
+    } else if (res.StatusCode === 403) {
+      setTimeout(() => {
+        setLoading(false);
+        setErrors(["Tài khoản chưa được kích hoạt, vui lòng kiểm tra email"]);
+      }, 1000);
     } else {
       setTimeout(() => {
         setLoading(false);
         setErrors([res.Message]);
-      }, 1500);
+      }, 1000);
     }
   };
 

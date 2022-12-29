@@ -38,13 +38,6 @@ function CreateBlog() {
   const [dataCate, setDataCate] = useState([]);
   const navigate = useNavigate();
 
-  const [api, contextHolder] = notification.useNotification();
-  const openNotificationWithIcon = (type, message) => {
-    api[type]({
-      message,
-    });
-  };
-
   useLayoutEffect(() => {
     const handleGetCateBlog = async () => {
       const res = await cateBlogService.getCateBlog();
@@ -240,7 +233,7 @@ function CreateBlog() {
             setErrors([res.Message]);
             notification.open({
               type: "error",
-              message: "Xóa bài viết thành công",
+              message: "Đăng bài viết thất bại",
               description: res.Message,
             });
           }
@@ -251,7 +244,6 @@ function CreateBlog() {
 
   return (
     <>
-      {contextHolder}
       <div className="createBlog__container">
         <Helmet>
           <meta charSet="utf-8" />

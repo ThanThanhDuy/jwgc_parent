@@ -103,6 +103,42 @@ class BlogService {
     }
     return response;
   }
+
+  async sendComment(content, blogCode, parentCode) {
+    const params = {
+      Content: content,
+      BlogCode: blogCode,
+      ParentCode: parentCode,
+    };
+    try {
+      var response = await blogApi.sendComment(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async updateComment(blogCode, content) {
+    const params = {
+      Code: blogCode,
+      Content: content,
+    };
+    try {
+      var response = await blogApi.updateComment(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async deleteComment(code) {
+    try {
+      var response = await blogApi.deleteComment(code);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const blogService = new BlogService();
 export default blogService;

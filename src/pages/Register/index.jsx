@@ -125,7 +125,7 @@ function Register() {
                       validate={{}}
                       height={50}
                       errors={errors.username}
-                      maxLength={20}
+                      maxLength={30}
                     />
                     <InputField
                       placeholder="Họ và tên"
@@ -136,7 +136,7 @@ function Register() {
                       validate={{}}
                       height={50}
                       errors={errors.fullname}
-                      maxLength={20}
+                      maxLength={30}
                     />
                     <InputField
                       placeholder="Email"
@@ -147,7 +147,6 @@ function Register() {
                       validate={{}}
                       height={50}
                       errors={errors.email}
-                      maxLength={20}
                     />
                     <InputField
                       placeholder="Mật khẩu"
@@ -158,7 +157,7 @@ function Register() {
                       validate={{}}
                       height={50}
                       errors={errors.password}
-                      maxLength={20}
+                      maxLength={50}
                     />
                     <InputField
                       placeholder="Nhập lại mật khẩu"
@@ -169,7 +168,6 @@ function Register() {
                       validate={{}}
                       height={50}
                       errors={errors.repassword}
-                      maxLength={20}
                     />
                     <button
                       className="pageRegister--container__form__btnSubmit"

@@ -31,6 +31,7 @@ import { Helmet } from "react-helmet";
 import { REACTION_BLOG } from "../../constants/reactionBlog";
 import { Modal, notification } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import userAvatar from "../../assets/icons/user.png";
 
 // eslint-disable-next-line
 const data = [
@@ -196,47 +197,53 @@ function Blog() {
   }, [params.codeBlog]);
 
   const handleClickReaction = async (value) => {
-    let statusTmp = status;
-    let totalLikeTmp = totalLike;
-    let totalDislikeTmp = totalDislike;
-    if (value === REACTION_BLOG.like && status === REACTION_BLOG.default) {
-      statusTmp = REACTION_BLOG.like;
-      totalLikeTmp = totalLike + 1;
-    } else if (
-      value === REACTION_BLOG.like &&
-      status === REACTION_BLOG.dislike
-    ) {
-      statusTmp = REACTION_BLOG.like;
-      totalLikeTmp = totalLike + 1;
-      totalDislikeTmp = totalDislike - 1;
-    } else if (value === REACTION_BLOG.like && status === REACTION_BLOG.like) {
-      statusTmp = REACTION_BLOG.default;
-      totalLikeTmp = totalLike - 1;
-    } else if (
-      value === REACTION_BLOG.dislike &&
-      status === REACTION_BLOG.default
-    ) {
-      statusTmp = REACTION_BLOG.dislike;
-      totalDislikeTmp = totalDislike + 1;
-    } else if (
-      value === REACTION_BLOG.dislike &&
-      status === REACTION_BLOG.like
-    ) {
-      statusTmp = REACTION_BLOG.dislike;
-      totalLikeTmp = totalLike - 1;
-      totalDislikeTmp = totalDislike + 1;
-    } else if (
-      value === REACTION_BLOG.dislike &&
-      status === REACTION_BLOG.dislike
-    ) {
-      statusTmp = REACTION_BLOG.default;
-      totalDislikeTmp = totalDislike - 1;
-    }
-    const res = await blogService.reactionBlog(blog.Code, statusTmp);
-    if (res && res.StatusCode === 200) {
-      setStatus(statusTmp);
-      setTotalLike(totalLikeTmp);
-      setTotalDislike(totalDislikeTmp);
+    if (user.Code) {
+      let statusTmp = status;
+      let totalLikeTmp = totalLike;
+      let totalDislikeTmp = totalDislike;
+      if (value === REACTION_BLOG.like && status === REACTION_BLOG.default) {
+        statusTmp = REACTION_BLOG.like;
+        totalLikeTmp = totalLike + 1;
+      } else if (
+        value === REACTION_BLOG.like &&
+        status === REACTION_BLOG.dislike
+      ) {
+        statusTmp = REACTION_BLOG.like;
+        totalLikeTmp = totalLike + 1;
+        totalDislikeTmp = totalDislike - 1;
+      } else if (
+        value === REACTION_BLOG.like &&
+        status === REACTION_BLOG.like
+      ) {
+        statusTmp = REACTION_BLOG.default;
+        totalLikeTmp = totalLike - 1;
+      } else if (
+        value === REACTION_BLOG.dislike &&
+        status === REACTION_BLOG.default
+      ) {
+        statusTmp = REACTION_BLOG.dislike;
+        totalDislikeTmp = totalDislike + 1;
+      } else if (
+        value === REACTION_BLOG.dislike &&
+        status === REACTION_BLOG.like
+      ) {
+        statusTmp = REACTION_BLOG.dislike;
+        totalLikeTmp = totalLike - 1;
+        totalDislikeTmp = totalDislike + 1;
+      } else if (
+        value === REACTION_BLOG.dislike &&
+        status === REACTION_BLOG.dislike
+      ) {
+        statusTmp = REACTION_BLOG.default;
+        totalDislikeTmp = totalDislike - 1;
+      }
+      const res = await blogService.reactionBlog(blog.Code, statusTmp);
+      if (res && res.StatusCode === 200) {
+        setStatus(statusTmp);
+        setTotalLike(totalLikeTmp);
+        setTotalDislike(totalDislikeTmp);
+      }
+    } else {
     }
   };
 
@@ -246,13 +253,11 @@ function Blog() {
 
   const handleComment = () => {
     const element = document.getElementById("comment");
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    const y = element.getBoundingClientRect().top + window.pageYOffset - 56;
+    window.scrollTo({ top: y, behavior: "smooth" });
   };
 
-  const handleSendComment = () => {
+  const handleSendComment = async () => {
     if (comment.trim() === "") {
       setError(["Vui lòng nhập bình luận"]);
       const el = document.querySelector(
@@ -263,11 +268,73 @@ function Blog() {
     }
     if (isSendingComment) return;
     setIsSendingComment(true);
-    setTimeout(() => {
-      setIsSendingComment(false);
+    const res = await blogService.sendComment(comment.trim(), blog.Code, "");
+    if (res && res.StatusCode === 200) {
+      setListComment([res.Data, ...listComment]);
       setComment("");
-      setOpenSubmitComment(false);
-    }, 1000);
+    } else {
+      setError([res.Message]);
+    }
+    setIsSendingComment(false);
+    setOpenSubmitComment(false);
+  };
+
+  const handleSendReplyComment = (res, parentCode) => {
+    let listCommentTmp = [...listComment];
+    const index = listCommentTmp.findIndex((item) => item.Code === parentCode);
+    if (index !== -1) {
+      listCommentTmp[index].ChildBlogComments = [
+        res.Data,
+        ...listCommentTmp[index].ChildBlogComments,
+      ];
+    }
+    setListComment(listCommentTmp);
+  };
+
+  const handleEditComment = async (value, code) => {
+    let listCommentTmp = [...listComment];
+    const index = listCommentTmp.findIndex((item) => item.Code === code);
+    if (index !== -1) {
+      listCommentTmp[index].Content = value;
+    }
+    setListComment(listCommentTmp);
+  };
+
+  const handleEditReplyComment = (value, code, parentCode) => {
+    let listCommentTmp = [...listComment];
+    const index = listCommentTmp.findIndex((item) => item.Code === parentCode);
+    if (index !== -1) {
+      const indexChild = listCommentTmp[index].ChildBlogComments.findIndex(
+        (item) => item.Code === code
+      );
+      if (indexChild !== -1) {
+        listCommentTmp[index].ChildBlogComments[indexChild].Content = value;
+      }
+    }
+    setListComment(listCommentTmp);
+  };
+
+  const handleDeleteComment = (code) => {
+    let listCommentTmp = [...listComment];
+    const index = listCommentTmp.findIndex((item) => item.Code === code);
+    if (index !== -1) {
+      listCommentTmp.splice(index, 1);
+    }
+    setListComment(listCommentTmp);
+  };
+
+  const handleDeleteCommentReply = (code, parentCode) => {
+    let listCommentTmp = [...listComment];
+    const index = listCommentTmp.findIndex((item) => item.Code === parentCode);
+    if (index !== -1) {
+      const indexChild = listCommentTmp[index].ChildBlogComments.findIndex(
+        (item) => item.Code === code
+      );
+      if (indexChild !== -1) {
+        listCommentTmp[index].ChildBlogComments.splice(indexChild, 1);
+      }
+    }
+    setListComment(listCommentTmp);
   };
 
   const handleCancelComment = () => {
@@ -398,7 +465,7 @@ function Blog() {
                   />
                 </Tooltip>
               </div>
-              {userAuthor?.Code === user?.Code && (
+              {user?.Code && userAuthor?.Code === user?.Code && (
                 <div
                   className="blog__container__reaction__icon"
                   onClick={handleEdit}
@@ -411,7 +478,7 @@ function Blog() {
                   </Tooltip>
                 </div>
               )}
-              {userAuthor?.Code === user?.Code && (
+              {user?.Code && userAuthor?.Code === user?.Code && (
                 <div
                   className="blog__container__reaction__icon"
                   onClick={handleDelete}
@@ -424,7 +491,7 @@ function Blog() {
                   </Tooltip>
                 </div>
               )}
-              {userAuthor?.Code !== user?.Code && (
+              {user?.Code && userAuthor?.Code !== user?.Code && (
                 <div className="blog__container__reaction__icon">
                   <Tooltip title="Lưu bài viết" placement="top">
                     <FontAwesomeIcon
@@ -437,7 +504,7 @@ function Blog() {
                   </Tooltip>
                 </div>
               )}
-              {userAuthor.Code !== user.Code && (
+              {user.Code && userAuthor.Code !== user.Code && (
                 <div className="blog__container__reaction__icon">
                   <Popover
                     placement="rightTop"
@@ -476,18 +543,18 @@ function Blog() {
               loading={loading}
             />
           </div>
-          <div className="divider-10"></div>
-          <div className="blog__container__main__comment" id="comment">
+          <div className="divider-10" id="comment"></div>
+          <div className="blog__container__main__comment">
             <div className="blog__container__main__comment__title">
               <span>Bình luận ({listComment.length})</span>
             </div>
-            {isDone && (
+            {isDone && user.Code && (
               <>
                 <div className="blog__container__main__comment__you">
                   <div>
                     <img
                       className="blog__container__main__comment__you__avatar"
-                      src="https://res.cloudinary.com/practicaldev/image/fetch/s--PINMBAvy--/c_fill,f_auto,fl_progressive,h_320,q_auto,w_320/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/863543/44bae2e1-fd14-460d-97ae-c1f4adee6980.png"
+                      src={user?.AvatarPath ? user?.AvatarPath : userAvatar}
                       alt=""
                     />
                   </div>
@@ -534,7 +601,15 @@ function Blog() {
               </>
             )}
             <div className="blog__container__main__comment__otherComment">
-              <ListComment listComment={listComment} />
+              <ListComment
+                listComment={listComment}
+                handleSendReplyComment={handleSendReplyComment}
+                codeBlog={blog?.Code}
+                handleEditComment={handleEditComment}
+                handleEditReplyComment={handleEditReplyComment}
+                handleDeleteComment={handleDeleteComment}
+                handleDeleteCommentReply={handleDeleteCommentReply}
+              />
             </div>
           </div>
         </div>
