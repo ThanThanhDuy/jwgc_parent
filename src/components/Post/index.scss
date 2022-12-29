@@ -19,8 +19,8 @@
       align-items: center;
       margin-bottom: 15px;
       &_img {
-        width: 32px;
-        height: 32px;
+        max-width: 32px;
+        max-height: 32px;
         border-radius: 50%;
         margin-right: 5px;
         border: 1px solid $grey-900-03;

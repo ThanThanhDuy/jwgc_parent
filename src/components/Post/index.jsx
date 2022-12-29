@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./index.scss";
 import moment from "moment";
@@ -20,6 +20,19 @@ function Post({ post }) {
   );
   const location = useLocation();
   const setCurrentPageProfile = useSetRecoilState(currentPageProfileState);
+  const [countComment, setCountComment] = useState(0);
+
+  useEffect(() => {
+    if (post?.BlogComments) {
+      let count = 0;
+      for (let i = 0; i < post.BlogComments.length; i++) {
+        count += 1;
+        count += post.BlogComments[i].ChildBlogComments.length;
+      }
+      setCountComment(count);
+    }
+    // eslint-disable-next-line
+  }, []);
 
   const handleClickPost = () => {
     if (location?.pathname.includes("home")) {
@@ -93,11 +106,7 @@ function Post({ post }) {
               lượt tương tác
             </span>
             <span className="post_container_content_more_comment">
-              <CommentIcon />{" "}
-              {post?.BlogComments
-                ? post?.BlogComments.length
-                : post?.TotalBlogComment}{" "}
-              lượt bình luận
+              <CommentIcon /> {countComment} lượt bình luận
             </span>
           </div>
         </div>

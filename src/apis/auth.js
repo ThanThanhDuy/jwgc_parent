@@ -1,7 +1,7 @@
 import axiosClient from "./index.js";
 class AuthApi {
   async login(params) {
-    const url = `users/login`;
+    const url = `users/login/user`;
     return axiosClient.post(url, params);
   }
 

@@ -53,6 +53,25 @@ class BlogApi {
       },
     });
   }
+
+  async sendComment(params) {
+    const url = `${this.PREFIX}/comment`;
+    return axiosClient.post(url, params);
+  }
+
+  async updateComment(params) {
+    const url = `${this.PREFIX}/comment`;
+    return axiosClient.put(url, params);
+  }
+
+  async deleteComment(code) {
+    const url = `${this.PREFIX}/comment`;
+    return axiosClient.delete(url, {
+      data: {
+        Code: code,
+      },
+    });
+  }
 }
 
 const blogApi = new BlogApi();

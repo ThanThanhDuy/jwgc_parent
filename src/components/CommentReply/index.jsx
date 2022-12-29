@@ -5,59 +5,26 @@ import moment from "moment";
 import Tooltip from "@mui/material/Tooltip";
 import { ReactComponent as More } from "../../assets/icons/more.svg";
 import { Popover } from "antd";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faThumbsUp as faThumbsUpRegular,
-  faThumbsDown as faThumbsDownRegular,
-  faComment as faCommentRegular,
-} from "@fortawesome/free-regular-svg-icons";
-import {
-  faThumbsUp as faThumbsUpSolid,
-  faThumbsDown as faThumbsDownSolid,
-} from "@fortawesome/free-solid-svg-icons";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
-import { REACTION_BLOG } from "../../constants/reactionBlog";
+import blogService from "../../services/blog";
+import { ExclamationCircleFilled } from "@ant-design/icons";
+import { Modal } from "antd";
+const { confirm } = Modal;
 
-function CommentReply({ item, index }) {
-  const [status, setStatus] = useState(item?.isLike);
+function CommentReply({
+  item,
+  index,
+  name,
+  isUser,
+  handleEditReplyComment,
+  parentCode,
+  handleDeleteCommentReply,
+}) {
   const [commentValue, setCommentValue] = useState("");
   const [isSendingComment, setIsSendingComment] = useState(false);
   const [isOpenComment, setIsOpenComment] = useState(false);
   const [error, setError] = useState([]);
-
-  const handleClickReaction = (value) => {
-    if (
-      value === REACTION_BLOG["like"] &&
-      status === REACTION_BLOG["noReaction"]
-    ) {
-      setStatus(REACTION_BLOG["like"]);
-    } else if (
-      value === REACTION_BLOG["like"] &&
-      status === REACTION_BLOG["dislike"]
-    ) {
-      setStatus(REACTION_BLOG["like"]);
-    } else if (
-      value === REACTION_BLOG["like"] &&
-      status === REACTION_BLOG["like"]
-    ) {
-      setStatus(REACTION_BLOG["noReaction"]);
-    } else if (
-      value === REACTION_BLOG["dislike"] &&
-      status === REACTION_BLOG["noReaction"]
-    ) {
-      setStatus(REACTION_BLOG["dislike"]);
-    } else if (
-      value === REACTION_BLOG["dislike"] &&
-      status === REACTION_BLOG["like"]
-    ) {
-      setStatus(REACTION_BLOG["dislike"]);
-    } else if (
-      value === REACTION_BLOG["dislike"] &&
-      status === REACTION_BLOG["dislike"]
-    ) {
-      setStatus(REACTION_BLOG["noReaction"]);
-    }
-  };
+  const [isEdit, setIsEdit] = useState(false);
 
   const handleSendComment = () => {
     if (commentValue.trim() === "") {
@@ -77,7 +44,55 @@ function CommentReply({ item, index }) {
     }, 1000);
   };
 
+  const handleSendCommentUpdate = async () => {
+    if (commentValue.trim() === "") {
+      setError(["Vui lòng nhập bình luận"]);
+      const el = document.querySelectorAll(
+        ".comment__blog__container__main__comment__you__input__text"
+      );
+      console.log(el);
+      el[index * 2].style.paddingTop = 74 + 8 + "px";
+      return;
+    }
+    if (isSendingComment) return;
+    setIsSendingComment(true);
+    const res = await blogService.updateComment(item.Code, commentValue.trim());
+    if (res && res.StatusCode === 200) {
+      handleEditReplyComment(commentValue.trim(), item.Code, parentCode);
+      setCommentValue("");
+    } else {
+      setError([res.Message]);
+    }
+    setIsSendingComment(false);
+    setIsOpenComment(false);
+    setIsEdit(false);
+  };
+
+  const handleDeleteComment = async () => {
+    confirm({
+      title: "Bạn có chắc chắn muốn xóa bình luận này không?",
+      icon: <ExclamationCircleFilled />,
+      content: "Bình luận sẽ bị xóa vĩnh viễn",
+      async onOk() {
+        const res = await blogService.deleteComment(item.Code);
+        if (res && res.StatusCode === 200) {
+          handleDeleteCommentReply(item.Code, parentCode);
+        } else {
+          setError([res.Message]);
+        }
+      },
+      onCancel() {},
+    });
+  };
+
+  const handleEditCommentCo = () => {
+    handleOpenComment();
+    setIsEdit(true);
+    setCommentValue(item.Content);
+  };
+
   const handleCancelComment = () => {
+    setIsEdit(false);
     setCommentValue("");
     setError([]);
     const el = document.querySelectorAll(
@@ -118,34 +133,37 @@ function CommentReply({ item, index }) {
       <div className="commentReply__container">
         <div className="commentReply__container__avatar">
           <Link to="/">
-            <img src={item?.user.avatar} alt="" />
+            <img src={item?.User.AvatarPath} alt="" />
           </Link>
         </div>
         <div className="commentReply__container__content">
-          <div className="commentReply__container__content__box">
-            <div className="commentReply__container__content__header">
-              <div className="commentReply__container__content__header__user">
-                <Link
-                  className="commentReply__container__content__header__user__name"
-                  to="/"
-                >
-                  {item?.user.name}
-                </Link>
-                <div className="commentReply__container__content__header__user__time">
-                  <span className="commentReply__container__content__header__user__time__icon">
-                    •
-                  </span>
-                  <Tooltip
-                    title={`Bình luận ngày ${moment(item?.timePost).format(
-                      "DD MMMM, HH:mm"
-                    )}`}
-                    placement="top"
+          {!isEdit && (
+            <div className="commentReply__container__content__box">
+              <div className="commentReply__container__content__header">
+                <div className="commentReply__container__content__header__user">
+                  <Link
+                    className="commentReply__container__content__header__user__name"
+                    to="/"
                   >
-                    <span className="commentReply__container__content__header__user__time__text">
-                      {moment(item?.timePost).format("DD MMMM")}
+                    {item?.User.Name}
+                  </Link>
+                  <div className="commentReply__container__content__header__user__time">
+                    <span className="commentReply__container__content__header__user__time__icon">
+                      •
                     </span>
-                  </Tooltip>
-                  {item?.timeEdit && (
+                    <Tooltip
+                      title={`Bình luận ngày ${moment(
+                        moment(item.Datetime, "DD-MM-YYYY HH:mm:ss")
+                      ).format("DD MMMM, HH:mm")}`}
+                      placement="top"
+                    >
+                      <span className="commentReply__container__content__header__user__time__text">
+                        {moment(
+                          moment(item.Datetime, "DD-MM-YYYY HH:mm:ss")
+                        ).format("DD MMMM")}
+                      </span>
+                    </Tooltip>
+                    {/* {item?.timeEdit && (
                     <>
                       <span className="commentReply__container__content__header__user__time__icon">
                         •
@@ -161,103 +179,51 @@ function CommentReply({ item, index }) {
                         </span>
                       </Tooltip>
                     </>
-                  )}
+                  )} */}
+                  </div>
                 </div>
-              </div>
-              <div className="commentReply__container__content__header__more">
-                <Popover
-                  placement="bottomRight"
-                  content={() => (
-                    <div className="popover_profile">
-                      <div>
-                        <span className="commentReply__container__content__header__more__item">
-                          Báo cáo bình luận
-                        </span>
+                <div className="commentReply__container__content__header__more">
+                  <Popover
+                    placement="bottomRight"
+                    content={() => (
+                      <div className="popover_profile">
+                        <div>
+                          {item.User.Code === isUser ? (
+                            <>
+                              <span
+                                className="comment__container__content__header__more__item"
+                                onClick={handleEditCommentCo}
+                              >
+                                Chỉnh sửa bình luận
+                              </span>
+                              <span
+                                className="comment__container__content__header__more__item"
+                                onClick={handleDeleteComment}
+                              >
+                                Xóa bình luận
+                              </span>
+                            </>
+                          ) : (
+                            <span className="comment__container__content__header__more__item">
+                              Báo cáo bình luận
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  trigger="click"
-                >
-                  <More className="commentReply__container__content__header__more__icon" />
-                </Popover>
+                    )}
+                    trigger="click"
+                  >
+                    <More className="commentReply__container__content__header__more__icon" />
+                  </Popover>
+                </div>
               </div>
+              <span>
+                {/* <Link className="commentReply__container__link">@{name}</Link>{" "} */}
+                {item?.Content}
+              </span>
             </div>
-            <span>
-              <Link className="commentReply__container__link">
-                @{item.replyTo.name}
-              </Link>{" "}
-              {item?.comment}
-            </span>
-          </div>
-          <div className="commentReply__container__content__control">
-            <div className="commentReply__container__content__control__like">
-              <Tooltip title="Thích" placement="bottom">
-                <div
-                  className={`commentReply__container__content__control__like__box ${
-                    status === REACTION_BLOG["like"]
-                      ? "commentReply__container__content__control__like__box__active"
-                      : ""
-                  }`}
-                  onClick={() => handleClickReaction(REACTION_BLOG["like"])}
-                >
-                  <FontAwesomeIcon
-                    icon={
-                      status === REACTION_BLOG["like"]
-                        ? faThumbsUpSolid
-                        : faThumbsUpRegular
-                    }
-                    className={`icon__like ${
-                      status === REACTION_BLOG["like"]
-                        ? "icon__like__active"
-                        : ""
-                    }`}
-                  />
-                  <span
-                    className={`text__like ${
-                      status === REACTION_BLOG["like"]
-                        ? "text__like__active"
-                        : ""
-                    }`}
-                  >
-                    {item?.like} lượt thích
-                  </span>
-                </div>
-              </Tooltip>
-            </div>
-            <div className="commentReply__container__content__control__dislike">
-              <Tooltip title="Không thích" placement="top">
-                <div
-                  className={`commentReply__container__content__control__dislike__box ${
-                    status === REACTION_BLOG["dislike"]
-                      ? "commentReply__container__content__control__dislike__box__active"
-                      : ""
-                  }`}
-                  onClick={() => handleClickReaction(REACTION_BLOG["dislike"])}
-                >
-                  <FontAwesomeIcon
-                    icon={
-                      status === REACTION_BLOG["dislike"]
-                        ? faThumbsDownSolid
-                        : faThumbsDownRegular
-                    }
-                    className={`icon__dislike ${
-                      status === REACTION_BLOG["dislike"]
-                        ? "icon__dislike__active"
-                        : ""
-                    }`}
-                  />
-                  <span
-                    className={`text__dislike ${
-                      status === REACTION_BLOG["dislike"]
-                        ? "text__dislike__active"
-                        : ""
-                    }`}
-                  >
-                    {item?.dislike} lượt không thích
-                  </span>
-                </div>
-              </Tooltip>
-            </div>
+          )}
+          {/* <div className="commentReply__container__content__control">
             <div>
               <Tooltip title="Bình luận" placement="top">
                 <div
@@ -268,54 +234,65 @@ function CommentReply({ item, index }) {
                     icon={faCommentRegular}
                     className={`icon__comment`}
                   />
-                  <span className={`text__comment`}>Bình luận</span>
+                  <span className={`text__comment`}>Trả lời</span>
                 </div>
               </Tooltip>
             </div>
-          </div>
+          </div> */}
           {/* {isOpenComment && ( */}
-          <div
-            style={{ display: isOpenComment ? "block" : "none" }}
-            className="commentReply__blog__container__main__comment__you__input"
-          >
-            {/* {error.length > 0 && ( */}
+          {isUser && (
             <div
-              style={{ display: error.length > 0 ? "block" : "none" }}
-              className="commentReply__blog__container__main__comment__you__input__error"
+              style={{
+                display: isOpenComment ? "block" : "none",
+                marginTop: isEdit ? "0" : "10px",
+              }}
+              className="commentReply__blog__container__main__comment__you__input"
             >
-              <div className="commentReply__blog__container__main__comment__you__input__error__title">
-                <span>Rất tiếc, đã xảy ra lỗi:</span>
+              {/* {error.length > 0 && ( */}
+              <div
+                style={{ display: error.length > 0 ? "block" : "none" }}
+                className="commentReply__blog__container__main__comment__you__input__error"
+              >
+                <div className="commentReply__blog__container__main__comment__you__input__error__title">
+                  <span>Rất tiếc, đã xảy ra lỗi:</span>
+                </div>
+                <div>
+                  <ul>
+                    {error?.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <div>
-                <ul>
-                  {error?.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
+              {/* )} */}
+              <TextareaAutosize
+                placeholder="Viết bình luận của bạn..."
+                className="commentReply__blog__container__main__comment__you__input__text"
+                value={commentValue}
+                onChange={(e) => handleChangeComment(e.target.value)}
+              />
+              <div className="commentReply__blog__container__main__comment__you__input__control">
+                <div
+                  className="commentReply__blog__container__main__comment__you__input__control__btnSend"
+                  onClick={isEdit ? handleSendCommentUpdate : handleSendComment}
+                >
+                  {isEdit
+                    ? isSendingComment
+                      ? "Đang gửi..."
+                      : "Chỉnh sửa"
+                    : isSendingComment
+                    ? "Đang gửi..."
+                    : "Bình luận"}
+                </div>
+                <div
+                  className="commentReply__blog__container__main__comment__you__input__control__btnCancel"
+                  onClick={handleCancelComment}
+                >
+                  Hủy
+                </div>
               </div>
             </div>
-            {/* )} */}
-            <TextareaAutosize
-              placeholder="Viết bình luận của bạn..."
-              className="commentReply__blog__container__main__comment__you__input__text"
-              value={commentValue}
-              onChange={(e) => handleChangeComment(e.target.value)}
-            />
-            <div className="commentReply__blog__container__main__comment__you__input__control">
-              <div
-                className="commentReply__blog__container__main__comment__you__input__control__btnSend"
-                onClick={handleSendComment}
-              >
-                {isSendingComment ? "Đang gửi..." : "Bình luận"}
-              </div>
-              <div
-                className="commentReply__blog__container__main__comment__you__input__control__btnCancel"
-                onClick={handleCancelComment}
-              >
-                Hủy
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
