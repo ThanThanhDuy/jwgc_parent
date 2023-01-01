@@ -9,6 +9,11 @@ class AuthApi {
     const url = `users`;
     return axiosClient.post(url, params);
   }
+
+  async sendLinkToResetPassword(email, username) {
+    const url = `users/email/${email}/password-reset/${username}`;
+    return axiosClient.post(url);
+  }
 }
 
 const authApi = new AuthApi();

@@ -29,6 +29,7 @@ import {
   currentPageProfileState,
   scrollPositionProfileState,
 } from "../../stores/profile";
+import { isOpenModalRequireAuthState } from "../../stores/auth";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
@@ -46,6 +47,9 @@ function Header() {
     scrollPositionProfileState
   );
   const setCurrentPageProfile = useSetRecoilState(currentPageProfileState);
+  const setIsOpenModalRequireAuth = useSetRecoilState(
+    isOpenModalRequireAuthState
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,6 +69,7 @@ function Header() {
       };
       handleGetProfile();
     }
+    setIsOpenModalRequireAuth(false);
     // eslint-disable-next-line
   }, [location?.pathname]);
 

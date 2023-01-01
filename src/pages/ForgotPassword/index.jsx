@@ -1,43 +1,30 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Formik } from "formik";
-import { Button, Form } from "reactstrap";
+import { Form } from "reactstrap";
 import InputField from "../../components/InputField/index";
-import { Link, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import "./index.scss";
 import authService from "../../services/auth";
-import localService from "../../services/local";
 import Loading from "../../components/Loading";
 import Alert from "@mui/material/Alert";
-import { useRecoilState } from "recoil";
-// import { useSetRecoilState } from "recoil";
-// import { isAuthState } from "../../stores/auth";
-import { usernameState } from "../../stores/auth";
 
-function Login() {
-  const navigate = useNavigate();
+function ForgotPassword() {
+  // const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useRecoilState(usernameState);
+  const [isSuccess, setIsSuccess] = useState(false);
   // const setIsAuth = useSetRecoilState(isAuthState);
 
-  const handleLogin = async (username, password) => {
+  const handleSendMail = async (username, email) => {
     setLoading(true);
-    const res = await authService.login(username, password);
+    const res = await authService.sendLinkToResetPassword(email, username);
     if (res && res.StatusCode === 200) {
-      localService.setUser(JSON.stringify(res.Data?.User));
-      localService.setAccessToken(res.Data?.AccessToken);
+      console.log(res);
       setTimeout(() => {
         setErrors([]);
         setLoading(false);
-        // setIsAuth(true);
-        setUsername("");
-        navigate("/home");
-      }, 1000);
-    } else if (res.StatusCode === 403) {
-      setTimeout(() => {
-        setLoading(false);
-        setErrors(["Tài khoản chưa được kích hoạt, vui lòng kiểm tra email"]);
+        setIsSuccess(true);
       }, 1000);
     } else {
       setTimeout(() => {
@@ -49,22 +36,23 @@ function Login() {
 
   return (
     <div>
-      {username && (
-        <Alert onClose={() => {}}>
-          Bạn đã đăng ký tài khoản thành công. Vui lòng kiểm tra email để kích
-          hoạt tài khoản
+      {isSuccess && (
+        <Alert severity="success" onClose={() => {}}>
+          Một email đã được gửi đến email của bạn. Vui lòng kiểm tra email để
+          lấy lại mật khẩu.
         </Alert>
       )}
       <Helmet>
         <meta charSet="utf-8" />
-        <title>Đăng nhập</title>
+        <title>Quên mật khẩu</title>
       </Helmet>
       <div className="pageLogin">
         <div className="pageLogin--title">
-          <p className="pageLogin--title__hightLabel">Baby Community</p>
+          <p className="pageLogin--title__hightLabel">Quên mật khẩu</p>
           <span className="pageLogin--title__lowLabel">
-            Baby Community giúp các bố mẹ kết nối <br /> và chia sẻ những khó
-            khăn với nhau.
+            Bạn đã quên mật khẩu ư? Đừng lo, hãy nhập email kèm
+            <br /> tài khoản của bạn vào ô bên cạnh. Chúng tôi sẽ gửi
+            <br /> một email cho bạn để đặt lại mật khẩu.
           </span>
         </div>
         <div className="pageLogin--container">
@@ -89,8 +77,8 @@ function Login() {
             <div className="pageLogin--container__form__input">
               <Formik
                 initialValues={{
-                  username: username ? username : "",
-                  password: "",
+                  username: "",
+                  email: "",
                 }}
                 onSubmit={(values, { setErrors }) => {
                   let check = true;
@@ -99,13 +87,13 @@ function Login() {
                     errors.username = "Tài khoản không được để trống";
                     check = false;
                   }
-                  if (!values.password) {
-                    errors.password = "Mật khẩu không được để trống";
+                  if (!values.email) {
+                    errors.email = "Email không được để trống";
                     check = false;
                   }
                   setErrors(errors);
                   if (check) {
-                    handleLogin(values.username, values.password);
+                    handleSendMail(values.username, values.email);
                   }
                 }}
               >
@@ -123,15 +111,15 @@ function Login() {
                       maxLength={20}
                     />
                     <InputField
-                      placeholder="Mật khẩu"
-                      id="password"
-                      type="password"
-                      value={values.password}
+                      placeholder="Email"
+                      id="email"
+                      type="text"
+                      value={values.email}
                       handleChange={handleChange}
                       validate={{}}
                       height={50}
-                      errors={errors.password}
-                      maxLength={20}
+                      errors={errors.email}
+                      maxLength={50}
                     />
                     <button
                       className="pageLogin--container__form__btnSubmit"
@@ -139,30 +127,13 @@ function Login() {
                       onClick={handleSubmit}
                     >
                       <div className="pageLogin--container__form__btnSubmit__box">
-                        <span>{loading ? "Đang đăng nhập" : "Đăng nhập"}</span>
+                        <span>{loading ? "Đang gửi" : "Gửi"}</span>
                         {loading && <Loading />}
                       </div>
                     </button>
                   </Form>
                 )}
               </Formik>
-            </div>
-            <div className="pageLogin--container__forgotPassword">
-              {/* eslint-disable-next-line */}
-              <Link to="/forgot-password">Quên mật khẩu?</Link>
-            </div>
-            <div className="divider-30" />
-            <div className="pageLogin--container__btn">
-              <Button
-                className="pageLogin--container__btn__btnRegiter"
-                type="submit"
-                color="#ebecfe"
-                onClick={() => {
-                  navigate("/register");
-                }}
-              >
-                Tạo tài khoản mới
-              </Button>
             </div>
           </div>
         </div>
@@ -171,4 +142,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ForgotPassword;

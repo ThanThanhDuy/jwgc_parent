@@ -1,10 +1,11 @@
 import axios from "axios";
 import Qs from "qs";
+import { BASE_URL } from "../constants/commons";
 import localService from "../services/local";
 // import { redirect } from "react-router-dom";
 
 const axiosClient = axios.create({
-  baseURL: "https://www.jwgc-api.click/api/v1/",
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },

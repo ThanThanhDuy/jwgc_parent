@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Router from "./router/index";
 import { UilAngleUp } from "@iconscout/react-unicons";
 import { useEffect } from "react";
+import RequireAuth from "./components/RequireAuth";
 
 function App() {
   useEffect(() => {
@@ -30,6 +31,7 @@ function App() {
 
   return (
     <div className="App">
+      <RequireAuth />
       <Router />
       <div className="scrollTop" id="buttonScrollTop" onClick={handleClick}>
         <UilAngleUp size={32} color="#fff" />

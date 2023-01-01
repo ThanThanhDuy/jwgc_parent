@@ -139,6 +139,20 @@ class BlogService {
     }
     return response;
   }
+
+  async getComment({ BlogCode, ParentCode, Page, PageSize }) {
+    const params = {};
+    BlogCode && (params.BlogCode = BlogCode);
+    ParentCode && (params.ParentCode = ParentCode);
+    Page && (params["Paging.Page"] = Page);
+    PageSize && (params["Paging.PageSize"] = PageSize);
+    try {
+      var response = await blogApi.getComment(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const blogService = new BlogService();
 export default blogService;

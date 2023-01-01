@@ -14,6 +14,10 @@ import Blog from "../pages/Blog";
 import Profile from "../pages/Profile";
 import PendingPage from "../pages/PendingPage";
 import UpdateBlog from "../pages/UpdateBlog";
+import ResetPassword from "../pages/ResetPassword";
+import ForgotPassword from "../pages/ForgotPassword";
+import SuccessPageResetPassword from "../components/SuccessPageResetPassword";
+import UpdateProfile from "../pages/UpdateProfile";
 
 function Router() {
   return (
@@ -22,16 +26,25 @@ function Router() {
       <Route index element={<Navigate to="home" replace />} />
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
-      <Route path="reset-password/:token" element={<Register />} />
+      <Route path="reset-password/:token" element={<ResetPassword />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route
+        path="success-reset-password"
+        element={<SuccessPageResetPassword />}
+      />
       {/* main layout */}
       <Route path="/" element={<Layout />}>
         <Route path="home" element={<Home />} />
-        <Route path="blog/:name/:titleBlog/:codeBlog" element={<Blog />} />
+        <Route
+          path="blog/:name/:titleBlog/:codeBlog/:username"
+          element={<Blog />}
+        />
         {/* private routes */}
         <Route element={<PrivateRoute />}>
           <Route path="category/:name" element={<Category />} />
           <Route path="create-post" element={<CreateBlog />} />
           <Route path="profile/:username" element={<Profile />} />
+          <Route path="profile/update/:username" element={<UpdateProfile />} />
           <Route
             path="pending/:titleBlog/:codeBlog"
             element={<PendingPage />}

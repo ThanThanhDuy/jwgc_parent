@@ -10,6 +10,7 @@ function ListComment({
   handleEditReplyComment,
   handleDeleteComment,
   handleDeleteCommentReply,
+  handleLoadMoreSubComment,
 }) {
   return (
     <div>
@@ -24,6 +25,7 @@ function ListComment({
           handleEditReplyComment={handleEditReplyComment}
           handleDeleteComment={handleDeleteComment}
           handleDeleteCommentReply={handleDeleteCommentReply}
+          handleLoadMoreSubComment={handleLoadMoreSubComment}
         />
       ))}
     </div>

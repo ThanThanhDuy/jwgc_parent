@@ -3,7 +3,7 @@
 .comment__container {
   display: flex;
   width: 100%;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
   &__avatar {
     img {
       background-color: #525252;
@@ -261,4 +261,18 @@
 }
 .comment__reply {
   padding-left: 28px;
+}
+
+.comment__blog__container__main__comment__loadmore {
+  margin-bottom: 10px;
+  margin-left: 48px;
+  background-color: $primary-color-bg-hover;
+  color: $text-dark;
+
+  padding: 2px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  &:hover {
+    color: $primary-color;
+  }
 }

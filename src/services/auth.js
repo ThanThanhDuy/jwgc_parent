@@ -30,6 +30,15 @@ class AuthService {
     }
     return response;
   }
+
+  async sendLinkToResetPassword(email, username) {
+    try {
+      var response = await authApi.sendLinkToResetPassword(email, username);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const authService = new AuthService();
 export default authService;
