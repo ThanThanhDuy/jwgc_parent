@@ -23,14 +23,7 @@ function Post({ post }) {
   const [countComment, setCountComment] = useState(0);
 
   useEffect(() => {
-    if (post?.BlogComments) {
-      let count = 0;
-      for (let i = 0; i < post.BlogComments.length; i++) {
-        count += 1;
-        count += post.BlogComments[i].ChildBlogComments.length;
-      }
-      setCountComment(count);
-    }
+    setCountComment(post?.BlogComments.TotalChild);
     // eslint-disable-next-line
   }, []);
 
@@ -47,7 +40,7 @@ function Post({ post }) {
           "-"
         )}/${encodeURIComponent(post.Title)?.replaceAll("%20", "-")}/${
           post.Code
-        }`
+        }/${encodeURIComponent(post.User.UserName)?.replaceAll("%20", "-")}`
       );
     } else {
       navigate(

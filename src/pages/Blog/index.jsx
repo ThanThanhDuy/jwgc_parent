@@ -22,7 +22,7 @@ import ListComment from "../../components/ListComment";
 import { Popover } from "antd";
 import Author from "../../components/Author";
 import { Link, useNavigate } from "react-router-dom";
-import { BLOG } from "../../constants/blog";
+import { BLOG, COMMENT } from "../../constants/blog";
 import { useParams } from "react-router-dom";
 import blogService from "../../services/blog";
 import { CATE_ICON } from "../../assets/icons/cateIcon";
@@ -32,103 +32,9 @@ import { REACTION_BLOG } from "../../constants/reactionBlog";
 import { Modal, notification } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import userAvatar from "../../assets/icons/user.png";
-
-// eslint-disable-next-line
-const data = [
-  {
-    id: 1,
-    comment: `Bài viết hay quá ạ.
-    Bài viết hay quá ạ.
-    Bài viết hay quá ạ.
-    Bài viết hay quá ạ.`,
-    timePost: "2021-10-11T14:15:10",
-    timeEdit: "2021-10-12T18:16:10",
-    replyTo: null,
-    like: 10,
-    dislike: 2,
-    isLike: "like",
-    user: {
-      name: "Nguyễn Văn A",
-      avatar: "https://picsum.photos/200",
-    },
-    reply: [
-      {
-        id: 2,
-        comment: "Toi cung thay vay",
-        timePost: "2021-10-11T14:15:10",
-        timeEdit: "2021-10-12T18:16:10",
-        like: 10,
-        dislike: 2,
-        isLike: "like",
-        replyTo: {
-          idComment: 1,
-          name: "Nguyễn Văn A",
-          avatar: "https://picsum.photos/200",
-        },
-        user: {
-          name: "Nguyễn Văn C",
-          avatar: "https://picsum.photos/400",
-        },
-      },
-      {
-        id: 3,
-        comment: "uhm k te",
-        timePost: "2021-10-11T14:15:10",
-        timeEdit: "2021-10-12T18:16:10",
-        like: 10,
-        dislike: 2,
-        isLike: "dislike",
-        replyTo: {
-          idComment: 3,
-          name: "Nguyễn Văn C",
-          avatar: "https://picsum.photos/200",
-        },
-        user: {
-          name: "Nguyễn Văn D",
-          avatar: "https://picsum.photos/100",
-        },
-      },
-    ],
-  },
-  {
-    id: 2,
-    comment: "Bài viết te quá ",
-    timePost: "2021-10-13T19:11:10",
-    timeEdit: "",
-    like: 10,
-    dislike: 2,
-    isLike: "",
-    replyTo: null,
-    user: {
-      name: "Nguyễn Văn B",
-      avatar: "https://picsum.photos/300",
-    },
-    reply: [],
-  },
-];
-
-const dataAuthor = [
-  {
-    Code: "1",
-    Name: "Sữa Aptamil Essensis có tăng cân không?",
-  },
-  {
-    Code: "2",
-    Name: "Pediakid là thuốc gì? Có nên cho bé sử dụng hay không?",
-  },
-  {
-    Code: "3",
-    Name: "4 cách phân biệt bình moyuum thật giả chỉ trong 1 phút",
-  },
-  {
-    Code: "4",
-    Name: "Đối mặt với Khủng hoảng tuổi lên 2 của con, mẹ phải làm sao?",
-  },
-  {
-    Code: "5",
-    Name: "Những sai lầm khi sử dụng men vi sinh cho bé sơ sinh",
-  },
-];
+import { useSetRecoilState } from "recoil";
+import { isOpenModalRequireAuthState } from "../../stores/auth";
+import ButtonOutline from "../../components/ButtonOutline";
 
 function Blog() {
   const [cateBlog, setCateBlog] = useState(0);
@@ -148,6 +54,15 @@ function Blog() {
   const [error, setError] = useState([]);
   const params = useParams();
   const navigate = useNavigate();
+  const setIsOpenModalRequireAuth = useSetRecoilState(
+    isOpenModalRequireAuthState
+  );
+  const [countComment, setCountComment] = useState(0);
+  const [currentPageComment, setCurrentPageComment] = useState(
+    COMMENT.pageDefault
+  );
+  const [totalPageComment, setTotalPageComment] = useState(0);
+  const [dataAuthor, setDataAuthor] = useState([]);
 
   useEffect(() => {
     window.scrollTo({
@@ -175,9 +90,10 @@ function Blog() {
             Label: res.Data?.Items[0]?.ConcernCategory.Name,
             Icon: CATE_ICON[res.Data?.Items[0]?.ConcernCategory.Name],
           });
-          setListComment(res.Data?.Items[0]?.BlogComments);
+          // setListComment(res.Data?.Items[0]?.BlogComments);
           setUserAuthor(res.Data?.Items[0]?.User);
           setStatus(res.Data?.Items[0]?.IsReaction);
+          setCountComment(res.Data?.Items[0].BlogComments.TotalChild);
           setLoading(false);
           setIsDone(true);
         }, 500);
@@ -187,6 +103,42 @@ function Blog() {
       }
     };
     handleGetBlog();
+    const handleGetComment = async () => {
+      const data = {
+        BlogCode: params.codeBlog,
+        Page: COMMENT.pageDefault,
+        PageSize: COMMENT.pageSize,
+      };
+      const res = await blogService.getComment(data);
+      if (res && res.StatusCode === 200) {
+        const listCommentTmp = res.Data?.Items.map((item) => {
+          return {
+            ...item,
+            ChildBlogComments: [],
+            TotalChild: item.ChildBlogComments.TotalChild,
+            TotalNextLevel: item.ChildBlogComments.TotalNextLevel,
+          };
+        });
+        setListComment(listCommentTmp);
+        setCurrentPageComment(1);
+        setTotalPageComment(res.Data?.TotalPagesCount);
+      }
+    };
+    handleGetComment();
+
+    const handleGetMoreBlog = async () => {
+      const data = {
+        Code: params.codeBlog,
+        Username: params.username,
+        Page: 1,
+        PageSize: 5,
+      };
+      const res = await blogService.getBlogByUsername(data);
+      if (res && res.StatusCode === 200) {
+        setDataAuthor(res.Data?.Items);
+      }
+    };
+    handleGetMoreBlog();
     const handleGetProfile = async () => {
       const res = await userService.getProfile();
       if (res && res.StatusCode === 200) {
@@ -244,11 +196,16 @@ function Blog() {
         setTotalDislike(totalDislikeTmp);
       }
     } else {
+      setIsOpenModalRequireAuth(true);
     }
   };
 
   const handleBookMark = () => {
-    setBookmark(!bookmark);
+    if (user.Code) {
+      setBookmark(!bookmark);
+    } else {
+      setIsOpenModalRequireAuth(true);
+    }
   };
 
   const handleComment = () => {
@@ -396,6 +353,56 @@ function Blog() {
     });
   };
 
+  const handleLoadMore = async () => {
+    const data = {
+      BlogCode: params.codeBlog,
+      Page: currentPageComment + 1,
+      PageSize: COMMENT.pageSize,
+    };
+    const res = await blogService.getComment(data);
+    if (res && res.StatusCode === 200) {
+      const listCommentTmp = res.Data?.Items.map((item) => {
+        return {
+          ...item,
+          ChildBlogComments: [],
+          TotalChild: item.ChildBlogComments.TotalChild,
+          TotalNextLevel: item.ChildBlogComments.TotalNextLevel,
+        };
+      });
+      setListComment([...listComment, ...listCommentTmp]);
+      setCurrentPageComment(currentPageComment + 1);
+      setTotalPageComment(res.Data.TotalPagesCount);
+    } else {
+      notification.open({
+        type: "error",
+        message: "Lấy dữ liệu thất bại",
+      });
+    }
+  };
+
+  const handleLoadMoreSubComment = async (parentCode, currentPage) => {
+    const data = {
+      BlogCode: params.codeBlog,
+      ParentCode: parentCode,
+      Page: currentPage,
+      PageSize: COMMENT.pageSize,
+    };
+    const res = await blogService.getComment(data);
+    if (res && res.StatusCode === 200) {
+      let listCommentTmp = [...listComment];
+      const index = listCommentTmp.findIndex(
+        (item) => item.Code === parentCode
+      );
+      if (index !== -1) {
+        listCommentTmp[index].ChildBlogComments = [
+          ...listCommentTmp[index].ChildBlogComments,
+          ...res.Data.Items,
+        ];
+      }
+      setListComment(listCommentTmp);
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -465,7 +472,7 @@ function Blog() {
                   />
                 </Tooltip>
               </div>
-              {user?.Code && userAuthor?.Code === user?.Code && (
+              {userAuthor?.Code === user?.Code && (
                 <div
                   className="blog__container__reaction__icon"
                   onClick={handleEdit}
@@ -478,7 +485,7 @@ function Blog() {
                   </Tooltip>
                 </div>
               )}
-              {user?.Code && userAuthor?.Code === user?.Code && (
+              {userAuthor?.Code === user?.Code && (
                 <div
                   className="blog__container__reaction__icon"
                   onClick={handleDelete}
@@ -491,7 +498,7 @@ function Blog() {
                   </Tooltip>
                 </div>
               )}
-              {user?.Code && userAuthor?.Code !== user?.Code && (
+              {userAuthor?.Code !== user?.Code && (
                 <div className="blog__container__reaction__icon">
                   <Tooltip title="Lưu bài viết" placement="top">
                     <FontAwesomeIcon
@@ -504,7 +511,7 @@ function Blog() {
                   </Tooltip>
                 </div>
               )}
-              {user.Code && userAuthor.Code !== user.Code && (
+              {userAuthor.Code !== user.Code && (
                 <div className="blog__container__reaction__icon">
                   <Popover
                     placement="rightTop"
@@ -546,7 +553,7 @@ function Blog() {
           <div className="divider-10" id="comment"></div>
           <div className="blog__container__main__comment">
             <div className="blog__container__main__comment__title">
-              <span>Bình luận ({listComment.length})</span>
+              <span>Bình luận ({countComment})</span>
             </div>
             {isDone && user.Code && (
               <>
@@ -609,27 +616,40 @@ function Blog() {
                 handleEditReplyComment={handleEditReplyComment}
                 handleDeleteComment={handleDeleteComment}
                 handleDeleteCommentReply={handleDeleteCommentReply}
+                handleLoadMoreSubComment={handleLoadMoreSubComment}
               />
+              {totalPageComment > 1 &&
+                currentPageComment !== totalPageComment && (
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <ButtonOutline
+                      label="Xem thêm bình luận"
+                      isLink={false}
+                      onClick={handleLoadMore}
+                    />
+                  </div>
+                )}
             </div>
           </div>
         </div>
         <div className="blog__container__author">
           <Author user={userAuthor} />
-          <div className="blog__author">
-            <div className="blog__author__header">
-              <p>Bài viết khác của</p>
-              <Link>{userAuthor.Name}</Link>
+          {dataAuthor.length > 0 && (
+            <div className="blog__author">
+              <div className="blog__author__header">
+                <p>Bài viết khác của</p>
+                <Link>{userAuthor.Name}</Link>
+              </div>
+              <div className="rank__container__list">
+                {dataAuthor.map((item, index) => {
+                  return (
+                    <Link className="rank__container__list__item" key={index}>
+                      <span>{item.Title}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-            <div className="rank__container__list">
-              {dataAuthor.map((item, index) => {
-                return (
-                  <Link className="rank__container__list__item" key={index}>
-                    <span>{item.Name}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </>

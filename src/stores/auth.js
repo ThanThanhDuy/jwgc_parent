@@ -9,3 +9,8 @@ export const usernameState = atom({
   key: "usernameState",
   default: "",
 });
+
+export const isOpenModalRequireAuthState = atom({
+  key: "isOpenModalRequireAuthState",
+  default: false,
+});

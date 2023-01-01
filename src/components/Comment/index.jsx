@@ -13,6 +13,8 @@ import userService from "../../services/user";
 import blogService from "../../services/blog";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { Modal } from "antd";
+import { useSetRecoilState } from "recoil";
+import { isOpenModalRequireAuthState } from "../../stores/auth";
 const { confirm } = Modal;
 
 function Comment({
@@ -24,6 +26,7 @@ function Comment({
   handleEditReplyComment,
   handleDeleteComment,
   handleDeleteCommentReply,
+  handleLoadMoreSubComment,
 }) {
   const [commentValue, setCommentValue] = useState("");
   const [isSendingComment, setIsSendingComment] = useState(false);
@@ -31,12 +34,17 @@ function Comment({
   const [error, setError] = useState([]);
   const [isUser, setIsUser] = useState("");
   const [isEdit, setIsEdit] = useState(false);
+  const [currentPageComment, setCurrentPageComment] = useState(0);
+  const setIsOpenModalRequireAuth = useSetRecoilState(
+    isOpenModalRequireAuthState
+  );
 
   useEffect(() => {
     const handleGetProfile = async () => {
       const res = await userService.getProfile();
       if (res && res.StatusCode === 200) {
-        setIsUser(res.Data.Code);
+        setIsUser(res.Data.Code, currentPageComment + 1);
+        setCurrentPageComment(currentPageComment + 1);
       }
     };
     handleGetProfile();
@@ -147,13 +155,21 @@ function Comment({
   };
 
   const handleOpenComment = () => {
-    setIsOpenComment(true);
-    const el = document.querySelectorAll(
-      ".comment__blog__container__main__comment__you__input__text"
-    );
-    setTimeout(() => {
-      el[index * 2].focus();
-    }, 0);
+    if (isUser) {
+      setIsOpenComment(true);
+      const el = document.querySelectorAll(
+        ".comment__blog__container__main__comment__you__input__text"
+      );
+      setTimeout(() => {
+        el[index * 2].focus();
+      }, 0);
+    } else {
+      setIsOpenModalRequireAuth(true);
+    }
+  };
+
+  const handleLoadMoreSub = () => {
+    handleLoadMoreSubComment(comment.Code);
   };
 
   return (
@@ -161,7 +177,7 @@ function Comment({
       <div className="comment__container">
         <div className="comment__container__avatar">
           <Link to="/">
-            <img src={comment.User.AvatarPath} alt="" />
+            <img src={comment.User?.AvatarPath} alt="" />
           </Link>
         </div>
         <div className="comment__container__content">
@@ -173,7 +189,7 @@ function Comment({
                     className="comment__container__content__header__user__name"
                     to="/"
                   >
-                    {comment.User.Name}
+                    {comment.User?.Name}
                   </Link>
                   <div className="comment__container__content__header__user__time">
                     <span className="comment__container__content__header__user__time__icon">
@@ -305,8 +321,8 @@ function Comment({
           )}
         </div>
       </div>
-      {comment?.ChildBlogComments.length > 0 &&
-        comment.ChildBlogComments.map((item, index) => (
+      {comment?.ChildBlogComments?.length > 0 &&
+        comment.ChildBlogComments?.map((item, index) => (
           <CommentReply
             item={item}
             key={index}
@@ -319,6 +335,15 @@ function Comment({
             handleDeleteCommentReply={handleDeleteCommentReply}
           />
         ))}
+      {comment.TotalChild > 0 &&
+        comment?.ChildBlogComments?.length < comment.TotalChild && (
+          <div
+            onClick={handleLoadMoreSub}
+            className="comment__blog__container__main__comment__loadmore"
+          >
+            Xem thêm
+          </div>
+        )}
     </div>
   );
 }

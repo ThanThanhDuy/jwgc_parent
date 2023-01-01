@@ -3,6 +3,11 @@ export const BLOG = {
   pageSizeDefault: 5,
 };
 
+export const COMMENT = {
+  pageDefault: 1,
+  pageSizeDefault: 5,
+};
+
 export const STATUS_BLOG = {
   inactice: 0,
   active: 1,

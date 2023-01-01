@@ -21,6 +21,7 @@
     "antd": "^5.0.7",
     "axios": "^1.2.1",
     "bootstrap": "^5.2.3",
+    "dayjs": "^1.11.7",
     "formik": "^2.2.9",
     "interweave": "^13.0.0",
     "localforage": "^1.10.0",

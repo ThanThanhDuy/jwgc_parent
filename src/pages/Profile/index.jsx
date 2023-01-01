@@ -3,7 +3,7 @@ import "./index.scss";
 import userService from "../../services/user";
 import { Col, Row } from "antd";
 import { Helmet } from "react-helmet";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   UilEllipsisH,
   UilUserPlus,
@@ -30,6 +30,7 @@ function Profile() {
   const [currentPage, setCurrentPage] = useRecoilState(currentPageProfileState);
   const scrollPosition = useRecoilValue(scrollPositionProfileState);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (params.username === localService.getUser().UserName) {
@@ -194,7 +195,14 @@ function Profile() {
             <Col span={8}>
               <div className="profile__container__box__header__edit">
                 {user.Code === localService.getUser().Code ? (
-                  <button className="jwgc__btn__primary">Chỉnh sửa</button>
+                  <button
+                    onClick={() => {
+                      navigate(`/profile/update/${user.Code}`);
+                    }}
+                    className="jwgc__btn__primary"
+                  >
+                    Chỉnh sửa
+                  </button>
                 ) : (
                   <button className="jwgc__btn__primary">Theo dõi</button>
                 )}

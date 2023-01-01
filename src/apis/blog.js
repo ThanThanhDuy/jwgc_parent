@@ -72,6 +72,15 @@ class BlogApi {
       },
     });
   }
+
+  async getComment(params) {
+    const url = `${this.PREFIX}/comment`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
 }
 
 const blogApi = new BlogApi();
