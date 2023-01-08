@@ -1,0 +1,18 @@
+@import "../../../themes/colors/index.scss";
+
+.containerModal {
+  margin-top: 16px;
+  &__textarea {
+    margin-top: 16px;
+    &__input {
+      width: 100%;
+      border: 1.5px solid $grey-900-01;
+      border-radius: 8px;
+      padding: 4px 11px;
+      resize: none;
+      &:focus-visible {
+        border: 1px solid #3b5998 !important;
+      }
+    }
+  }
+}

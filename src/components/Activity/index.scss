@@ -1,0 +1,272 @@
+@import "../../themes/colors/index.scss";
+
+.activity__container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 0 0.5px $grey-900-01;
+  height: calc(100vh - 56px - 40px);
+  width: calc(
+    100vw - calc(100vw - calc(900px + 58.91px + 346px + 30px)) - 32px - 16px -
+      350px
+  );
+  padding: 16px;
+  &__main {
+    &__parent {
+      &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        &__title {
+          font-size: 28px;
+          color: $primary-color;
+          font-weight: 600;
+        }
+        &__add {
+          display: flex;
+          gap: 8px;
+        }
+      }
+      &__parentnanny {
+        display: flex;
+        gap: 50px;
+        margin-top: 16px;
+        &__title {
+          &__parent {
+            font-size: 16px;
+            font-weight: 500;
+            padding: 4px 10px;
+            color: $green-color;
+            background-color: $green-color-bg;
+            border-radius: 8px;
+          }
+          &__nanny {
+            font-size: 16px;
+            font-weight: 500;
+            padding: 4px 10px;
+            color: $yellow-color;
+            background-color: $yellow-color-bg;
+            border-radius: 8px;
+          }
+        }
+        &__list {
+          margin-top: 8px;
+          &__item {
+            font-size: 16px;
+            color: $text-dark;
+          }
+        }
+      }
+      &__acti {
+        margin-top: 16px;
+        &__grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 28px;
+          &__item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 16px;
+            border-radius: 8px;
+            width: calc(
+              calc(
+                  100vw - calc(100vw - calc(900px + 58.91px + 346px + 30px)) -
+                    350px - 250px
+                ) / 4
+            );
+            height: calc(
+              calc(
+                  100vw - calc(100vw - calc(900px + 58.91px + 346px + 30px)) -
+                    350px - 250px
+                ) / 4
+            );
+            cursor: pointer;
+            position: relative;
+            &:hover {
+              &::before {
+                opacity: 0.3;
+              }
+            }
+            &::before {
+              content: "";
+              background: linear-gradient(to top, #000, currentColor);
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              opacity: 0.2;
+              border-radius: 8px;
+            }
+            &__icon {
+              img {
+                min-width: 56px;
+                min-height: 56px;
+                max-width: 56px;
+                max-height: 56px;
+              }
+            }
+            &__title {
+              font-size: 18px;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+.ant-modal-body {
+  height: 550px;
+}
+.box__moadl__link {
+  &__childrend {
+    .ant-input {
+      height: 40px;
+      width: 100%;
+      border: 1.5px solid $grey-900-01;
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: none;
+        border: 1.5px solid $primary-color;
+      }
+    }
+    .ant-btn {
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid $grey-900-01;
+      &:hover {
+        outline: none;
+        box-shadow: none;
+        border: 1.5px solid $primary-color !important;
+      }
+    }
+  }
+  &__list__child {
+    margin-top: 16px;
+    min-height: calc(550px - 46px - 16px - 40px - 16px);
+    overflow-y: auto;
+    position: relative;
+    &__pagi {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    &__item {
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1.5px solid $grey-900-01;
+      padding: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &__avatar {
+        img {
+          border: 1px solid $grey-900-01;
+          height: 44px;
+          width: 44px;
+          border-radius: 50%;
+        }
+      }
+      &__user {
+        width: calc(100% - 44px - 102px);
+        display: flex;
+        justify-content: flex-start;
+        &__box {
+          display: flex;
+          flex-direction: column;
+          margin-left: 8px;
+          &__title {
+            font-size: 16px;
+            font-weight: 500;
+            color: $text-dark;
+          }
+          &__username {
+            margin-top: -4px;
+            font-size: 14px;
+            color: #404040;
+            opacity: 0.5;
+          }
+        }
+      }
+    }
+  }
+}
+.invite {
+  .box__moadl__link {
+    &__childrend {
+      .ant-input {
+        height: 40px;
+        width: 100%;
+        border: 1.5px solid $grey-900-01;
+
+        &:focus-visible {
+          outline: none;
+          box-shadow: none;
+          border: 1.5px solid $primary-color;
+        }
+      }
+      .ant-btn {
+        width: 40px;
+        height: 40px;
+        border: 1.5px solid $grey-900-01;
+        &:hover {
+          outline: none;
+          box-shadow: none;
+          border: 1.5px solid $primary-color !important;
+        }
+      }
+    }
+    &__list__child {
+      margin-top: 0px;
+      min-height: calc(550px - 46px);
+      overflow-y: auto;
+      position: relative;
+      &__pagi {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      &__item {
+        border-radius: 8px;
+        margin-bottom: 16px;
+        border: 1.5px solid $grey-900-01;
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        &__avatar {
+          img {
+            border: 1px solid $grey-900-01;
+            height: 44px;
+            width: 44px;
+            border-radius: 50%;
+          }
+        }
+        &__user {
+          width: calc(100% - 44px - 102px);
+          display: flex;
+          justify-content: flex-start;
+          &__box {
+            display: flex;
+            flex-direction: column;
+            margin-left: 8px;
+            &__title {
+              font-size: 16px;
+              font-weight: 500;
+              color: $text-dark;
+            }
+            &__username {
+              margin-top: -4px;
+              font-size: 14px;
+              color: #404040;
+              opacity: 0.5;
+            }
+          }
+        }
+      }
+    }
+  }
+}

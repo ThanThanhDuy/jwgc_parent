@@ -11,6 +11,7 @@ import {
   currentPageProfileState,
   scrollPositionProfileState,
 } from "../../stores/profile";
+import { STATUS_BLOG_DETAIL } from "../../constants/blog";
 
 function Post({ post }) {
   const navigate = useNavigate();
@@ -59,6 +60,23 @@ function Post({ post }) {
 
   return (
     <div className="post">
+      {(post?.Status === 2 || post?.Status === 3) && (
+        <div
+          className={`post__container__noti ${
+            STATUS_BLOG_DETAIL[post.Status].classBackground
+          }`}
+        >
+          <div
+            className={`post__container__noti__title ${
+              STATUS_BLOG_DETAIL[post.Status].classTitle
+            }`}
+          >
+            <span>
+              {STATUS_BLOG_DETAIL[post.Status].title}
+            </span>
+          </div>
+        </div>
+      )}
       <div className="post_container">
         <div className="post_container_avatar">
           <span onClick={handleProfile}>

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import TabItem from "../TabItem";
 import "./index.scss";
 import dairy from "../../assets/icons/dairy.png";
-import clock from "../../assets/icons/clock.png";
+import children from "../../assets/icons/children.png";
 import about from "../../assets/icons/about.png";
 import contact from "../../assets/icons/contact.png";
 import term from "../../assets/icons/term.png";
@@ -15,13 +15,14 @@ import hashtag from "../../assets/icons/hashtag.png";
 function Sidebar() {
   const data_jwgc = [
     {
-      Icon: dairy,
-      label: "Nhật ký",
+      Icon: children,
+      label: "Chăm sóc trẻ",
       code: "1",
+      link: "/children-care",
     },
     {
-      Icon: clock,
-      label: "Hẹn giờ",
+      Icon: dairy,
+      label: "Nhật ký",
       code: "2",
     },
   ];
@@ -82,7 +83,14 @@ function Sidebar() {
         Đồng hành cùng bé
       </p>
       {data_jwgc.map((item, index) => {
-        return <TabItem key={item.code} Icon={item.Icon} label={item.label} />;
+        return (
+          <TabItem
+            key={item.code}
+            Icon={item.Icon}
+            label={item.label}
+            link={item.link}
+          />
+        );
       })}
       <p className="sidebar_titleGroup" style={{ marginTop: "30px" }}>
         Khác

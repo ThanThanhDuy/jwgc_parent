@@ -96,7 +96,9 @@ function ListBlog({
       ) : (
         listBlog &&
         listBlog.map((item) => {
-          return <Post post={item} key={item.Code} />;
+          if (item.Status !== 0) {
+            return <Post post={item} key={item.Code} />;
+          }
         })
       )}
       {pageCount > 1 && currentPage !== pageCount && (

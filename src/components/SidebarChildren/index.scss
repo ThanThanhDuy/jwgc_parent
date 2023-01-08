@@ -1,0 +1,52 @@
+@import "../../themes/colors/index.scss";
+
+.sidebar__children__container {
+  width: 350px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 0 0.5px $grey-900-01;
+  height: calc(100vh - 56px - 40px);
+  .ant-segmented-group {
+    background-color: #fff;
+    border: 1.5px solid $primary-color;
+    border-radius: 8px;
+    .ant-segmented-item {
+      transition: $primary-color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+    .ant-segmented-item-selected {
+      background-color: $primary-color;
+      color: #fff;
+    }
+    .ant-segmented-thumb {
+      background-color: $primary-color;
+      color: #fff;
+    }
+  }
+  .segmented__active {
+    color: #fff;
+  }
+  &__list {
+    &__parent {
+      overflow-y: auto;
+      height: calc(calc(100vh - 56px - 40px) - 130px - 16px);
+      margin-top: 16px;
+    }
+    &__nanny {
+      overflow-y: auto;
+      height: calc(calc(100vh - 56px - 40px) - 130px - 16px + 56px);
+      margin-top: 16px;
+    }
+  }
+}
+.childrenContainer__header {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 16px;
+  &__btn {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}

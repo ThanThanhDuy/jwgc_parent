@@ -369,7 +369,12 @@ function Blog() {
           TotalNextLevel: item.ChildBlogComments.TotalNextLevel,
         };
       });
-      setListComment([...listComment, ...listCommentTmp]);
+      const dataUnique = [...listComment, ...listCommentTmp].filter(
+        (element, index, array) =>
+          array.findIndex((element2) => element2.Code === element.Code) ===
+          index
+      );
+      setListComment(dataUnique);
       setCurrentPageComment(currentPageComment + 1);
       setTotalPageComment(res.Data.TotalPagesCount);
     } else {
@@ -394,10 +399,19 @@ function Blog() {
         (item) => item.Code === parentCode
       );
       if (index !== -1) {
-        listCommentTmp[index].ChildBlogComments = [
+        // listCommentTmp[index].ChildBlogComments = [
+        //   ...listCommentTmp[index].ChildBlogComments,
+        //   ...res.Data.Items,
+        // ];
+        const dataUnique = [
           ...listCommentTmp[index].ChildBlogComments,
           ...res.Data.Items,
-        ];
+        ].filter(
+          (element, index, array) =>
+            array.findIndex((element2) => element2.Code === element.Code) ===
+            index
+        );
+        listCommentTmp[index].ChildBlogComments = [...dataUnique];
       }
       setListComment(listCommentTmp);
     }

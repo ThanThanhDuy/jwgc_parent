@@ -30,6 +30,7 @@ import {
   scrollPositionProfileState,
 } from "../../stores/profile";
 import { isOpenModalRequireAuthState } from "../../stores/auth";
+import { childSelectState, typeState } from "../../stores/child";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
@@ -50,6 +51,8 @@ function Header() {
   const setIsOpenModalRequireAuth = useSetRecoilState(
     isOpenModalRequireAuthState
   );
+  const setType = useSetRecoilState(typeState);
+  const setchildSelect = useSetRecoilState(childSelectState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -70,6 +73,10 @@ function Header() {
       handleGetProfile();
     }
     setIsOpenModalRequireAuth(false);
+    if (!location?.pathname.includes("children-care")) {
+      setType("Cha mẹ");
+      setchildSelect(null);
+    }
     // eslint-disable-next-line
   }, [location?.pathname]);
 
