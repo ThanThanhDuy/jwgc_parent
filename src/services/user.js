@@ -70,6 +70,20 @@ class UserService {
     }
     return response;
   }
+
+  async searchUser(value, page, pageSize) {
+    const params = {};
+    value && (params["SearchValue"] = value);
+    page && (params["Paging.Page"] = page);
+    pageSize && (params["Paging.PageSize"] = pageSize);
+
+    try {
+      var response = await userApi.searchUser(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const userService = new UserService();
 export default userService;

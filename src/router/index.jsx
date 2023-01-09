@@ -18,6 +18,7 @@ import ResetPassword from "../pages/ResetPassword";
 import ForgotPassword from "../pages/ForgotPassword";
 import SuccessPageResetPassword from "../components/SuccessPageResetPassword";
 import UpdateProfile from "../pages/UpdateProfile";
+import Children from "../pages/Children/index";
 
 function Router() {
   return (
@@ -50,6 +51,7 @@ function Router() {
             element={<PendingPage />}
           />
           <Route path="edit/:titleBlog/:codeBlog" element={<UpdateBlog />} />
+          <Route path="children-care" element={<Children />} />
         </Route>
       </Route>
       {/* not found */}

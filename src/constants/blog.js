@@ -30,13 +30,13 @@ export const STATUS_BLOG_DETAIL = {
   3: {
     title: "Bài viết đã bị từ chối",
     des: "Bài viết của bạn đã bị từ chối vì nội dung không phù hợp với quy định của chúng tôi. Cảm ơn bạn đã đóng góp cho cộng đồng.",
-    classBackground: "blog__container__noti__inactice",
-    classTitle: "blog__container__noti__title__inactice",
+    classBackground: "blog__container__noti__inactive",
+    classTitle: "blog__container__noti__title__inactive",
   },
   0: {
     title: "Bài viết đã bị xóa",
     des: "Bài viết của bạn đã bị xóa vì nội dung không phù hợp với quy định của chúng tôi. Cảm ơn bạn đã đóng góp cho cộng đồng.",
-    classBackground: "blog__container__noti__inactice",
-    classTitle: "blog__container__noti__title__inactice",
+    classBackground: "blog__container__noti__inactive",
+    classTitle: "blog__container__noti__title__inactive",
   },
 };

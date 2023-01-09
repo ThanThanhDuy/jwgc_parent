@@ -154,7 +154,7 @@ function PendingPage() {
           )}
         </div>
         <div>
-          {blog?.Status && (
+          {blog.Status && blog.Status !== 1 && (
             <div
               className={`blog__container__noti ${
                 STATUS_BLOG_DETAIL[blog.Status].classBackground

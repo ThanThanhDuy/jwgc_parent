@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import "./index.scss";
 
 function TabItem(props) {
-  const { Icon, label } = props;
+  const { Icon, label, link = "/" } = props;
 
   return (
-    <Link className="tab__item" to="/home">
+    <Link className="tab__item" to={link}>
       {Icon && (
         <div className="tab__item__icon">
           <img src={Icon} alt={label} />

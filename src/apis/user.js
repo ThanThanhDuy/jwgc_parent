@@ -33,6 +33,15 @@ class UserApi {
     const url = `users/password`;
     return axiosClient.put(url, params);
   }
+
+  async searchUser(params) {
+    const url = `users`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
 }
 
 const userApi = new UserApi();
