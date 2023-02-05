@@ -28,6 +28,7 @@ import localService from "../../services/local";
 import {
   currentPageProfileState,
   scrollPositionProfileState,
+  tabProfileState,
 } from "../../stores/profile";
 import { isOpenModalRequireAuthState } from "../../stores/auth";
 import { childSelectState, typeState } from "../../stores/child";
@@ -53,6 +54,7 @@ function Header() {
   );
   const setType = useSetRecoilState(typeState);
   const setchildSelect = useSetRecoilState(childSelectState);
+  const setTabValue = useSetRecoilState(tabProfileState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -66,6 +68,7 @@ function Header() {
         if (res && res.StatusCode === 200) {
           // setIsAuth(true);
           setUser(res.Data);
+          localService.setUser(JSON.stringify(res.Data));
         } else if (res && res.StatusCode === 401) {
           // setIsAuth(false);
         }
@@ -76,6 +79,9 @@ function Header() {
     if (!location?.pathname.includes("children-care")) {
       setType("Cha mẹ");
       setchildSelect(null);
+    }
+    if (!location?.pathname.includes("profile")) {
+      setTabValue("1");
     }
     // eslint-disable-next-line
   }, [location?.pathname]);
@@ -218,6 +224,7 @@ function Header() {
                   navigate("create-post");
                 }}
               />
+
               <Noti className="header__container__auth__noti__icon" />
               <div className="header__container__auth__avatar">
                 <Popover
@@ -237,6 +244,12 @@ function Header() {
                             @{user?.UserName}
                           </p>
                         </div>
+                      </span>
+                      <span
+                        className="popover_profile__link"
+                        onClick={() => navigate("/invition")}
+                      >
+                        Xem lời mời
                       </span>
                       <div className="divider-10"></div>
                       <div>

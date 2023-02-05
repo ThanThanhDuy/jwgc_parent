@@ -1,28 +1,40 @@
 @import "../../../themes/colors/index.scss";
 
-.containerModal {
+.containerModal__box__diaper {
   margin-top: 16px;
   .ant-picker-focused {
-    border: 1.5px solid #ff7ba7 !important;
+    border: 1.5px solid #ff4974 !important;
   }
   .ant-btn-primary {
-    background-color: #ff7ba7 !important;
+    background-color: #ff4974 !important;
   }
   .ant-segmented-group {
     background-color: #fff;
-    // border: 1.5px solid #ff7ba7;
+    // border: 1.5px solid #ff4974;
     border-radius: 8px;
     .ant-segmented-item {
-      transition: #ff7ba7 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      transition: #ff4974 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
     }
     .ant-segmented-item-selected {
-      background-color: #ff7ba7;
+      background-color: #ff4974;
       color: #fff;
     }
     .ant-segmented-thumb {
-      background-color: #ff7ba7;
+      background-color: #ff4974;
       color: #fff;
     }
+  }
+  .ant-rate .ant-rate-star-first {
+    color: rgba(0, 0, 0, 0.4);
+  }
+  .ant-rate .ant-rate-star-second {
+    color: rgba(0, 0, 0, 0.4);
+  }
+  .ant-rate .ant-rate-star-full .ant-rate-star-first {
+    color: #79b9ff !important;
+  }
+  .ant-rate .ant-rate-star-full .ant-rate-star-second {
+    color: #79b9ff !important;
   }
   &__textarea {
     margin-top: 16px;
@@ -34,7 +46,7 @@
       resize: none;
       &:focus-visible {
         outline: none;
-        border: 1.5px solid #ff7ba7;
+        border: 1.5px solid #ff4974;
       }
     }
   }
@@ -50,41 +62,39 @@
         &__item {
           display: flex;
           align-items: center;
-          &__unit {
-            display: flex;
-            justify-content: flex-end;
-            font-size: 18px;
-            font-weight: 500;
+          &__active {
+            outline: 3px solid #ff4974;
           }
         }
       }
     }
   }
 }
-.containerModal__eat {
+.containerModal__diaper {
   .ant-modal-content {
     width: 700px;
   }
   .ant-modal-footer {
     .ant-btn-default {
       &:hover {
-        border-color: #ff7ba7 !important;
-        color: #ff7ba7 !important;
+        border-color: #ff4974 !important;
+        color: #ff4974 !important;
       }
     }
     .ant-btn-primary {
-      background-color: #ff7ba7 !important;
+      background-color: #ff4974 !important;
     }
   }
 }
-.containerModal__result {
+
+.containerModal__result__diaper {
   .ant-btn-primary {
-    background-color: #ff7ba7 !important;
+    background-color: #ff4974 !important;
   }
   .ant-btn-default {
     &:hover {
-      border-color: #ff7ba7 !important;
-      color: #ff7ba7 !important;
+      border-color: #ff4974 !important;
+      color: #ff4974 !important;
     }
   }
 }

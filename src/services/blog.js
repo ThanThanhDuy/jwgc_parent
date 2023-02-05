@@ -153,6 +153,73 @@ class BlogService {
     }
     return response;
   }
+
+  async saveBlogFavorite(blogCode) {
+    const params = {
+      Code: blogCode,
+    };
+    try {
+      var response = await blogApi.saveBlogFavorite(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async deleteBlogFavorite(code) {
+    try {
+      var response = await blogApi.deleteBlogFavorite(code);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async shareBlog(blogCode) {
+    const params = {
+      Code: blogCode,
+    };
+    try {
+      var response = await blogApi.shareBlog(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async deleteBlogShare(code) {
+    try {
+      var response = await blogApi.deleteBlogShare(code);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async getBlogShareFavorite({ Page, PageSize, Type }) {
+    const params = {};
+    Page && (params["Paging.Page"] = Page);
+    PageSize && (params["Paging.PageSize"] = PageSize);
+    params["Type"] = Type;
+    try {
+      var response = await blogApi.getBlogShareFavorite(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async reportComment(commentCode) {
+    const params = {
+      Code: commentCode,
+    };
+    try {
+      var response = await blogApi.reportComment(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const blogService = new BlogService();
 export default blogService;

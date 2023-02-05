@@ -10,3 +10,8 @@ export const scrollPositionProfileState = atom({
   key: "scrollPositionProfileState",
   default: 0,
 });
+
+export const tabProfileState = atom({
+  key: "tabProfileState",
+  default: "1",
+});

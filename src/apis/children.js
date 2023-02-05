@@ -47,13 +47,41 @@ class ChildrenApi {
     });
   }
 
-  async parentCancelInviteNanny(params) {
+  async parentCancelRelationshipNanny(params) {
     const url = `children/parent/nanny-relationship`;
     return axiosClient.delete(url, {
       data: {
         ...params,
       },
     });
+  }
+
+  async getInvition(params) {
+    const url = `children/nanny-invitation`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
+
+  async changeStatusInvition(params) {
+    const url = `children/nanny-invitation`;
+    return axiosClient.put(url, params);
+  }
+
+  async parentCancelInviteNanny(params) {
+    const url = `children/nanny-invitation`;
+    return axiosClient.delete(url, {
+      data: {
+        ...params,
+      },
+    });
+  }
+
+  async sendInviteToParent(params) {
+    const url = `users/parent-invitation`;
+    return axiosClient.post(url, params);
   }
 }
 

@@ -24,7 +24,11 @@ function Post({ post }) {
   const [countComment, setCountComment] = useState(0);
 
   useEffect(() => {
-    setCountComment(post?.BlogComments.TotalChild);
+    setCountComment(
+      post?.BlogComments?.TotalChild
+        ? post?.BlogComments?.TotalChild
+        : post?.TotalBlogComment
+    );
     // eslint-disable-next-line
   }, []);
 
@@ -71,9 +75,7 @@ function Post({ post }) {
               STATUS_BLOG_DETAIL[post.Status].classTitle
             }`}
           >
-            <span>
-              {STATUS_BLOG_DETAIL[post.Status].title}
-            </span>
+            <span>{STATUS_BLOG_DETAIL[post.Status].title}</span>
           </div>
         </div>
       )}

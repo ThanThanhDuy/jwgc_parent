@@ -1,1 +1,1 @@
-export const BASE_URL = "https://www.jwgc-api.click/api/v1/";
+export const BASE_URL = "https://jwgc.herokuapp.com/api/v1/";

@@ -42,6 +42,20 @@ class UserApi {
       },
     });
   }
+
+  async followUser(code) {
+    const url = `users/following`;
+    return axiosClient.put(url, {
+      FollowingUserCode: code,
+    });
+  }
+
+  async unFollowUser(code) {
+    const url = `users/un-following`;
+    return axiosClient.put(url, {
+      FollowingUserCode: code,
+    });
+  }
 }
 
 const userApi = new UserApi();

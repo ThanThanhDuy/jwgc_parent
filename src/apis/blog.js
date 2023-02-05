@@ -81,6 +81,48 @@ class BlogApi {
       },
     });
   }
+
+  async saveBlogFavorite(params) {
+    const url = `${this.PREFIX}/favorite-blog`;
+    return axiosClient.put(url, params);
+  }
+
+  async deleteBlogFavorite(code) {
+    const url = `${this.PREFIX}/favorite-blog`;
+    return axiosClient.delete(url, {
+      data: {
+        Code: code,
+      },
+    });
+  }
+
+  async shareBlog(params) {
+    const url = `${this.PREFIX}/sharing-blog`;
+    return axiosClient.put(url, params);
+  }
+
+  async deleteBlogShare(code) {
+    const url = `${this.PREFIX}/sharing-blog`;
+    return axiosClient.delete(url, {
+      data: {
+        Code: code,
+      },
+    });
+  }
+
+  async getBlogShareFavorite(params) {
+    const url = `${this.PREFIX}/favorite-blog`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
+
+  async reportComment(params) {
+    const url = `${this.PREFIX}/comment/report`;
+    return axiosClient.put(url, params);
+  }
 }
 
 const blogApi = new BlogApi();

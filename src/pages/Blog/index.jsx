@@ -93,6 +93,7 @@ function Blog() {
           // setListComment(res.Data?.Items[0]?.BlogComments);
           setUserAuthor(res.Data?.Items[0]?.User);
           setStatus(res.Data?.Items[0]?.IsReaction);
+          setBookmark(res.Data?.Items[0]?.IsFavorite);
           setCountComment(res.Data?.Items[0].BlogComments.TotalChild);
           setLoading(false);
           setIsDone(true);
@@ -146,6 +147,7 @@ function Blog() {
       }
     };
     handleGetProfile();
+    // eslint-disable-next-line
   }, [params.codeBlog]);
 
   const handleClickReaction = async (value) => {
@@ -200,9 +202,29 @@ function Blog() {
     }
   };
 
-  const handleBookMark = () => {
+  const handleBookMark = async () => {
     if (user.Code) {
-      setBookmark(!bookmark);
+      if (bookmark) {
+        const res = await blogService.deleteBlogFavorite(blog.Code);
+        if (res && res.StatusCode === 200) {
+          setBookmark(false);
+        } else {
+          notification.error({
+            message: "Lỗi",
+            description: res.Message,
+          });
+        }
+      } else {
+        const res = await blogService.saveBlogFavorite(blog.Code);
+        if (res && res.StatusCode === 200) {
+          setBookmark(true);
+        } else {
+          notification.error({
+            message: "Lỗi",
+            description: res.Message,
+          });
+        }
+      }
     } else {
       setIsOpenModalRequireAuth(true);
     }
@@ -227,7 +249,13 @@ function Blog() {
     setIsSendingComment(true);
     const res = await blogService.sendComment(comment.trim(), blog.Code, "");
     if (res && res.StatusCode === 200) {
-      setListComment([res.Data, ...listComment]);
+      const tmp = {
+        ...res.Data,
+        ChildBlogComments: [],
+        TotalChild: res.Data.TotalChild,
+        TotalNextLevel: res.Data.TotalNextLevel,
+      };
+      setListComment([{ ...tmp }, ...listComment]);
       setComment("");
     } else {
       setError([res.Message]);
@@ -240,8 +268,14 @@ function Blog() {
     let listCommentTmp = [...listComment];
     const index = listCommentTmp.findIndex((item) => item.Code === parentCode);
     if (index !== -1) {
+      const tmp = {
+        ...res.Data,
+        ChildBlogComments: [],
+        TotalChild: res.Data.TotalChild,
+        TotalNextLevel: res.Data.TotalNextLevel,
+      };
       listCommentTmp[index].ChildBlogComments = [
-        res.Data,
+        { ...tmp },
         ...listCommentTmp[index].ChildBlogComments,
       ];
     }
@@ -417,6 +451,19 @@ function Blog() {
     }
   };
 
+  const handleShareBlog = async () => {
+    const res = await blogService.shareBlog(blog.Code);
+    if (res && res.StatusCode === 200) {
+      notification.success({
+        message: "Chia sẻ bài viết thành công",
+      });
+    } else {
+      notification.error({
+        message: "Chia sẻ bài viết thất bại",
+      });
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -531,7 +578,7 @@ function Blog() {
                     placement="rightTop"
                     content={() => (
                       <div className="popover_profile">
-                        <div>
+                        <div onClick={handleShareBlog}>
                           <span className="comment__container__content__header__more__item">
                             Chia sẻ bài viết
                           </span>

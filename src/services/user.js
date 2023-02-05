@@ -84,6 +84,24 @@ class UserService {
     }
     return response;
   }
+
+  async followUser(code) {
+    try {
+      var response = await userApi.followUser(code);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async unFollowUser(code) {
+    try {
+      var response = await userApi.unFollowUser(code);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const userService = new UserService();
 export default userService;

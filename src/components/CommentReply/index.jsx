@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import Tooltip from "@mui/material/Tooltip";
 import { ReactComponent as More } from "../../assets/icons/more.svg";
-import { Popover } from "antd";
+import { notification, Popover } from "antd";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import blogService from "../../services/blog";
 import { ExclamationCircleFilled } from "@ant-design/icons";
@@ -128,6 +128,21 @@ function CommentReply({
     }, 0);
   };
 
+  const handleReportComment = async () => {
+    const res = await blogService.reportComment(item.Code);
+    if (res && res.StatusCode === 200) {
+      notification.success({
+        message: "Yêu cầu của bạn đã được gửi đi",
+        description: "Chúng tôi sẽ xem xét và xử lý trong thời gian sớm nhất",
+      });
+    } else {
+      notification.error({
+        message: "Yêu cầu của bạn không thành công",
+        description: "Vui lòng thử lại sau",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="commentReply__container">
@@ -204,7 +219,10 @@ function CommentReply({
                               </span>
                             </>
                           ) : (
-                            <span className="comment__container__content__header__more__item">
+                            <span
+                              className="comment__container__content__header__more__item"
+                              onClick={handleReportComment}
+                            >
                               Báo cáo bình luận
                             </span>
                           )}
