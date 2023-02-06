@@ -253,7 +253,7 @@ function Header() {
                       </span>
                       <div className="divider-10"></div>
                       <div>
-                        <Link className="popover_profile__link">Đăng xuất</Link>
+                        <Link className="popover_profile__link" to="#">Đăng xuất</Link>
                       </div>
                     </div>
                   )}
