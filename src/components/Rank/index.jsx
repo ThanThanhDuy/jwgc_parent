@@ -67,7 +67,7 @@ function Rank() {
       <div className="rank__container__list">
         {data.map((item, index) => {
           return (
-            <Link className="rank__container__list__item" key={index}>
+            <Link className="rank__container__list__item" key={index} to="#">
               <span>{item.Name}</span>
             </Link>
           );

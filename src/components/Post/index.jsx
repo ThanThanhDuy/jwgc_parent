@@ -107,7 +107,7 @@ function Post({ post }) {
         </div>
         <div onClick={handleClickPost} className="post_container_content">
           <span className="post_container_content_title">{post.Title}</span>
-          <Link className="post_container_content_cate">
+          <Link className="post_container_content_cate" to="#">
             <span className="post_container_content_cate_link">
               #{post?.ConcernCategory?.Name}
             </span>

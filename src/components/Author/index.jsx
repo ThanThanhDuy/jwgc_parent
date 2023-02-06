@@ -9,7 +9,7 @@ function Author({ user }) {
   return (
     <div className="author__container">
       <div className="author__container__header">
-        <Link>
+        <Link to="#">
           <img
             className="author__container__header__avatar"
             src={user?.AvatarPath ? user?.AvatarPath : userAvatar}
@@ -17,7 +17,7 @@ function Author({ user }) {
           />
         </Link>
         <div className="author__container__header__name">
-          <Link>{user.Name}</Link>
+          <Link to="#">{user.Name}</Link>
         </div>
       </div>
       {user.Code && user.Code !== localService.getUser()?.Code && (

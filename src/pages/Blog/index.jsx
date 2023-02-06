@@ -698,12 +698,16 @@ function Blog() {
             <div className="blog__author">
               <div className="blog__author__header">
                 <p>Bài viết khác của</p>
-                <Link>{userAuthor.Name}</Link>
+                <Link to="#">{userAuthor.Name}</Link>
               </div>
               <div className="rank__container__list">
                 {dataAuthor.map((item, index) => {
                   return (
-                    <Link className="rank__container__list__item" key={index}>
+                    <Link
+                      to="#"
+                      className="rank__container__list__item"
+                      key={index}
+                    >
                       <span>{item.Title}</span>
                     </Link>
                   );
