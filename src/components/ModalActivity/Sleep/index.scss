@@ -1,0 +1,54 @@
+@import "../../../themes/colors/index.scss";
+
+.containerModal__box__sleep {
+  margin-top: 16px;
+  .ant-picker-focused {
+    border: 1.5px solid #bb98ff !important;
+  }
+  .ant-btn-primary {
+    background-color: #bb98ff !important;
+  }
+
+  &__textarea {
+    margin-top: 16px;
+    &__input__box {
+      width: 100%;
+      border: 1.5px solid $grey-900-01;
+      border-radius: 8px;
+      padding: 4px 11px;
+      resize: none;
+      &:focus-visible {
+        outline: none;
+        border: 1.5px solid #bb98ff;
+      }
+    }
+  }
+}
+.containerModal__sleep {
+  .ant-modal-content {
+    width: 700px;
+  }
+  .ant-modal-footer {
+    .ant-btn-default {
+      &:hover {
+        border-color: #bb98ff !important;
+        color: #bb98ff !important;
+      }
+    }
+    .ant-btn-primary {
+      background-color: #bb98ff !important;
+    }
+  }
+}
+.containerModal__result__sleep {
+  .ant-btn-primary {
+    background-color: #bb98ff !important;
+  }
+  .ant-btn-default {
+    &:hover {
+      border-color: #bb98ff !important;
+      color: #bb98ff !important;
+    }
+  }
+}
+

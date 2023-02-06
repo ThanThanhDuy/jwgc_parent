@@ -83,6 +83,43 @@ class ChildrenService {
     return response;
   }
 
+  async parentCancelRelationshipNanny(ChildCode, NannyCode) {
+    let params = {
+      ChildCode,
+      NannyCode,
+    };
+    try {
+      var response = await children.parentCancelRelationshipNanny(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async getInvition(page, pageSize) {
+    const params = {};
+    page && (params["Paging.Page"] = page);
+    pageSize && (params["Paging.PageSize"] = pageSize);
+    try {
+      var response = await children.getInvition(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async changeStatusInvition(childCode, status) {
+    const params = {};
+    params["ChildCode"] = childCode;
+    params["Status"] = status;
+    try {
+      var response = await children.changeStatusInvition(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
   async parentCancelInviteNanny(ChildCode, NannyCode) {
     let params = {
       ChildCode,
@@ -90,6 +127,19 @@ class ChildrenService {
     };
     try {
       var response = await children.parentCancelInviteNanny(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async sendInviteToParent(ChildCode, NannyCode) {
+    let params = {
+      ChildCode,
+      NannyCode,
+    };
+    try {
+      var response = await children.sendInviteToParent(params);
     } catch (error) {
       return error;
     }

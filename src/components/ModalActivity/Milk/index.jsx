@@ -1,16 +1,7 @@
 import React, { useState } from "react";
 import "./index.scss";
-import {
-  Row,
-  Col,
-  Select,
-  ConfigProvider,
-  Modal,
-  Slider,
-  Button,
-  Result,
-} from "antd";
-import { useSetRecoilState, useRecoilValue } from "recoil";
+import { Row, Col, ConfigProvider, Modal, Slider, Result, Button } from "antd";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   activitySelectState,
   childSelectState,
@@ -19,22 +10,11 @@ import {
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import "dayjs/locale/vi";
 import locale from "antd/es/date-picker/locale/vi_VN";
+import activityService from "../../../services/activity";
 
 import { DatePicker, Segmented, TimePicker } from "antd";
-import activityService from "../../../services/activity";
 import { UilArrowRight } from "@iconscout/react-unicons";
 import dayjs from "dayjs";
-
-const marks3 = {
-  0: "0g",
-  50: "50g",
-  100: "100g",
-  150: "150g",
-  200: "200g",
-  250: "250g",
-  300: "300g",
-  350: "350g",
-};
 
 const marks2 = {
   0: "0ml",
@@ -47,58 +27,10 @@ const marks2 = {
   350: "350ml",
 };
 
-const options__3 = [
-  {
-    label: `Rau củ`,
-    value: `Rau củ`,
-  },
-  {
-    label: `Trái cây`,
-    value: `Trái cây`,
-  },
-  {
-    label: `Sản phẩm từ sữa`,
-    value: `Sản phẩm từ sữa`,
-  },
-  {
-    label: `Ngũ cốc`,
-    value: `Ngũ cốc`,
-  },
-  {
-    label: `Thịt & đạm`,
-    value: `Thịt & đạm`,
-  },
-  {
-    label: `Thực phẩm bổ sung`,
-    value: `Thực phẩm bổ sung`,
-  },
-  {
-    label: `Khác`,
-    value: `Khác`,
-  },
-];
-
-const options__2 = [
-  {
-    label: `Sữa mẹ`,
-    value: `Sữa mẹ`,
-  },
-  {
-    label: `Công thức`,
-    value: `Công thức`,
-  },
-  {
-    label: `Khác`,
-    value: `Khác`,
-  },
-];
-
 const formatDay = "DD-MM-YYYY";
 
-function ModalNormal({ open, activitySelect, color, cateCode }) {
-  const [type, setType] = useState("Sữa mẹ");
-  const [value__3, setValue__3] = useState([]);
-  const [value__2, setValue__2] = useState(null);
+function Milk({ open, activitySelect, color, cateCode }) {
+  const [type, setType] = useState("Vắt sữa");
   const [sliderValue3, setSliderValue3] = useState(0);
   const [sliderValue2, setSliderValue2] = useState(0);
   const [date, setDate] = useState(null);
@@ -158,22 +90,18 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
     data.timeFinish = timeFinish;
     switch (type) {
       case "Vắt sữa":
-        data.material = value__2;
-        data.amount = sliderValue2;
+        data.left = sliderValue2;
+        data.right = sliderValue3;
         data.unit = "ml";
         break;
-      case "Ăn dặm":
-        data.material = value__3;
-        data.amount = sliderValue3;
-        data.unit = "g";
+      case "Trữ sữa":
+        data.left = sliderValue2;
+        data.right = sliderValue3;
+        data.unit = "ml";
         break;
       default:
-        data.material = null;
-        data.amount = 0;
-        data.unit = null;
         break;
     }
-    // console.log(cateCode, childSelect.Code, date[0], data, null);
     const res = await activityService.recordActivity(
       cateCode,
       childSelect.Code,
@@ -192,49 +120,21 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
 
   const handleCancel = () => {
     setopenModalActivitySelect(false);
-    setActivitySelect("");
     setStatusModal(null);
+    setActivitySelect("");
   };
   const onChangeSegmented = (value) => {
     const el = document.querySelectorAll(
-      ".containerModal__control .ant-segmented-item"
+      ".containerModal__box__milk__control .ant-segmented-item"
     );
-    if (value === "Sữa mẹ") {
+    if (value === "Vắt sữa") {
       el[0].style.color = "#fff";
       el[1].style.color = "#282828";
-      el[2].style.color = "#282828";
-      el[3].style.color = "#282828";
-    } else if (value === "Sữa bình") {
+    } else if (value === "Trữ sữa") {
       el[1].style.color = "#fff";
       el[0].style.color = "#282828";
-      el[2].style.color = "#282828";
-      el[3].style.color = "#282828";
-    } else if (value === "Ăn dặm") {
-      el[2].style.color = "#fff";
-      el[0].style.color = "#282828";
-      el[1].style.color = "#282828";
-      el[3].style.color = "#282828";
-    } else if (value === "Khác") {
-      el[3].style.color = "#fff";
-      el[0].style.color = "#282828";
-      el[1].style.color = "#282828";
-      el[2].style.color = "#282828";
     }
     setType(value);
-  };
-
-  const selectProps__3 = {
-    mode: "multiple",
-    style: {
-      width: "100%",
-    },
-    value: value__3,
-    options: options__3,
-    onChange: (newValue) => {
-      setValue__3(newValue);
-    },
-    placeholder: "Chọn",
-    maxTagCount: "responsive",
   };
 
   const onChangeSlider3 = (newValue) => {
@@ -243,10 +143,6 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
 
   const onChangeSlider2 = (newValue) => {
     setSliderValue2(newValue);
-  };
-
-  const handleChange2 = (value) => {
-    setValue__2(value);
   };
 
   const onChangeDate = (date, dateString) => {
@@ -277,18 +173,18 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
       }}
     >
       <Modal
-        confirmLoading={confirmLoading}
-        className="containerModal__eat"
+        className="containerModal__milk"
         title={activitySelect}
         open={open}
         onOk={handleOk}
         onCancel={handleCancel}
         okText="Lưu"
         cancelText="Hủy"
+        confirmLoading={confirmLoading}
         footer={statusModal === null ? undefined : null}
       >
         {statusModal === null && (
-          <div className="containerModal">
+          <div className="containerModal__box__milk">
             {/* <RangePicker
               showTime
               placeholder={["Thời gian bắt đầu", "Thời gian kết thúc"]}
@@ -297,7 +193,18 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
               onChange={onChangeDate}
               status={statusDate}
               onOpenChange={() => setStatusDate("")}
-            /> */}
+            />
+            {statusDate === "error" && (
+              <p
+                style={{
+                  marginTop: "5px",
+                  marginLeft: "5px",
+                  color: "#ff4d4f",
+                }}
+              >
+                Vui lòng chọn thời gian
+              </p>
+            )} */}
             <Row>
               <Col span={8}>
                 <DatePicker
@@ -390,34 +297,22 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
                 )}
               </Col>
             </Row>
-
-            <div className="containerModal__control">
+            <div className="containerModal__box__milk__control">
               <Segmented
-                value={type}
                 block
-                options={["Sữa mẹ", "Sữa bình", "Ăn dặm", "Khác"]}
+                options={["Vắt sữa", "Trữ sữa"]}
                 onChange={onChangeSegmented}
               />
-              <div className="containerModal__control__content">
-                {type === "Sữa bình" && (
-                  <div className="containerModal__control__content__box">
-                    <Row className="containerModal__control__content__box__item">
-                      <Col span={8}>Nguyên liệu</Col>
+              <div className="containerModal__box__milk__control__content">
+                {type === "Vắt sữa" && (
+                  <div className="containerModal__box__milk__control__content__box">
+                    <Row className="containerModal__box__milk__control__content__box__item">
+                      <Col span={12}>Số lượng</Col>
                       <Col
-                        span={16}
-                        style={{
-                          width: "100%",
-                        }}
+                        className="containerModal__box__milk__control__content__box__item__unit"
+                        span={12}
                       >
-                        <Select
-                          placeholder="Chọn"
-                          style={{
-                            width: "100%",
-                          }}
-                          onChange={handleChange2}
-                          options={options__2}
-                          value={value__2}
-                        />
+                        {sliderValue2 + sliderValue3}ml
                       </Col>
                     </Row>
                     <div
@@ -425,21 +320,16 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
                       style={{ margin: "16px 0" }}
                     ></div>
                     <Row
-                      className="containerModal__control__content__box__item"
+                      className="containerModal__box__milk__control__content__box__item"
                       style={{ marginTop: "16px" }}
                     >
-                      <Col span={12}>Số lượng</Col>
+                      <Col span={12}>Trái</Col>
                       <Col
-                        className="containerModal__control__content__box__item__unit"
+                        className="containerModal__box__milk__control__content__box__item__unit"
                         span={12}
                       >
                         {sliderValue2}ml
                       </Col>
-                    </Row>
-                    <Row
-                      className="containerModal__control__content__box__item"
-                      style={{ marginTop: "16px" }}
-                    >
                       <Slider
                         min={0}
                         max={350}
@@ -450,43 +340,27 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
                         onChange={onChangeSlider2}
                       />
                     </Row>
-                  </div>
-                )}
-                {type === "Ăn dặm" && (
-                  <div className="containerModal__control__content__box">
-                    <Row className="containerModal__control__content__box__item">
-                      <Col span={8}>Nguyên liệu</Col>
-                      <Col span={16}>
-                        <Select {...selectProps__3} />
-                      </Col>
-                    </Row>
                     <div
                       className="divider-10"
                       style={{ margin: "16px 0" }}
                     ></div>
                     <Row
-                      className="containerModal__control__content__box__item"
+                      className="containerModal__box__milk__control__content__box__item"
                       style={{ marginTop: "16px" }}
                     >
-                      <Col span={12}>Số lượng</Col>
+                      <Col span={12}>Phải</Col>
                       <Col
-                        className="containerModal__control__content__box__item__unit"
+                        className="containerModal__box__milk__control__content__box__item__unit"
                         span={12}
                       >
-                        {sliderValue3}g
+                        {sliderValue3}ml
                       </Col>
-                    </Row>
-
-                    <Row
-                      className="containerModal__control__content__box__item"
-                      style={{ marginTop: "16px" }}
-                    >
                       <Slider
                         min={0}
                         max={350}
                         step={5}
                         style={{ width: "100%" }}
-                        marks={marks3}
+                        marks={marks2}
                         value={sliderValue3}
                         onChange={onChangeSlider3}
                       />
@@ -495,10 +369,10 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
                 )}
               </div>
             </div>
-            <div className="containerModal__textarea">
+            <div className="containerModal__box__milk__textarea">
               <TextareaAutosize
                 placeholder="Ghi chú (không bắt buộc)"
-                className="containerModal__textarea__input__box"
+                className="containerModal__box__milk__textarea__input__box"
                 minRows={5}
                 onChange={onChangeTextArea}
               />
@@ -507,7 +381,7 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
         )}
         {statusModal !== null && (
           <Result
-            className="containerModal__result"
+            className="containerModal__result__milk"
             status={statusModal}
             title={`Ghi lại hành trình cho trẻ ${
               statusModal === "success" ? "thành công" : "thất bại"
@@ -533,4 +407,4 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
   );
 }
 
-export default ModalNormal;
+export default Milk;

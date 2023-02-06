@@ -1,0 +1,101 @@
+@import "../../themes/colors/index.scss";
+
+.notification__container {
+  margin: 0 calc(calc(100vw - calc(800px + 58.91px + 346px + 30px)) / 2);
+  padding: 16px;
+  &__title {
+    font-size: 30px;
+    font-weight: 600;
+  }
+  &__main {
+    display: flex;
+    padding-top: 48px;
+    gap: 16px;
+    &__sidebar {
+      min-width: 240px;
+      max-width: 240px;
+      &__item {
+        padding: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        &:hover {
+          background-color: $primary-color-bg-hover;
+          border-radius: 8px;
+          color: $primary-color;
+        }
+        &__active {
+          background-color: #fff;
+          border-radius: 8px;
+          font-weight: 500;
+        }
+      }
+    }
+    &__content {
+      width: 100%;
+      &__list {
+        &__item {
+          background-color: #fff;
+          padding: 16px;
+          border-radius: 8px;
+          border: 1px solid $grey-900-01;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          &__avatar {
+            img {
+              width: 52px;
+              height: 52px;
+              border-radius: 50%;
+              border: 1px solid $grey-900-01;
+            }
+          }
+
+          &__user {
+            width: calc(100% - 52px - 225px);
+            display: flex;
+            flex-direction: column;
+            padding-left: 8px;
+            &__parent {
+              margin-bottom: 2px;
+              &__name {
+                font-size: 18px;
+                font-weight: 500;
+                color: $text-dark;
+              }
+              &__dot {
+                padding: 0 8px;
+                font-size: 16px;
+                color: $text;
+                opacity: 0.75;
+              }
+              &__username {
+                font-size: 14px;
+                color: $text;
+                opacity: 0.75;
+              }
+              &__time {
+                font-size: 14px;
+                color: $text;
+                opacity: 0.75;
+              }
+            }
+            &__des {
+              font-size: 16px;
+              color: $text-dark;
+              &__link {
+                color: $primary-color;
+              }
+            }
+          }
+          &__invited {
+            width: calc(100% - 52px - 130px);
+          }
+          &__control {
+            display: flex;
+            gap: 8px;
+          }
+        }
+      }
+    }
+  }
+}

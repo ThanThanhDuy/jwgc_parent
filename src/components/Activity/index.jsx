@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { ACTIVITY } from "../../constants/activity";
 import {
@@ -13,11 +13,21 @@ import { Modal, Input, notification, Empty, Tabs, Pagination } from "antd";
 import userService from "../../services/user";
 import userAvatar from "../../assets/icons/user.png";
 import childrenService from "../../services/children";
+// import { UilTimes } from "@iconscout/react-unicons";
+import localService from "../../services/local";
+import activityService from "../../services/activity";
+import Milk from "../ModalActivity/Milk";
+import Diaper from "../ModalActivity/Diaper";
+import Sleep from "../ModalActivity/Sleep";
+import Health from "../ModalActivity/Health";
+import Growth from "../ModalActivity/Growth/index";
+import HangOut from "../ModalActivity/HangOut";
+import Diary from "../ModalActivity/Diary";
 
 const { Search } = Input;
 
 function Activity() {
-  const childSelect = useRecoilValue(childSelectState);
+  const [childSelect, setChildSelect] = useRecoilState(childSelectState);
   const type = useRecoilValue(typeState);
   const [activitySelect, setActivitySelect] =
     useRecoilState(activitySelectState);
@@ -37,6 +47,29 @@ function Activity() {
   const [totalInvite, setTotalInvite] = useState(0);
   const [currentPageInvite, setCurrentPageInvite] = useState(1);
   const pageSizeInvite = 6;
+  const [listCate, setListCate] = useState([]);
+
+  useEffect(() => {
+    const fetchCateAcitivity = async () => {
+      try {
+        const res = await activityService.getCateActivity();
+        if (res && res.StatusCode === 200) {
+          const data = res.Data.map((item) => {
+            return {
+              ...item,
+              Color: ACTIVITY.find((i) => i.title === item.Name)?.color,
+              Icon: ACTIVITY.find((i) => i.title === item.Name)?.icon,
+            };
+          });
+          setListCate(data);
+        } else {
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchCateAcitivity();
+  }, []);
 
   const handleOpenModal = (typeP) => {
     setTypeModal(typeP);
@@ -51,6 +84,7 @@ function Activity() {
         childSelect.Code,
         item.Code
       );
+    } else {
     }
     if (res && res.StatusCode === 200) {
       notification.success({
@@ -127,11 +161,11 @@ function Activity() {
     }
   };
 
-  const handleParentCancelInviteNanny = async (item) => {
+  const handleParentCancelInviteNanny = async (childCode, nannyCode) => {
     try {
       const res = await childrenService.parentCancelInviteNanny(
-        item.Child.Code,
-        item.Nanny.Code
+        childCode,
+        nannyCode
       );
       if (res && res.StatusCode === 200) {
         notification.success({
@@ -140,9 +174,37 @@ function Activity() {
         });
         let listInviteTmp = [...listInvite];
         listInviteTmp = listInviteTmp.filter(
-          (itemTmp) => itemTmp.Nanny.Code !== item.Nanny.Code
+          (itemTmp) => itemTmp.Nanny.Code !== nannyCode
         );
+
         setListInvite(listInviteTmp);
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleParentCancelRelationshipNanny = async (childCode, nannyCode) => {
+    try {
+      const res = await childrenService.parentCancelRelationshipNanny(
+        childCode,
+        nannyCode
+      );
+      if (res && res.StatusCode === 200) {
+        notification.success({
+          message: "Thành công",
+          description: res.Message,
+        });
+        let childSelectTmp = { ...childSelect };
+        childSelectTmp.Nannies = childSelectTmp.Nannies.filter(
+          (itemTmp) => itemTmp.Code !== nannyCode
+        );
+        setChildSelect(childSelectTmp);
       } else {
         notification.error({
           message: "Lỗi",
@@ -267,29 +329,117 @@ function Activity() {
             </div>
             <div className="activity__container__main__parent__acti">
               <div className="activity__container__main__parent__acti__grid">
-                {ACTIVITY.map((item, index) => (
+                {listCate.map((item, index) => (
                   <div
                     className="activity__container__main__parent__acti__grid__item"
                     key={index}
-                    style={{ color: item.color }}
-                    onClick={() => handleClickActivity(item.title)}
+                    style={{ color: item.Color }}
+                    onClick={() => handleClickActivity(item.Name)}
                   >
                     <div className="activity__container__main__parent__acti__grid__item__icon">
-                      <img src={item.icon} alt="" />
+                      <img src={item.Icon} alt="" />
                     </div>
                     <div className="activity__container__main__parent__acti__grid__item__title">
-                      <span>{item.title}</span>
+                      <span>{item.Name}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            {(activitySelect === "Ăn uống" ||
-              activitySelect === "Ngủ" ||
-              activitySelect === "Giờ chơi") && (
+            {activitySelect === "Cho Ăn" && (
               <ModalNormal
                 activitySelect={activitySelect}
                 open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Vắt Sữa" && (
+              <Milk
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Thay Tã" && (
+              <Diaper
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Ngủ" && (
+              <Sleep
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Sức Khỏe" && (
+              <Health
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Tăng Trưởng" && (
+              <Growth
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Giờ Chơi" && (
+              <HangOut
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
+              />
+            )}
+            {activitySelect === "Nhật Ký" && (
+              <Diary
+                activitySelect={activitySelect}
+                open={openModalActivitySelect}
+                color={
+                  ACTIVITY.find((item) => item.title === activitySelect).color
+                }
+                cateCode={
+                  listCate.find((item) => item.Name === activitySelect).Code
+                }
               />
             )}
             <Modal
@@ -432,7 +582,10 @@ function Activity() {
                                     className={"jwgc__btn__outline__danger"}
                                     style={{ padding: "4px 8px" }}
                                     onClick={() =>
-                                      handleParentCancelInviteNanny(item)
+                                      handleParentCancelInviteNanny(
+                                        item.Child.Code,
+                                        item.Nanny.Code
+                                      )
                                     }
                                   >
                                     Hủy lời mời
@@ -455,6 +608,115 @@ function Activity() {
                       </div>
                     </div>
                   )}
+                </Tabs.TabPane>
+                <Tabs.TabPane
+                  tab={
+                    typeModal === "parent" ? "Cha mẹ của bé" : "Bảo mẫu của bé"
+                  }
+                  key="3"
+                >
+                  {typeModal === "parent"
+                    ? childSelect?.Parents.map((item) => (
+                        <li
+                          key={item.Code}
+                          className="activity__container__main__parent__parentnanny__list__item"
+                        >
+                          <li
+                            key={item.Code}
+                            className="activity__container__main__parent__parentnanny__list__item"
+                          >
+                            <div
+                              className="box__moadl__link__list__child__item"
+                              key={item.Code}
+                            >
+                              <div className="box__moadl__link__list__child__item__avatar">
+                                <img
+                                  src={
+                                    item.AvatarPath
+                                      ? item.AvatarPath
+                                      : userAvatar
+                                  }
+                                  alt=""
+                                />
+                              </div>
+                              <div className="box__moadl__link__list__child__item__user">
+                                <div className="box__moadl__link__list__child__item__user__box">
+                                  <span className="box__moadl__link__list__child__item__user__box__title">
+                                    {item.Name}
+                                  </span>
+                                  <span className="box__moadl__link__list__child__item__user__box__username">
+                                    @{item.UserName}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="box__moadl__link__list__child__item__btn">
+                                {item.Code !== localService.getUser().Code ? (
+                                  <button
+                                    className={"jwgc__btn__outline__danger"}
+                                    style={{
+                                      padding: "4px 8px",
+                                      minWidth: "102px",
+                                    }}
+                                  >
+                                    Chấm dứt
+                                  </button>
+                                ) : (
+                                  <div
+                                    style={{
+                                      padding: "4px 8px",
+                                      minWidth: "102px",
+                                    }}
+                                  ></div>
+                                )}
+                              </div>
+                            </div>
+                          </li>
+                        </li>
+                      ))
+                    : childSelect?.Nannies.map((item) => (
+                        <li
+                          key={item.Code}
+                          className="activity__container__main__parent__parentnanny__list__item"
+                        >
+                          <div
+                            className="box__moadl__link__list__child__item"
+                            key={item.Code}
+                          >
+                            <div className="box__moadl__link__list__child__item__avatar">
+                              <img
+                                src={
+                                  item.AvatarPath ? item.AvatarPath : userAvatar
+                                }
+                                alt=""
+                              />
+                            </div>
+                            <div className="box__moadl__link__list__child__item__user">
+                              <div className="box__moadl__link__list__child__item__user__box">
+                                <span className="box__moadl__link__list__child__item__user__box__title">
+                                  {item.Name}
+                                </span>
+                                <span className="box__moadl__link__list__child__item__user__box__username">
+                                  @{item.UserName}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="box__moadl__link__list__child__item__btn">
+                              <button
+                                className={"jwgc__btn__outline__danger"}
+                                style={{ padding: "4px 8px", width: "102px" }}
+                                onClick={() =>
+                                  handleParentCancelRelationshipNanny(
+                                    childSelect.Code,
+                                    item.Code
+                                  )
+                                }
+                              >
+                                Chấm dứt
+                              </button>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
                 </Tabs.TabPane>
               </Tabs>
             </Modal>

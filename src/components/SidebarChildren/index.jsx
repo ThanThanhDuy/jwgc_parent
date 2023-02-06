@@ -101,6 +101,7 @@ function SidebarChildren() {
     } else {
       el[1].style.color = "#fff";
       el[0].style.color = "#282828";
+      setChildSelect(null);
     }
     setType(value);
   };
@@ -125,7 +126,7 @@ function SidebarChildren() {
 
   const handleAddChild = async (name, dateOfBirth, gender) => {
     confirm({
-      title: "Bạn có chắc chắn muốn hành trình cho trẻ này không?",
+      title: "Bạn có chắc chắn muốn thêm hành trình cho trẻ này không?",
       icon: <ExclamationCircleFilled />,
       async onOk() {
         setConfirmLoading(true);
@@ -210,7 +211,6 @@ function SidebarChildren() {
         </div>
       </div>
       <Modal
-        title="Thêm trẻ"
         okText="Thêm"
         cancelText="Hủy"
         open={open}
@@ -244,7 +244,7 @@ function SidebarChildren() {
             initialValues={{
               name: name,
               dateOfBirth: date ? date : moment().format(dateFormat),
-              gender: gender ? gender : 1,
+              gender: gender,
             }}
             onSubmit={(values, { setErrors }) => {
               let check = true;

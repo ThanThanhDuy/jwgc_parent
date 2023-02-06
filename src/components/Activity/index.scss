@@ -114,10 +114,11 @@
       }
     }
   }
+  .ant-modal-body {
+    height: 550px;
+  }
 }
-.ant-modal-body {
-  height: 550px;
-}
+
 .box__moadl__link {
   &__childrend {
     .ant-input {

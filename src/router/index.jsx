@@ -19,6 +19,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import SuccessPageResetPassword from "../components/SuccessPageResetPassword";
 import UpdateProfile from "../pages/UpdateProfile";
 import Children from "../pages/Children/index";
+import Invition from "../pages/Invition";
 
 function Router() {
   return (
@@ -52,6 +53,7 @@ function Router() {
           />
           <Route path="edit/:titleBlog/:codeBlog" element={<UpdateBlog />} />
           <Route path="children-care" element={<Children />} />
+          <Route path="invition" element={<Invition />} />
         </Route>
       </Route>
       {/* not found */}
