@@ -56,6 +56,11 @@ class UserApi {
       FollowingUserCode: code,
     });
   }
+
+  async logout(params) {
+    const url = `users/logout`;
+    return axiosClient.post(url,params);
+  }
 }
 
 const userApi = new UserApi();

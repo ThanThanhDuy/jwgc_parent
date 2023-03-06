@@ -102,6 +102,18 @@ class UserService {
     }
     return response;
   }
+
+  async logout(fcm) {
+    try {
+      const params = {
+        FCMToken: fcm,
+      };
+      var response = await userApi.logout(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const userService = new UserService();
 export default userService;

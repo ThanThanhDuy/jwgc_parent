@@ -80,8 +80,49 @@ class ChildrenApi {
   }
 
   async sendInviteToParent(params) {
-    const url = `users/parent-invitation`;
+    const url = `children/parent-invitation`;
     return axiosClient.post(url, params);
+  }
+
+  async getSendInviteToParent(params) {
+    const url = `children/sent-parent-invitation`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
+
+  async parentCancelInvitePartner(params) {
+    const url = `children/parent-invitation`;
+    return axiosClient.delete(url, {
+      data: {
+        ...params,
+      },
+    });
+  }
+
+  async getInvitionParent(params) {
+    const url = `children/parent-invitation`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
+
+  async changeStatusInvitionParent(params) {
+    const url = `children/parent-invitation`;
+    return axiosClient.put(url, params);
+  }
+
+  async parentCancelRelationshipPartner(params) {
+    const url = `children/parent/parent-relationship`;
+    return axiosClient.delete(url, {
+      data: {
+        ...params,
+      },
+    });
   }
 }
 

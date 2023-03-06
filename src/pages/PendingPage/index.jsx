@@ -64,6 +64,7 @@ function PendingPage() {
         PageSize: 1,
       };
       const res = await blogService.getMyBlog(data);
+      console.log("res", res);
       if (res && res.StatusCode === 200) {
         setTimeout(() => {
           setBlog(res.Data?.Items[0]);
