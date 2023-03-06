@@ -41,10 +41,12 @@ function Activity() {
   const [valueSearch, setValueSearch] = useState("");
   const [tabValue, setTabValue] = useState("1");
   const [listInvite, setListInvite] = useState([]);
+  const [listInviteParent, setListInviteParent] = useState([]);
   const [totalUser, setTotalUser] = useState(0);
   const [currentPageUser, setCurrentPageUser] = useState(1);
   const pageSizeUser = 5;
   const [totalInvite, setTotalInvite] = useState(0);
+  const [totalInviteParent, setTotalInviteParent] = useState(0);
   const [currentPageInvite, setCurrentPageInvite] = useState(1);
   const pageSizeInvite = 6;
   const [listCate, setListCate] = useState([]);
@@ -85,8 +87,26 @@ function Activity() {
         item.Code
       );
     } else {
+      res = await childrenService.sendInviteToParent(
+        childSelect.Code,
+        item.Code
+      );
     }
     if (res && res.StatusCode === 200) {
+      const res = await userService.searchUser(valueSearch, 1, pageSizeUser);
+      if (res && res.StatusCode === 200) {
+        if (res.Data.Items.length > 0) {
+          setListUser(res.Data.Items);
+          setTotalUser(res.Data.TotalItemsCount);
+        } else {
+          setListUser(null);
+        }
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
       notification.success({
         message: "Thành công",
         description: res.Message,
@@ -157,6 +177,18 @@ function Activity() {
         } else {
           setListInvite(null);
         }
+      } else {
+        const res = await childrenService.getSendInviteToParent(
+          childSelect.Code,
+          1,
+          pageSizeInvite
+        );
+        if (res && res.StatusCode === 200) {
+          setListInviteParent(res.Data.Items);
+          setTotalInviteParent(res.Data.TotalItemsCount);
+        } else {
+          setListInviteParent(null);
+        }
       }
     }
   };
@@ -174,10 +206,38 @@ function Activity() {
         });
         let listInviteTmp = [...listInvite];
         listInviteTmp = listInviteTmp.filter(
-          (itemTmp) => itemTmp.Nanny.Code !== nannyCode
+          (itemTmp) => itemTmp.User.Code !== nannyCode
         );
 
         setListInvite(listInviteTmp);
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleParentCancelInvitePartner = async (childCode, partnerCode) => {
+    try {
+      const res = await childrenService.parentCancelInvitePartner(
+        childCode,
+        partnerCode
+      );
+      if (res && res.StatusCode === 200) {
+        notification.success({
+          message: "Thành công",
+          description: res.Message,
+        });
+        let listInviteTmp = [...listInviteParent];
+        listInviteTmp = listInviteTmp.filter(
+          (itemTmp) => itemTmp.User.Code !== partnerCode
+        );
+
+        setListInviteParent(listInviteTmp);
       } else {
         notification.error({
           message: "Lỗi",
@@ -203,6 +263,36 @@ function Activity() {
         let childSelectTmp = { ...childSelect };
         childSelectTmp.Nannies = childSelectTmp.Nannies.filter(
           (itemTmp) => itemTmp.Code !== nannyCode
+        );
+        setChildSelect(childSelectTmp);
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleParentCancelRelationshipPartner = async (
+    childCode,
+    partnerCode
+  ) => {
+    try {
+      const res = await childrenService.parentCancelRelationshipPartner(
+        childCode,
+        partnerCode
+      );
+      if (res && res.StatusCode === 200) {
+        notification.success({
+          message: "Thành công",
+          description: res.Message,
+        });
+        let childSelectTmp = { ...childSelect };
+        childSelectTmp.Parents = childSelectTmp.Parents.filter(
+          (itemTmp) => itemTmp.Code !== partnerCode
         );
         setChildSelect(childSelectTmp);
       } else {
@@ -268,15 +358,15 @@ function Activity() {
 
   return (
     <div className="activity__container">
-      {type === "Cha mẹ" ? (
-        childSelect?.Code && (
-          <div className="activity__container__main__parent">
-            <div className="activity__container__main__parent__header">
-              <div>
-                <span className="activity__container__main__parent__header__title">
-                  {childSelect?.Name}
-                </span>
-              </div>
+      {childSelect?.Code && (
+        <div className="activity__container__main__parent">
+          <div className="activity__container__main__parent__header">
+            <div>
+              <span className="activity__container__main__parent__header__title">
+                {childSelect?.Name}
+              </span>
+            </div>
+            {type === "Cha mẹ" && (
               <div className="activity__container__main__parent__header__add">
                 <button
                   className="jwgc__btn__outline__green"
@@ -291,14 +381,32 @@ function Activity() {
                   Bảo mẫu
                 </button>
               </div>
+            )}
+          </div>
+          <div className="activity__container__main__parent__parentnanny">
+            <div>
+              <span className="activity__container__main__parent__parentnanny__title__parent">
+                Cha mẹ
+              </span>
+              <ul className="activity__container__main__parent__parentnanny__list">
+                {childSelect?.Parents.map((item) => (
+                  <li
+                    key={item.Code}
+                    className="activity__container__main__parent__parentnanny__list__item"
+                  >
+                    {item.Name}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="activity__container__main__parent__parentnanny">
+
+            {childSelect?.Nannies.length > 0 && (
               <div>
-                <span className="activity__container__main__parent__parentnanny__title__parent">
-                  Cha mẹ
+                <span className="activity__container__main__parent__parentnanny__title__nanny">
+                  Bảo mẫu
                 </span>
                 <ul className="activity__container__main__parent__parentnanny__list">
-                  {childSelect?.Parents.map((item) => (
+                  {childSelect?.Nannies.map((item) => (
                     <li
                       key={item.Code}
                       className="activity__container__main__parent__parentnanny__list__item"
@@ -308,207 +416,234 @@ function Activity() {
                   ))}
                 </ul>
               </div>
-
-              {childSelect?.Nannies.length > 0 && (
-                <div>
-                  <span className="activity__container__main__parent__parentnanny__title__nanny">
-                    Bảo mẫu
-                  </span>
-                  <ul className="activity__container__main__parent__parentnanny__list">
-                    {childSelect?.Nannies.map((item) => (
-                      <li
-                        key={item.Code}
-                        className="activity__container__main__parent__parentnanny__list__item"
-                      >
-                        {item.Name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            <div className="activity__container__main__parent__acti">
-              <div className="activity__container__main__parent__acti__grid">
-                {listCate.map((item, index) => (
-                  <div
-                    className="activity__container__main__parent__acti__grid__item"
-                    key={index}
-                    style={{ color: item.Color }}
-                    onClick={() => handleClickActivity(item.Name)}
-                  >
-                    <div className="activity__container__main__parent__acti__grid__item__icon">
-                      <img src={item.Icon} alt="" />
-                    </div>
-                    <div className="activity__container__main__parent__acti__grid__item__title">
-                      <span>{item.Name}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {activitySelect === "Cho Ăn" && (
-              <ModalNormal
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
             )}
-            {activitySelect === "Vắt Sữa" && (
-              <Milk
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            {activitySelect === "Thay Tã" && (
-              <Diaper
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            {activitySelect === "Ngủ" && (
-              <Sleep
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            {activitySelect === "Sức Khỏe" && (
-              <Health
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            {activitySelect === "Tăng Trưởng" && (
-              <Growth
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            {activitySelect === "Giờ Chơi" && (
-              <HangOut
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            {activitySelect === "Nhật Ký" && (
-              <Diary
-                activitySelect={activitySelect}
-                open={openModalActivitySelect}
-                color={
-                  ACTIVITY.find((item) => item.title === activitySelect).color
-                }
-                cateCode={
-                  listCate.find((item) => item.Name === activitySelect).Code
-                }
-              />
-            )}
-            <Modal
-              title={
-                typeModal === "parent"
-                  ? `Cha mẹ của bé ${childSelect.Name}`
-                  : `Bảo mẫu chăm sóc bé ${childSelect.Name}`
-              }
-              open={openModal}
-              onCancel={handleCancelAddNanny}
-              okText="Thêm"
-              cancelText="Hủy"
-              className="box__moadl__link"
-              footer={null}
-            >
-              <Tabs activeKey={tabValue} onChange={handleChangeTab}>
-                <Tabs.TabPane
-                  tab={typeModal === "parent" ? "Thêm cha mẹ" : "Thêm bảo mẫu"}
-                  key="1"
+          </div>
+          <div className="activity__container__main__parent__acti">
+            <div className="activity__container__main__parent__acti__grid">
+              {listCate.map((item, index) => (
+                <div
+                  className="activity__container__main__parent__acti__grid__item"
+                  key={index}
+                  style={{ color: item.Color }}
+                  onClick={() => handleClickActivity(item.Name)}
                 >
-                  <>
-                    <div className="box__moadl__link__childrend">
-                      <Search
-                        placeholder={
-                          typeModal === "parent"
-                            ? "Nhập tên cha mẹ hoặc tài khoản cha mẹ"
-                            : "Nhập tên bảo mẫu hoặc tài khoản bảo mẫu"
-                        }
-                        onSearch={onSearchNanny}
-                        loading={loadingSearch}
-                        value={valueSearch}
-                        onChange={(e) => setValueSearch(e.target.value)}
+                  <div className="activity__container__main__parent__acti__grid__item__icon">
+                    <img src={item.Icon} alt="" />
+                  </div>
+                  <div className="activity__container__main__parent__acti__grid__item__title">
+                    <span>{item.Name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {activitySelect === "Cho Ăn" && (
+            <ModalNormal
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Vắt Sữa" && (
+            <Milk
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Thay Tã" && (
+            <Diaper
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Ngủ" && (
+            <Sleep
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Sức Khỏe" && (
+            <Health
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Tăng Trưởng" && (
+            <Growth
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Giờ Chơi" && (
+            <HangOut
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          {activitySelect === "Nhật Ký" && (
+            <Diary
+              activitySelect={activitySelect}
+              open={openModalActivitySelect}
+              color={
+                ACTIVITY.find((item) => item.title === activitySelect).color
+              }
+              cateCode={
+                listCate.find((item) => item.Name === activitySelect).Code
+              }
+            />
+          )}
+          <Modal
+            title={
+              typeModal === "parent"
+                ? `Cha mẹ của bé ${childSelect.Name}`
+                : `Bảo mẫu chăm sóc bé ${childSelect.Name}`
+            }
+            open={openModal}
+            onCancel={handleCancelAddNanny}
+            okText="Thêm"
+            cancelText="Hủy"
+            className="box__moadl__link"
+            footer={null}
+          >
+            <Tabs activeKey={tabValue} onChange={handleChangeTab}>
+              <Tabs.TabPane
+                tab={typeModal === "parent" ? "Thêm cha mẹ" : "Thêm bảo mẫu"}
+                key="1"
+              >
+                <>
+                  <div className="box__moadl__link__childrend">
+                    <Search
+                      placeholder={
+                        typeModal === "parent"
+                          ? "Nhập tên cha mẹ hoặc tài khoản cha mẹ"
+                          : "Nhập tên bảo mẫu hoặc tài khoản bảo mẫu"
+                      }
+                      onSearch={onSearchNanny}
+                      loading={loadingSearch}
+                      value={valueSearch}
+                      onChange={(e) => setValueSearch(e.target.value)}
+                    />
+                  </div>
+                  <div className="box__moadl__link__list__child">
+                    {listUser === null ? (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description={<span>Không tìm thấy người dùng</span>}
                       />
-                    </div>
-                    <div className="box__moadl__link__list__child">
-                      {listUser === null ? (
-                        <Empty
-                          image={Empty.PRESENTED_IMAGE_SIMPLE}
-                          description={<span>Không tìm thấy người dùng</span>}
-                        />
-                      ) : (
-                        // eslint-disable-next-line
-                        listUser.map((item) => {
-                          return (
-                            <div
-                              className="box__moadl__link__list__child__item"
-                              key={item.Code}
-                            >
-                              <div className="box__moadl__link__list__child__item__avatar">
-                                <img
-                                  src={
-                                    item.AvatarPath
-                                      ? item.AvatarPath
-                                      : userAvatar
+                    ) : (
+                      // eslint-disable-next-line
+                      listUser.map((item) => {
+                        return (
+                          <div
+                            className="box__moadl__link__list__child__item"
+                            key={item.Code}
+                          >
+                            <div className="box__moadl__link__list__child__item__avatar">
+                              <img
+                                src={
+                                  item.AvatarPath ? item.AvatarPath : userAvatar
+                                }
+                                alt=""
+                              />
+                            </div>
+                            <div className="box__moadl__link__list__child__item__user">
+                              <div className="box__moadl__link__list__child__item__user__box">
+                                <span className="box__moadl__link__list__child__item__user__box__title">
+                                  {item.Name}
+                                </span>
+                                <span className="box__moadl__link__list__child__item__user__box__username">
+                                  @{item.UserName}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="box__moadl__link__list__child__item__btn">
+                              {typeModal === "nanny" ? (
+                                item.SentNannyChildrenCodes.length > 0 ||
+                                item.NannyChildrenCodes.length > 0 ? (
+                                  <button
+                                    className={
+                                      typeModal === "parent"
+                                        ? "jwgc__btn__outline__green"
+                                        : "jwgc__btn__outline__yellow"
+                                    }
+                                    style={{
+                                      padding: "4px 8px",
+                                      cursor: "not-allowed",
+                                    }}
+                                  >
+                                    Đã Mời
+                                  </button>
+                                ) : (
+                                  <button
+                                    className={
+                                      typeModal === "parent"
+                                        ? "jwgc__btn__outline__green"
+                                        : "jwgc__btn__outline__yellow"
+                                    }
+                                    style={{ padding: "4px 8px" }}
+                                    onClick={() => handleAdd(item)}
+                                  >
+                                    Mời
+                                  </button>
+                                )
+                              ) : item.SentPartnerParentChildrenCodes.length >
+                                  0 ||
+                                item.PartnerParentChildrenCodes.length > 0 ? (
+                                <button
+                                  className={
+                                    typeModal === "parent"
+                                      ? "jwgc__btn__outline__green"
+                                      : "jwgc__btn__outline__yellow"
                                   }
-                                  alt=""
-                                />
-                              </div>
-                              <div className="box__moadl__link__list__child__item__user">
-                                <div className="box__moadl__link__list__child__item__user__box">
-                                  <span className="box__moadl__link__list__child__item__user__box__title">
-                                    {item.Name}
-                                  </span>
-                                  <span className="box__moadl__link__list__child__item__user__box__username">
-                                    @{item.UserName}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="box__moadl__link__list__child__item__btn">
+                                  style={{
+                                    padding: "4px 8px",
+                                    cursor: "not-allowed",
+                                  }}
+                                >
+                                  Đã Mời
+                                </button>
+                              ) : (
                                 <button
                                   className={
                                     typeModal === "parent"
@@ -520,26 +655,28 @@ function Activity() {
                                 >
                                   Mời
                                 </button>
-                              </div>
+                              )}
                             </div>
-                          );
-                        })
-                      )}
-                      <div className="box__moadl__link__list__child__pagi">
-                        <Pagination
-                          hideOnSinglePage
-                          size="small"
-                          total={totalUser}
-                          pageSize={pageSizeUser}
-                          current={currentPageUser}
-                          onChange={onChangePageUser}
-                        />
-                      </div>
+                          </div>
+                        );
+                      })
+                    )}
+                    <div className="box__moadl__link__list__child__pagi">
+                      <Pagination
+                        hideOnSinglePage
+                        size="small"
+                        total={totalUser}
+                        pageSize={pageSizeUser}
+                        current={currentPageUser}
+                        onChange={onChangePageUser}
+                      />
                     </div>
-                  </>
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="Xem lời mời" key="2">
-                  {listInvite === null ? (
+                  </div>
+                </>
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="Xem lời mời" key="2">
+                {typeModal === "parent" ? (
+                  listInviteParent === null ? (
                     <Empty
                       image={Empty.PRESENTED_IMAGE_SIMPLE}
                       description={
@@ -551,17 +688,17 @@ function Activity() {
                       <div className="box__moadl__link__list__child">
                         {
                           // eslint-disable-next-line
-                          listInvite.map((item) => {
+                          listInviteParent.map((item) => {
                             return (
                               <div
                                 className="box__moadl__link__list__child__item"
-                                key={item.Nanny.Code}
+                                key={item.User.Code}
                               >
                                 <div className="box__moadl__link__list__child__item__avatar">
                                   <img
                                     src={
-                                      item.Nanny.AvatarPath
-                                        ? item.Nanny.AvatarPath
+                                      item.User.AvatarPath
+                                        ? item.User.AvatarPath
                                         : userAvatar
                                     }
                                     alt=""
@@ -570,10 +707,10 @@ function Activity() {
                                 <div className="box__moadl__link__list__child__item__user">
                                   <div className="box__moadl__link__list__child__item__user__box">
                                     <span className="box__moadl__link__list__child__item__user__box__title">
-                                      {item.Nanny.Name}
+                                      {item.User.Name}
                                     </span>
                                     <span className="box__moadl__link__list__child__item__user__box__username">
-                                      @{item.Nanny.UserName}
+                                      @{item.User.UserName}
                                     </span>
                                   </div>
                                 </div>
@@ -582,9 +719,9 @@ function Activity() {
                                     className={"jwgc__btn__outline__danger"}
                                     style={{ padding: "4px 8px" }}
                                     onClick={() =>
-                                      handleParentCancelInviteNanny(
+                                      handleParentCancelInvitePartner(
                                         item.Child.Code,
-                                        item.Nanny.Code
+                                        item.User.Code
                                       )
                                     }
                                   >
@@ -607,33 +744,28 @@ function Activity() {
                         </div>
                       </div>
                     </div>
-                  )}
-                </Tabs.TabPane>
-                <Tabs.TabPane
-                  tab={
-                    typeModal === "parent" ? "Cha mẹ của bé" : "Bảo mẫu của bé"
-                  }
-                  key="3"
-                >
-                  {typeModal === "parent"
-                    ? childSelect?.Parents.map((item) => (
-                        <li
-                          key={item.Code}
-                          className="activity__container__main__parent__parentnanny__list__item"
-                        >
-                          <li
-                            key={item.Code}
-                            className="activity__container__main__parent__parentnanny__list__item"
-                          >
+                  )
+                ) : listInvite === null ? (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={<span>Không có lời mời nào được gửi đi</span>}
+                  />
+                ) : (
+                  <div className="invite">
+                    <div className="box__moadl__link__list__child">
+                      {
+                        // eslint-disable-next-line
+                        listInvite.map((item) => {
+                          return (
                             <div
                               className="box__moadl__link__list__child__item"
-                              key={item.Code}
+                              key={item.User.Code}
                             >
                               <div className="box__moadl__link__list__child__item__avatar">
                                 <img
                                   src={
-                                    item.AvatarPath
-                                      ? item.AvatarPath
+                                    item.User.AvatarPath
+                                      ? item.User.AvatarPath
                                       : userAvatar
                                   }
                                   alt=""
@@ -642,38 +774,57 @@ function Activity() {
                               <div className="box__moadl__link__list__child__item__user">
                                 <div className="box__moadl__link__list__child__item__user__box">
                                   <span className="box__moadl__link__list__child__item__user__box__title">
-                                    {item.Name}
+                                    {item.User.Name}
                                   </span>
                                   <span className="box__moadl__link__list__child__item__user__box__username">
-                                    @{item.UserName}
+                                    @{item.User.UserName}
                                   </span>
                                 </div>
                               </div>
                               <div className="box__moadl__link__list__child__item__btn">
-                                {item.Code !== localService.getUser().Code ? (
-                                  <button
-                                    className={"jwgc__btn__outline__danger"}
-                                    style={{
-                                      padding: "4px 8px",
-                                      minWidth: "102px",
-                                    }}
-                                  >
-                                    Chấm dứt
-                                  </button>
-                                ) : (
-                                  <div
-                                    style={{
-                                      padding: "4px 8px",
-                                      minWidth: "102px",
-                                    }}
-                                  ></div>
-                                )}
+                                <button
+                                  className={"jwgc__btn__outline__danger"}
+                                  style={{ padding: "4px 8px" }}
+                                  onClick={() =>
+                                    handleParentCancelInviteNanny(
+                                      item.Child.Code,
+                                      item.User.Code
+                                    )
+                                  }
+                                >
+                                  Hủy lời mời
+                                </button>
                               </div>
                             </div>
-                          </li>
-                        </li>
-                      ))
-                    : childSelect?.Nannies.map((item) => (
+                          );
+                        })
+                      }
+                      <div className="box__moadl__link__list__child__pagi">
+                        <Pagination
+                          hideOnSinglePage
+                          size="small"
+                          total={totalInvite}
+                          pageSize={pageSizeInvite}
+                          current={currentPageInvite}
+                          onChange={onChangePageInvite}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Tabs.TabPane>
+              <Tabs.TabPane
+                tab={
+                  typeModal === "parent" ? "Cha mẹ của bé" : "Bảo mẫu của bé"
+                }
+                key="3"
+              >
+                {typeModal === "parent"
+                  ? childSelect?.Parents.map((item) => (
+                      <li
+                        key={item.Code}
+                        className="activity__container__main__parent__parentnanny__list__item"
+                      >
                         <li
                           key={item.Code}
                           className="activity__container__main__parent__parentnanny__list__item"
@@ -701,29 +852,83 @@ function Activity() {
                               </div>
                             </div>
                             <div className="box__moadl__link__list__child__item__btn">
-                              <button
-                                className={"jwgc__btn__outline__danger"}
-                                style={{ padding: "4px 8px", width: "102px" }}
-                                onClick={() =>
-                                  handleParentCancelRelationshipNanny(
-                                    childSelect.Code,
-                                    item.Code
-                                  )
-                                }
-                              >
-                                Chấm dứt
-                              </button>
+                              {item.Code !== localService.getUser().Code ? (
+                                <button
+                                  className={"jwgc__btn__outline__danger"}
+                                  style={{
+                                    padding: "4px 8px",
+                                    minWidth: "102px",
+                                  }}
+                                  onClick={() =>
+                                    handleParentCancelRelationshipPartner(
+                                      childSelect.Code,
+                                      item.Code
+                                    )
+                                  }
+                                >
+                                  Chấm dứt
+                                </button>
+                              ) : (
+                                <div
+                                  style={{
+                                    padding: "4px 8px",
+                                    minWidth: "102px",
+                                  }}
+                                ></div>
+                              )}
                             </div>
                           </div>
                         </li>
-                      ))}
-                </Tabs.TabPane>
-              </Tabs>
-            </Modal>
-          </div>
-        )
-      ) : (
-        <div>Điểm danh</div>
+                      </li>
+                    ))
+                  : childSelect?.Nannies.map((item) => (
+                      <li
+                        key={item.Code}
+                        className="activity__container__main__parent__parentnanny__list__item"
+                      >
+                        <div
+                          className="box__moadl__link__list__child__item"
+                          key={item.Code}
+                        >
+                          <div className="box__moadl__link__list__child__item__avatar">
+                            <img
+                              src={
+                                item.AvatarPath ? item.AvatarPath : userAvatar
+                              }
+                              alt=""
+                            />
+                          </div>
+                          <div className="box__moadl__link__list__child__item__user">
+                            <div className="box__moadl__link__list__child__item__user__box">
+                              <span className="box__moadl__link__list__child__item__user__box__title">
+                                {item.Name}
+                              </span>
+                              <span className="box__moadl__link__list__child__item__user__box__username">
+                                @{item.UserName}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="box__moadl__link__list__child__item__btn">
+                            <button
+                              className={"jwgc__btn__outline__danger"}
+                              style={{ padding: "4px 8px", width: "102px" }}
+                              onClick={() =>
+                                handleParentCancelRelationshipNanny(
+                                  childSelect.Code,
+                                  item.Code
+                                )
+                              }
+                            >
+                              Chấm dứt
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+              </Tabs.TabPane>
+            </Tabs>
+          </Modal>
+        </div>
       )}
     </div>
   );

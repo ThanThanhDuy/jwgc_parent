@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import TabItem from "../TabItem";
 import "./index.scss";
 import dairy from "../../assets/icons/dairy.png";
+import clock from "../../assets/icons/clock.png";
 import children from "../../assets/icons/children.png";
 import about from "../../assets/icons/about.png";
 import contact from "../../assets/icons/contact.png";
@@ -22,8 +23,14 @@ function Sidebar() {
     },
     {
       Icon: dairy,
-      label: "Nhật ký",
+      label: "Dòng thời gian",
       code: "2",
+    },
+    {
+      Icon: clock,
+      label: "Nhắc nhở",
+      code: "3",
+      link: "/reminder",
     },
   ];
 

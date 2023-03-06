@@ -1,0 +1,131 @@
+@import "../../themes/colors/index.scss";
+.containerReminder {
+  margin: 0 calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2);
+  padding: 16px;
+  &__main {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    &__left {
+      width: 450px;
+      position: sticky;
+      top: 72px;
+      left: 0;
+      box-shadow: 0 0 0 0.5px $grey-900-01;
+      height: calc(100vh - 56px - 40px);
+      border-radius: 8px;
+      background-color: #fff;
+      &__item {
+        cursor: pointer;
+        &--top {
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+        }
+        &--bottom {
+          border-bottom-left-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+        &--active {
+          background-color: $primary-color-bg-hover;
+        }
+      }
+    }
+    &__right {
+      width: 100%;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 0 0 0 0.5px $grey-900-01;
+      &__name {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      &__calendar {
+        padding: 0 8px;
+      }
+      .ant-picker-calendar-header {
+        padding-right: 8px !important;
+        .ant-radio-button-wrapper {
+          height: 40px;
+          position: relative;
+          width: 70px;
+          span:nth-child(2) {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          }
+        }
+      }
+    }
+  }
+}
+
+.reminder__note {
+  width: 100%;
+  border: 2px solid $grey-900-01;
+  border-radius: 8px;
+  padding: 4px 11px;
+  resize: none;
+  font-size: 16px;
+  &:focus-visible {
+    outline: none;
+    border: 1.5px solid $primary-color;
+  }
+}
+.form-control {
+  font-size: 16px !important;
+}
+.ant-picker-calendar-date-content {
+  height: 48px !important;
+}
+.ant-select-selector {
+  height: 40px !important;
+  align-items: center;
+  border-width: 1.5px !important;
+}
+.ant-picker-calendar-mode-switch {
+  display: none;
+}
+.ant-picker-calendar-date-content {
+  display: flex;
+  align-items: center;
+  ul {
+    padding-left: 0 !important;
+  }
+}
+.dateSelected {
+  padding: 16px 16px 16px 16px;
+  font-size: 20px;
+  font-weight: 500;
+  color: $primary-color;
+  text-align: center;
+}
+.box__reminder {
+  padding: 0 16px;
+  &__item {
+    height: 40px;
+    align-items: center;
+    &__label {
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+}
+.linkSuccess {
+  cursor: pointer;
+  color: $text-dark;
+  &:hover {
+    color: $green-color;
+    text-decoration: underline;
+  }
+}
+.iconEditReminder {
+  cursor: pointer;
+  color: $text-dark;
+  &:hover {
+    color: $yellow-color;
+    text-decoration: underline;
+  }
+}

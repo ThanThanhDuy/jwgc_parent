@@ -133,13 +133,76 @@ class ChildrenService {
     return response;
   }
 
-  async sendInviteToParent(ChildCode, NannyCode) {
+  async sendInviteToParent(ChildCode, PartnerCode) {
     let params = {
       ChildCode,
-      NannyCode,
+      PartnerCode,
     };
     try {
       var response = await children.sendInviteToParent(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async getSendInviteToParent(childCode, page, pageSize) {
+    const params = {};
+    childCode && (params["ChildCode"] = childCode);
+    page && (params["Paging.Page"] = page);
+    pageSize && (params["Paging.PageSize"] = pageSize);
+    try {
+      var response = await children.getSendInviteToParent(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async parentCancelInvitePartner(ChildCode, PartnerCode) {
+    let params = {
+      ChildCode,
+      PartnerCode,
+    };
+    try {
+      var response = await children.parentCancelInvitePartner(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async getInvitionParent(page, pageSize) {
+    const params = {};
+    page && (params["Paging.Page"] = page);
+    pageSize && (params["Paging.PageSize"] = pageSize);
+    try {
+      var response = await children.getInvitionParent(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async changeStatusInvitionParent(childCode, status) {
+    const params = {};
+    params["ChildCode"] = childCode;
+    params["Status"] = status;
+    try {
+      var response = await children.changeStatusInvitionParent(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async parentCancelRelationshipPartner(ChildCode, PartnerCode) {
+    let params = {
+      ChildCode,
+      PartnerCode,
+    };
+    try {
+      var response = await children.parentCancelRelationshipPartner(params);
     } catch (error) {
       return error;
     }

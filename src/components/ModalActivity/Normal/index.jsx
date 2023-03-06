@@ -157,7 +157,7 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
     data.timeStart = timeStart;
     data.timeFinish = timeFinish;
     switch (type) {
-      case "Vắt sữa":
+      case "Sữa bình":
         data.material = value__2;
         data.amount = sliderValue2;
         data.unit = "ml";

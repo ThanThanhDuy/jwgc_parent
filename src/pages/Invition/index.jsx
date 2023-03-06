@@ -24,6 +24,7 @@ function Invition() {
 
   useEffect(() => {
     const handleGetInvite = async () => {
+      setListCare([]);
       if (tabSelected === tabRender[0]) {
         const res = await childrenService.getInvition(1, pageSize);
         if (res && res.StatusCode === 200) {
@@ -33,8 +34,30 @@ function Invition() {
             setListCare(null);
           }
         }
-      } else {
+      } else if (tabSelected === tabRender[1]) {
         const res = await childrenService.getSendInviteToNanny("", 1, pageSize);
+        if (res && res.StatusCode === 200) {
+          if (res.Data.Items.length > 0) {
+            setListCare(res.Data.Items);
+          } else {
+            setListCare(null);
+          }
+        }
+      } else if (tabSelected === tabRender[2]) {
+        const res = await childrenService.getInvitionParent("", 1, pageSize);
+        if (res && res.StatusCode === 200) {
+          if (res.Data.Items.length > 0) {
+            setListCare(res.Data.Items);
+          } else {
+            setListCare(null);
+          }
+        }
+      } else {
+        const res = await childrenService.getSendInviteToParent(
+          "",
+          1,
+          pageSize
+        );
         if (res && res.StatusCode === 200) {
           if (res.Data.Items.length > 0) {
             setListCare(res.Data.Items);
@@ -65,6 +88,40 @@ function Invition() {
             value === 1
               ? `Bạn đã đồng ý chăm sóc bé ${child.Name}`
               : `Bạn đã từ chối chăm sóc bé ${child.Name}`
+          }`,
+        });
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleChangeStatusInvitionParent = async (child, value) => {
+    try {
+      const res = await childrenService.changeStatusInvitionParent(
+        child.Code,
+        value
+      );
+      if (res && res.StatusCode === 200) {
+        const res = await childrenService.getInvitionParent(1, pageSize);
+        if (res && res.StatusCode === 200) {
+          if (res.Data.Items.length > 0) {
+            setListCare(res.Data.Items);
+          } else {
+            setListCare(null);
+          }
+        }
+        notification.success({
+          message: "Thành công",
+          description: `${
+            value === 1
+              ? `Bạn đã đồng ý làm cha mẹ bé ${child.Name}`
+              : `Bạn đã từ chối làm cha mẹ bé ${child.Name}`
           }`,
         });
       } else {
@@ -115,7 +172,7 @@ function Invition() {
     try {
       const res = await childrenService.parentCancelInviteNanny(
         item.Child.Code,
-        item.Nanny.Code
+        item.User.Code
       );
       if (res && res.StatusCode === 200) {
         if (res && res.StatusCode === 200) {
@@ -136,6 +193,40 @@ function Invition() {
             description: "Bạn đã xóa lời mời thành công",
           });
         }
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleParentCancelInvitePartner = async (item) => {
+    try {
+      const res = await childrenService.parentCancelInvitePartner(
+        item.Child.Code,
+        item.User.Code
+      );
+      if (res && res.StatusCode === 200) {
+        const res = await childrenService.getSendInviteToParent(
+          "",
+          1,
+          pageSize
+        );
+        if (res && res.StatusCode === 200) {
+          if (res.Data.Items.length > 0) {
+            setListCare(res.Data.Items);
+          } else {
+            setListCare(null);
+          }
+        }
+        notification.success({
+          message: "Thành công",
+          description: "Bạn đã xóa lời mời thành công",
+        });
       } else {
         notification.error({
           message: "Lỗi",
@@ -276,8 +367,8 @@ function Invition() {
                       <div className="notification__container__main__content__list__item__avatar">
                         <img
                           src={
-                            item.Nanny?.AvatarPath
-                              ? item.Nanny?.AvatarPath
+                            item.User?.AvatarPath
+                              ? item.User?.AvatarPath
                               : userAvatar
                           }
                           alt=""
@@ -286,13 +377,13 @@ function Invition() {
                       <div className="notification__container__main__content__list__item__user notification__container__main__content__list__item__invited">
                         <div className="notification__container__main__content__list__item__user__parent">
                           <span className="notification__container__main__content__list__item__user__parent__name">
-                            {item.Nanny?.Name}
+                            {item.User?.Name}
                           </span>
                           <span className="notification__container__main__content__list__item__user__parent__dot">
                             •
                           </span>
                           <span className="notification__container__main__content__list__item__user__parent__username">
-                            @{item.Nanny?.UserName}
+                            @{item.User?.UserName}
                           </span>
                           <span className="notification__container__main__content__list__item__user__parent__dot">
                             •
@@ -319,6 +410,163 @@ function Invition() {
                           style={{ padding: "4px 8px", height: "38px" }}
                           className="jwgc__btn__outline__danger"
                           onClick={() => handleParentCancelInviteNanny(item)}
+                        >
+                          Hủy lời mời
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {tabSelected === tabRender[2] && (
+            <div>
+              {listCare === null ? (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={<span>Không có Lời mời nào</span>}
+                />
+              ) : (
+                <div className="notification__container__main__content__list">
+                  {listCare.map((item, index) => (
+                    <div
+                      key={index}
+                      className="notification__container__main__content__list__item"
+                    >
+                      <div className="notification__container__main__content__list__item__avatar">
+                        <img
+                          src={
+                            item.User?.AvatarPath
+                              ? item.User?.AvatarPath
+                              : userAvatar
+                          }
+                          alt=""
+                        />
+                      </div>
+                      <div className="notification__container__main__content__list__item__user">
+                        <div className="notification__container__main__content__list__item__user__parent">
+                          <span className="notification__container__main__content__list__item__user__parent__name">
+                            {item.User?.Name}
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__dot">
+                            •
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__username">
+                            @{item.User?.UserName}
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__dot">
+                            •
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__time">
+                            {item?.Datetime}
+                          </span>
+                        </div>
+                        <div className="notification__container__main__content__list__item__user__des">
+                          <span>
+                            <span className="notification__container__main__content__list__item__user__des__link">
+                              {item.User?.Name}
+                            </span>{" "}
+                            mời bạn làm cha mẹ của bé{" "}
+                            <span className="notification__container__main__content__list__item__user__des__link">
+                              {item.Child?.Name}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="notification__container__main__content__list__item__control">
+                        <button
+                          style={{ padding: "4px 8px", height: "38px" }}
+                          className="jwgc__btn__outline__green"
+                          onClick={() =>
+                            handleChangeStatusInvitionParent(item.Child, 1)
+                          }
+                        >
+                          Đồng ý
+                        </button>
+                        <button
+                          style={{ padding: "4px 8px", height: "38px" }}
+                          className="jwgc__btn__outline__yellow"
+                          onClick={() =>
+                            handleChangeStatusInvitionParent(item.Child, 0)
+                          }
+                        >
+                          Từ chối
+                        </button>
+                        <button
+                          style={{ padding: "4px 8px", height: "38px" }}
+                          className="jwgc__btn__outline__danger"
+                          onClick={() => handleDeleteInvition(item.Child)}
+                        >
+                          <UilTrash />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {tabSelected === tabRender[3] && (
+            <div>
+              {listCare === null ? (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={<span>Không có lời mời nào đã gửi đi</span>}
+                />
+              ) : (
+                <div className="notification__container__main__content__list">
+                  {listCare.map((item, index) => (
+                    <div
+                      key={index}
+                      className="notification__container__main__content__list__item"
+                    >
+                      <div className="notification__container__main__content__list__item__avatar">
+                        <img
+                          src={
+                            item.User?.AvatarPath
+                              ? item.User?.AvatarPath
+                              : userAvatar
+                          }
+                          alt=""
+                        />
+                      </div>
+                      <div className="notification__container__main__content__list__item__user notification__container__main__content__list__item__invited">
+                        <div className="notification__container__main__content__list__item__user__parent">
+                          <span className="notification__container__main__content__list__item__user__parent__name">
+                            {item.User?.Name}
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__dot">
+                            •
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__username">
+                            @{item.User?.UserName}
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__dot">
+                            •
+                          </span>
+                          <span className="notification__container__main__content__list__item__user__parent__time">
+                            {item?.Datetime}
+                          </span>
+                        </div>
+                        <div className="notification__container__main__content__list__item__user__des">
+                          <span>
+                            Bạn đã mời{" "}
+                            <span className="notification__container__main__content__list__item__user__des__link">
+                              {item.Nanny?.Name}
+                            </span>{" "}
+                            làm cha mẹ của bé{" "}
+                            <span className="notification__container__main__content__list__item__user__des__link">
+                              {item.Child?.Name}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="notification__container__main__content__list__item__control__invited">
+                        <button
+                          style={{ padding: "4px 8px", height: "38px" }}
+                          className="jwgc__btn__outline__danger"
+                          onClick={() => handleParentCancelInvitePartner(item)}
                         >
                           Hủy lời mời
                         </button>

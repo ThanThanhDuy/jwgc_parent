@@ -128,6 +128,17 @@ function Header() {
     navigate(`/home`);
   };
 
+  const handleLogout = async () => {
+    const res = await userService.logout();
+    if (res && res.StatusCode === 200) {
+      localService.removeAll();
+      localService.removeAccessToken();
+      localService.removeUser();
+      setUser(null);
+      navigate("/login");
+    }
+  };
+
   return (
     <>
       <div
@@ -253,7 +264,13 @@ function Header() {
                       </span>
                       <div className="divider-10"></div>
                       <div>
-                        <Link className="popover_profile__link" to="#">Đăng xuất</Link>
+                        {/* <Link className="popover_profile__link" to="#">Đăng xuất</Link> */}
+                        <span
+                          className="popover_profile__link"
+                          onClick={handleLogout}
+                        >
+                          Đăng xuất
+                        </span>
                       </div>
                     </div>
                   )}

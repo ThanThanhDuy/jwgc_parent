@@ -223,7 +223,12 @@ function CreateBlog() {
             localService.removeAll();
             setData("");
             setTitle("");
-            navigate(`/pending/${res.Data.Title}/${res.Data.Code}`);
+            navigate(
+              `/pending/${encodeURIComponent(res.Data.Title)?.replaceAll(
+                "%20",
+                "-"
+              )}/${res.Data.Code}`
+            );
             notification.open({
               type: "success",
               message: "Đăng bài viết thành công",
