@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import {
   Row,
@@ -12,7 +12,7 @@ import {
   Result,
   Button,
 } from "antd";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   activitySelectState,
   childSelectState,
@@ -29,6 +29,9 @@ import {
 
 import { DatePicker, Segmented } from "antd";
 import activityService from "../../../services/activity";
+import { reloadState } from "../../../stores/activity";
+import moment from "moment";
+import dayjs from "dayjs";
 const { RangePicker } = DatePicker;
 
 const marks2 = {
@@ -116,7 +119,14 @@ const options__guide = [
   },
 ];
 
-function Health({ open, activitySelect, color, cateCode }) {
+function Health({
+  open,
+  activitySelect,
+  color,
+  cateCode,
+  typeApi,
+  itemSelected,
+}) {
   const [type, setType] = useState("Nhiệt độ");
   const [medicine, setMedicine] = useState("");
   const [amount, setAmount] = useState(0);
@@ -134,12 +144,34 @@ function Health({ open, activitySelect, color, cateCode }) {
   const [statusModal, setStatusModal] = useState(null);
   const [error, setError] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
+  const [reload, setReload] = useRecoilState(reloadState);
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
   );
   const setActivitySelect = useSetRecoilState(activitySelectState);
   const childSelect = useRecoilValue(childSelectState);
+
+  useEffect(() => {
+    setType(itemSelected?.Data.type ? itemSelected?.Data.type : "Nhiệt độ");
+    setDate(itemSelected?.Data.date);
+    console.log(itemSelected?.Data.date);
+    setNote(itemSelected?.Data.note);
+    if (itemSelected?.Data.type === "Nhiệt độ") {
+      setSliderValue2(itemSelected?.Data.temperature);
+    } else if (itemSelected?.Data.type === "Triệu chứng") {
+      setSymptom(itemSelected?.Data.symptom);
+      setSliderValueStatus(itemSelected?.Data.status);
+    } else if (itemSelected?.Data.type === "Tiêm chủng") {
+      setVaccine(itemSelected?.Data.vaccine);
+    } else if (itemSelected?.Data.type === "Thuốc") {
+      setMedicine(itemSelected?.Data.medicine);
+      setAmount(itemSelected?.Data.amount);
+      setUnit(itemSelected?.Data.unit);
+      setGuide(itemSelected?.Data.guide);
+    }
+  }, [itemSelected]);
 
   const handleOk = async () => {
     setConfirmLoading(true);
@@ -192,15 +224,26 @@ function Health({ open, activitySelect, color, cateCode }) {
       default:
         break;
     }
-    const res = await activityService.recordActivity(
-      cateCode,
-      childSelect.Code,
-      date,
-      data,
-      null
-    );
+    let res;
+    if (typeApi !== "update") {
+      res = await activityService.recordActivity(
+        cateCode,
+        childSelect.Code,
+        date,
+        data,
+        null
+      );
+    } else {
+      res = await activityService.updateActivity(
+        itemSelected.Code,
+        date,
+        data,
+        null
+      );
+    }
     if (res && res.StatusCode === 200) {
       setStatusModal("success");
+      setReload(!reload);
     } else {
       setStatusModal("error");
       setError(res.Message);
@@ -274,6 +317,18 @@ function Health({ open, activitySelect, color, cateCode }) {
     setStatusVaccine("");
   };
 
+  const handleDelete = async () => {
+    setConfirmLoadingDelete(true);
+    const res = await activityService.deleteActivity(itemSelected.Code);
+    if (res && res.StatusCode === 200) {
+      handleCancel();
+      setReload(!reload);
+    } else {
+      setError(res.Message);
+    }
+    setConfirmLoadingDelete(false);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -291,7 +346,44 @@ function Health({ open, activitySelect, color, cateCode }) {
         okText="Lưu"
         cancelText="Hủy"
         confirmLoading={confirmLoading}
-        footer={statusModal === null ? undefined : null}
+        footer={
+          statusModal === null
+            ? typeApi === "update"
+              ? [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    danger
+                    loading={confirmLoadingDelete}
+                    onClick={handleDelete}
+                  >
+                    Xóa
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+              : [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+            : null
+        }
       >
         {statusModal === null && (
           <div className="containerModal__box__health">
@@ -303,6 +395,7 @@ function Health({ open, activitySelect, color, cateCode }) {
               onChange={onChangeDate}
               status={statusDate}
               format="DD-MM-YYYY HH:mm:ss"
+              value={date ? dayjs(date, "DD-MM-YYYY HH:mm:ss") : null}
             />
             {statusDate === "error" && (
               <p
@@ -316,11 +409,13 @@ function Health({ open, activitySelect, color, cateCode }) {
               </p>
             )}
             <div className="containerModal__box__health__control">
-              <Segmented
-                block
-                options={["Nhiệt độ", "Thuốc", "Triệu chứng", "Vaccine"]}
-                onChange={onChangeSegmented}
-              />
+              {typeApi !== "update" && (
+                <Segmented
+                  block
+                  options={["Nhiệt độ", "Thuốc", "Triệu chứng", "Vaccine"]}
+                  onChange={onChangeSegmented}
+                />
+              )}
               <div className="containerModal__box__health__control__content">
                 {type === "Nhiệt độ" && (
                   <div className="containerModal__box__health__control__content__box">
@@ -581,6 +676,7 @@ function Health({ open, activitySelect, color, cateCode }) {
                 className="containerModal__box__health__textarea__input__box"
                 minRows={5}
                 onChange={onChangeTextArea}
+                value={note}
               />
             </div>
           </div>
@@ -589,7 +685,9 @@ function Health({ open, activitySelect, color, cateCode }) {
           <Result
             className="containerModal__result__health"
             status={statusModal}
-            title={`Ghi lại hành trình cho trẻ ${
+            title={`${
+              typeApi === "update" ? "Cập nhật" : "Ghi lại"
+            } hành trình cho trẻ ${
               statusModal === "success" ? "thành công" : "thất bại"
             }`}
             subTitle={error}

@@ -1,11 +1,12 @@
 import authApi from "../apis/auth";
 import { ROLE } from "../constants/auth";
 class AuthService {
-  async login(username, password) {
+  async login(username, password, fcmToken, deviceType) {
     const params = {
       UserName: username,
       Password: password,
-      FCMToken: "",
+      FCMToken: fcmToken,
+      DeviceType: deviceType,
     };
     try {
       var response = await authApi.login(params);

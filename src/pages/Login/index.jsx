@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 // import { useSetRecoilState } from "recoil";
 // import { isAuthState } from "../../stores/auth";
 import { usernameState } from "../../stores/auth";
+import { getMessagingToken } from "../../utils/noti";
 
 function Login() {
   const navigate = useNavigate();
@@ -23,7 +24,14 @@ function Login() {
 
   const handleLogin = async (username, password) => {
     setLoading(true);
-    const res = await authService.login(username, password);
+    const fcmToken = await getMessagingToken();
+    const DEVICE_TYPE = 3;
+    const res = await authService.login(
+      username,
+      password,
+      fcmToken,
+      DEVICE_TYPE
+    );
     if (res && res.StatusCode === 200) {
       localService.setUser(JSON.stringify(res.Data?.User));
       localService.setAccessToken(res.Data?.AccessToken);

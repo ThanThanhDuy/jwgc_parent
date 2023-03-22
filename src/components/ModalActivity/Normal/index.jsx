@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import {
   Row,
@@ -9,8 +9,9 @@ import {
   Slider,
   Button,
   Result,
+  notification,
 } from "antd";
-import { useSetRecoilState, useRecoilValue } from "recoil";
+import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import {
   activitySelectState,
   childSelectState,
@@ -24,6 +25,7 @@ import { DatePicker, Segmented, TimePicker } from "antd";
 import activityService from "../../../services/activity";
 import { UilArrowRight } from "@iconscout/react-unicons";
 import dayjs from "dayjs";
+import { reloadState } from "../../../stores/activity";
 
 const marks3 = {
   0: "0g",
@@ -95,7 +97,14 @@ const options__2 = [
 
 const formatDay = "DD-MM-YYYY";
 
-function ModalNormal({ open, activitySelect, color, cateCode }) {
+function ModalNormal({
+  open,
+  activitySelect,
+  color,
+  cateCode,
+  typeApi,
+  itemSelected,
+}) {
   const [type, setType] = useState("Sữa mẹ");
   const [value__3, setValue__3] = useState([]);
   const [value__2, setValue__2] = useState(null);
@@ -109,15 +118,33 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
   const [statusModal, setStatusModal] = useState(null);
   const [error, setError] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [timeStart, setTimeStart] = useState(null);
   const [timeFinish, setTimeFinish] = useState(null);
   const [errorTimeFinish, setErrorTimeFinish] = useState("");
+  const [reload, setReload] = useRecoilState(reloadState);
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
   );
   const setActivitySelect = useSetRecoilState(activitySelectState);
   const childSelect = useRecoilValue(childSelectState);
+
+  useEffect(() => {
+    setType(itemSelected?.Data.type ? itemSelected?.Data.type : "Sữa mẹ");
+    setTimeStart(itemSelected?.Data.timeStart);
+    setTimeFinish(itemSelected?.Data.timeFinish);
+    setDate(itemSelected?.Data.date);
+    setNote(itemSelected?.Data.note);
+    if (itemSelected?.Data.type === "Sữa bình") {
+      setValue__2(itemSelected?.Data.material);
+      setSliderValue2(itemSelected?.Data.amount);
+    } else if (itemSelected?.Data.type === "Ăn dặm") {
+      setValue__3(itemSelected?.Data.material);
+      setSliderValue3(itemSelected?.Data.amount);
+    }
+  }, [itemSelected]);
+
   const handleOk = async () => {
     setConfirmLoading(true);
     let check = true;
@@ -174,15 +201,26 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
         break;
     }
     // console.log(cateCode, childSelect.Code, date[0], data, null);
-    const res = await activityService.recordActivity(
-      cateCode,
-      childSelect.Code,
-      `${date} ${timeStart}`,
-      data,
-      null
-    );
+    let res;
+    if (typeApi !== "update") {
+      res = await activityService.recordActivity(
+        cateCode,
+        childSelect.Code,
+        `${date} ${timeStart}`,
+        data,
+        null
+      );
+    } else {
+      res = await activityService.updateActivity(
+        itemSelected.Code,
+        `${date} ${timeStart}`,
+        data,
+        null
+      );
+    }
     if (res && res.StatusCode === 200) {
       setStatusModal("success");
+      setReload(!reload);
     } else {
       setStatusModal("error");
       setError(res.Message);
@@ -268,6 +306,26 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
     setNote(e.target.value);
   };
 
+  const handleDelete = async () => {
+    setConfirmLoadingDelete(true);
+    const res = await activityService.deleteActivity(itemSelected.Code);
+    if (res && res.StatusCode === 200) {
+      handleCancel();
+      setReload(!reload);
+      notification.success({
+        message: "Xóa thành công",
+        description: res.Message,
+      });
+    } else {
+      setError(res.Message);
+      notification.error({
+        message: "Xóa thất bại",
+        description: res.Message,
+      });
+    }
+    setConfirmLoadingDelete(false);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -285,7 +343,44 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
         onCancel={handleCancel}
         okText="Lưu"
         cancelText="Hủy"
-        footer={statusModal === null ? undefined : null}
+        footer={
+          statusModal === null
+            ? typeApi === "update"
+              ? [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    danger
+                    loading={confirmLoadingDelete}
+                    onClick={handleDelete}
+                  >
+                    Xóa
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+              : [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+            : null
+        }
       >
         {statusModal === null && (
           <div className="containerModal">
@@ -392,12 +487,14 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
             </Row>
 
             <div className="containerModal__control">
-              <Segmented
-                value={type}
-                block
-                options={["Sữa mẹ", "Sữa bình", "Ăn dặm", "Khác"]}
-                onChange={onChangeSegmented}
-              />
+              {typeApi !== "update" && (
+                <Segmented
+                  value={type}
+                  block
+                  options={["Sữa mẹ", "Sữa bình", "Ăn dặm", "Khác"]}
+                  onChange={onChangeSegmented}
+                />
+              )}
               <div className="containerModal__control__content">
                 {type === "Sữa bình" && (
                   <div className="containerModal__control__content__box">
@@ -501,6 +598,7 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
                 className="containerModal__textarea__input__box"
                 minRows={5}
                 onChange={onChangeTextArea}
+                value={note}
               />
             </div>
           </div>
@@ -509,7 +607,9 @@ function ModalNormal({ open, activitySelect, color, cateCode }) {
           <Result
             className="containerModal__result"
             status={statusModal}
-            title={`Ghi lại hành trình cho trẻ ${
+            title={`${
+              typeApi === "update" ? "Cập nhật" : "Ghi lại"
+            } hành trình cho trẻ ${
               statusModal === "success" ? "thành công" : "thất bại"
             }`}
             subTitle={error}

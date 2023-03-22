@@ -1,0 +1,92 @@
+@import "../../themes/colors/index.scss";
+
+.button__cate {
+  border-radius: 8px;
+  color: #aaa;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  position: relative;
+  border: 1px solid transparent;
+  cursor: pointer;
+  &:hover::before {
+    opacity: 0.2;
+  }
+  &::after {
+    content: attr(text);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $text-dark;
+    opacity: 0.5;
+    transition: all 0.1s;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: currentColor;
+    opacity: 0.1;
+    transition: all 0.1s;
+    border: 1px solid currentColor;
+  }
+}
+
+.active__all {
+  color: $primary-color;
+  border: 1px solid $primary-color;
+  &::after {
+    color: $primary-color;
+    opacity: 1;
+  }
+}
+.hover__all {
+  &:hover {
+    color: $primary-color;
+    &::after {
+      color: $primary-color;
+      opacity: 1;
+    }
+  }
+}
+
+$colors: _ff7ba7, _bb98ff, _00d677, _00c2bd, _ee7e61, _ffc300, _79b9ff, _ff4974;
+
+@each $color in $colors {
+  .active_#{$color} {
+    color: #{"#"}#{str-slice($color, 2, 8)};
+    border: 1px solid #{"#"}#{str-slice($color, 2, 8)};
+    &::after {
+      opacity: 1;
+      color: #{"#"}#{str-slice($color, 2, 8)};
+    }
+  }
+  .hover_#{$color} {
+    &:hover {
+      color: #{"#"}#{str-slice($color, 2, 8)};
+    }
+    &:hover::before {
+      color: #{"#"}#{str-slice($color, 2, 8)};
+    }
+    &:hover::after {
+      color: #{"#"}#{str-slice($color, 2, 8)};
+      opacity: 1;
+    }
+  }
+}
+
+.containerHistory {
+  margin: 0 calc(calc(100vw - calc(900px + 58.91px + 346px + 60px + 30px)) / 2);
+}

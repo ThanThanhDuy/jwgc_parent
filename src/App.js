@@ -4,6 +4,8 @@ import Router from "./router/index";
 import { UilAngleUp } from "@iconscout/react-unicons";
 import { useEffect } from "react";
 import RequireAuth from "./components/RequireAuth";
+import { getMessagingToken, onMessageListener } from "./utils/noti";
+import { notification } from "antd";
 
 function App() {
   useEffect(() => {
@@ -23,6 +25,32 @@ function App() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    getMessagingToken();
+    const channel = new BroadcastChannel("notifications");
+    // background
+    channel.addEventListener("message", (event) => {
+      console.log("Receive background: ", event.data);
+      notification.info({
+        message: event.data.notification.title,
+        description: event.data.notification.body,
+        duration: null,
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    // foregroun
+    onMessageListener().then((data) => {
+      console.log("Receive foreground: ", data);
+      notification.info({
+        message: data.notification.title,
+        description: data.notification.body,
+        duration: null,
+      });
+    });
+  });
 
   const handleClick = () => {
     document.body.scrollTop = 0; // For Safari

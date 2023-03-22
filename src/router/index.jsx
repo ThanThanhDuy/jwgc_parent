@@ -21,6 +21,7 @@ import UpdateProfile from "../pages/UpdateProfile";
 import Children from "../pages/Children/index";
 import Invition from "../pages/Invition";
 import Reminder from "../pages/Reminder";
+import History from "../pages/History";
 
 function Router() {
   return (
@@ -56,6 +57,7 @@ function Router() {
           <Route path="children-care" element={<Children />} />
           <Route path="invition" element={<Invition />} />
           <Route path="reminder" element={<Reminder />} />
+          <Route path="history" element={<History />} />
         </Route>
       </Route>
       {/* not found */}

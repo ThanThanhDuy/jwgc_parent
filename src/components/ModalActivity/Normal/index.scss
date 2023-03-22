@@ -72,6 +72,12 @@
         color: #ff7ba7 !important;
       }
     }
+    .ant-btn-dangerous {
+      &:hover {
+        border-color: #ff7875 !important;
+        color: #ff7875 !important;
+      }
+    }
     .ant-btn-primary {
       background-color: #ff7ba7 !important;
     }

@@ -1,7 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
-import { Row, Col, ConfigProvider, Modal, Select, Result, Button } from "antd";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  Row,
+  Col,
+  ConfigProvider,
+  Modal,
+  Select,
+  Result,
+  Button,
+  notification,
+} from "antd";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   activitySelectState,
   childSelectState,
@@ -20,12 +29,20 @@ import activityService from "../../../services/activity";
 import { DatePicker, TimePicker } from "antd";
 import { UilArrowRight } from "@iconscout/react-unicons";
 import dayjs from "dayjs";
+import { reloadState } from "../../../stores/activity";
 
 const { RangePicker } = DatePicker;
 
 const formatDay = "DD-MM-YYYY";
 
-function Health({ open, activitySelect, color, cateCode }) {
+function HangOut({
+  open,
+  activitySelect,
+  color,
+  cateCode,
+  typeApi,
+  itemSelected,
+}) {
   const [date, setDate] = useState(null);
   const [note, setNote] = useState("");
   const [statusDate, setStatusDate] = useState("");
@@ -36,15 +53,26 @@ function Health({ open, activitySelect, color, cateCode }) {
   const [statusModal, setStatusModal] = useState(null);
   const [error, setError] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [timeStart, setTimeStart] = useState(null);
   const [timeFinish, setTimeFinish] = useState(null);
   const [errorTimeFinish, setErrorTimeFinish] = useState("");
+  const [reload, setReload] = useRecoilState(reloadState);
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
   );
   const setActivitySelect = useSetRecoilState(activitySelectState);
   const childSelect = useRecoilValue(childSelectState);
+
+  useEffect(() => {
+    setTimeStart(itemSelected?.Data.timeStart);
+    setTimeFinish(itemSelected?.Data.timeFinish);
+    setDate(itemSelected?.Data.date);
+    setNote(itemSelected?.Data.note);
+    setActivity(itemSelected?.Data.activity);
+  }, [itemSelected]);
+
   const handleOk = async () => {
     setConfirmLoading(true);
     let check = true;
@@ -88,15 +116,26 @@ function Health({ open, activitySelect, color, cateCode }) {
     data.timeStart = timeStart;
     data.timeFinish = timeFinish;
     data.activity = activity;
-    const res = await activityService.recordActivity(
-      cateCode,
-      childSelect.Code,
-      `${date} ${timeStart}`,
-      data,
-      null
-    );
+    let res;
+    if (typeApi !== "update") {
+      res = await activityService.recordActivity(
+        cateCode,
+        childSelect.Code,
+        `${date} ${timeStart}`,
+        data,
+        null
+      );
+    } else {
+      res = await activityService.updateActivity(
+        itemSelected.Code,
+        `${date} ${timeStart}`,
+        data,
+        null
+      );
+    }
     if (res && res.StatusCode === 200) {
       setStatusModal("success");
+      setReload(!reload);
     } else {
       setStatusModal("error");
       setError(res.Message);
@@ -107,6 +146,7 @@ function Health({ open, activitySelect, color, cateCode }) {
   const handleCancel = () => {
     setopenModalActivitySelect(false);
     setActivitySelect("");
+    setStatusModal(null);
   };
 
   const onChangeDate = (date, dateString) => {
@@ -133,6 +173,26 @@ function Health({ open, activitySelect, color, cateCode }) {
     setActivity(value);
   };
 
+  const handleDelete = async () => {
+    setConfirmLoadingDelete(true);
+    const res = await activityService.deleteActivity(itemSelected.Code);
+    if (res && res.StatusCode === 200) {
+      handleCancel();
+      setReload(!reload);
+      notification.success({
+        message: "Xóa thành công",
+        description: res.Message,
+      });
+    } else {
+      setError(res.Message);
+      notification.error({
+        message: "Xóa thất bại",
+        description: res.Message,
+      });
+    }
+    setConfirmLoadingDelete(false);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -150,7 +210,44 @@ function Health({ open, activitySelect, color, cateCode }) {
         okText="Lưu"
         cancelText="Hủy"
         confirmLoading={confirmLoading}
-        footer={statusModal === null ? undefined : null}
+        footer={
+          statusModal === null
+            ? typeApi === "update"
+              ? [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    danger
+                    loading={confirmLoadingDelete}
+                    onClick={handleDelete}
+                  >
+                    Xóa
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+              : [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+            : null
+        }
       >
         {statusModal === null && (
           <div className="containerModal__box__hangout">
@@ -297,6 +394,7 @@ function Health({ open, activitySelect, color, cateCode }) {
                 className="containerModal__box__hangout__textarea__input__box"
                 minRows={5}
                 onChange={onChangeTextArea}
+                value={note}
               />
             </div>
           </div>
@@ -305,7 +403,9 @@ function Health({ open, activitySelect, color, cateCode }) {
           <Result
             className="containerModal__result__hangout"
             status={statusModal}
-            title={`Ghi lại hành trình cho trẻ ${
+            title={`${
+              typeApi === "update" ? "Cập nhật" : "Ghi lại"
+            } hành trình cho trẻ ${
               statusModal === "success" ? "thành công" : "thất bại"
             }`}
             subTitle={error}
@@ -329,4 +429,4 @@ function Health({ open, activitySelect, color, cateCode }) {
   );
 }
 
-export default Health;
+export default HangOut;

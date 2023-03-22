@@ -1,7 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
-import { Row, Col, ConfigProvider, Modal, Slider, Result, Button } from "antd";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  Row,
+  Col,
+  ConfigProvider,
+  Modal,
+  Slider,
+  Result,
+  Button,
+  notification,
+} from "antd";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   activitySelectState,
   childSelectState,
@@ -15,6 +24,7 @@ import activityService from "../../../services/activity";
 import { DatePicker, Segmented, TimePicker } from "antd";
 import { UilArrowRight } from "@iconscout/react-unicons";
 import dayjs from "dayjs";
+import { reloadState } from "../../../stores/activity";
 
 const marks2 = {
   0: "0ml",
@@ -29,7 +39,14 @@ const marks2 = {
 
 const formatDay = "DD-MM-YYYY";
 
-function Milk({ open, activitySelect, color, cateCode }) {
+function Milk({
+  open,
+  activitySelect,
+  color,
+  cateCode,
+  typeApi,
+  itemSelected,
+}) {
   const [type, setType] = useState("Vắt sữa");
   const [sliderValue3, setSliderValue3] = useState(0);
   const [sliderValue2, setSliderValue2] = useState(0);
@@ -41,6 +58,7 @@ function Milk({ open, activitySelect, color, cateCode }) {
   const [statusModal, setStatusModal] = useState(null);
   const [error, setError] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [timeStart, setTimeStart] = useState(null);
   const [timeFinish, setTimeFinish] = useState(null);
   const [errorTimeFinish, setErrorTimeFinish] = useState("");
@@ -50,6 +68,20 @@ function Milk({ open, activitySelect, color, cateCode }) {
   );
   const setActivitySelect = useSetRecoilState(activitySelectState);
   const childSelect = useRecoilValue(childSelectState);
+  const [reload, setReload] = useRecoilState(reloadState);
+
+  useEffect(() => {
+    setType(itemSelected?.Data.type ? itemSelected?.Data.type : "Vắt sữa");
+    setTimeStart(itemSelected?.Data.timeStart);
+    setTimeFinish(itemSelected?.Data.timeFinish);
+    setDate(itemSelected?.Data.date);
+    setNote(itemSelected?.Data.note);
+    if (itemSelected?.Data.type === "Vắt sữa") {
+      setSliderValue3(itemSelected?.Data.right);
+      setSliderValue2(itemSelected?.Data.left);
+    }
+  }, [itemSelected]);
+
   const handleOk = async () => {
     setConfirmLoading(true);
     let check = true;
@@ -102,15 +134,26 @@ function Milk({ open, activitySelect, color, cateCode }) {
       default:
         break;
     }
-    const res = await activityService.recordActivity(
-      cateCode,
-      childSelect.Code,
-      `${date} ${timeStart}`,
-      data,
-      null
-    );
+    let res;
+    if (typeApi !== "update") {
+      res = await activityService.recordActivity(
+        cateCode,
+        childSelect.Code,
+        `${date} ${timeStart}`,
+        data,
+        null
+      );
+    } else {
+      res = await activityService.updateActivity(
+        itemSelected.Code,
+        `${date} ${timeStart}`,
+        data,
+        null
+      );
+    }
     if (res && res.StatusCode === 200) {
       setStatusModal("success");
+      setReload(!reload);
     } else {
       setStatusModal("error");
       setError(res.Message);
@@ -164,6 +207,26 @@ function Milk({ open, activitySelect, color, cateCode }) {
     setNote(e.target.value);
   };
 
+  const handleDelete = async () => {
+    setConfirmLoadingDelete(true);
+    const res = await activityService.deleteActivity(itemSelected.Code);
+    if (res && res.StatusCode === 200) {
+      handleCancel();
+      setReload(!reload);
+      notification.success({
+        message: "Xóa thành công",
+        description: res.Message,
+      });
+    } else {
+      setError(res.Message);
+      notification.error({
+        message: "Xóa thất bại",
+        description: res.Message,
+      });
+    }
+    setConfirmLoadingDelete(false);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -181,7 +244,44 @@ function Milk({ open, activitySelect, color, cateCode }) {
         okText="Lưu"
         cancelText="Hủy"
         confirmLoading={confirmLoading}
-        footer={statusModal === null ? undefined : null}
+        footer={
+          statusModal === null
+            ? typeApi === "update"
+              ? [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    danger
+                    loading={confirmLoadingDelete}
+                    onClick={handleDelete}
+                  >
+                    Xóa
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+              : [
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={confirmLoading}
+                    onClick={handleOk}
+                  >
+                    Lưu
+                  </Button>,
+                ]
+            : null
+        }
       >
         {statusModal === null && (
           <div className="containerModal__box__milk">
@@ -298,11 +398,14 @@ function Milk({ open, activitySelect, color, cateCode }) {
               </Col>
             </Row>
             <div className="containerModal__box__milk__control">
-              <Segmented
-                block
-                options={["Vắt sữa", "Trữ sữa"]}
-                onChange={onChangeSegmented}
-              />
+              {typeApi !== "update" && (
+                <Segmented
+                  block
+                  options={["Vắt sữa", "Trữ sữa"]}
+                  onChange={onChangeSegmented}
+                />
+              )}
+
               <div className="containerModal__box__milk__control__content">
                 {type === "Vắt sữa" && (
                   <div className="containerModal__box__milk__control__content__box">
@@ -375,6 +478,7 @@ function Milk({ open, activitySelect, color, cateCode }) {
                 className="containerModal__box__milk__textarea__input__box"
                 minRows={5}
                 onChange={onChangeTextArea}
+                value={note}
               />
             </div>
           </div>
@@ -383,7 +487,9 @@ function Milk({ open, activitySelect, color, cateCode }) {
           <Result
             className="containerModal__result__milk"
             status={statusModal}
-            title={`Ghi lại hành trình cho trẻ ${
+            title={`${
+              typeApi === "update" ? "Cập nhật" : "Ghi lại"
+            } hành trình cho trẻ ${
               statusModal === "success" ? "thành công" : "thất bại"
             }`}
             subTitle={error}
