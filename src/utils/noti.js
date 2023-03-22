@@ -1,5 +1,5 @@
-import firebase from "firebase/app";
-import "firebase/messaging";
+import firebase from "firebase/compat/app";
+import "firebase/compat/messaging";
 import { firebaseConfig } from "./firebase";
 
 if (!firebase.apps.length) {
