@@ -32,4 +32,19 @@ const caculateAge = (date) => {
   }
 };
 
+export function getWeekDay(date) {
+  const dow = moment(date, "DD-MM-YYYY").day();
+  return dayInWeeks[dow];
+}
+
+const dayInWeeks = {
+  0: "CN",
+  1: "Th 2",
+  2: "Th 3",
+  3: "Th 4",
+  4: "Th 5",
+  5: "Th 6",
+  6: "Th 7",
+};
+
 export { caculateDate, caculateAge };

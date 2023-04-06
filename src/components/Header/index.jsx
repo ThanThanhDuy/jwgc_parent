@@ -32,6 +32,7 @@ import {
 } from "../../stores/profile";
 import { isOpenModalRequireAuthState } from "../../stores/auth";
 import { childSelectState, typeState } from "../../stores/child";
+import { getMessagingToken } from "../../utils/noti";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
@@ -64,7 +65,8 @@ function Header() {
   useEffect(() => {
     if (!location?.pathname.includes("create-post")) {
       const handleGetProfile = async () => {
-        const res = await userService.getProfile();
+        const fcmToken = await getMessagingToken();
+        const res = await userService.getProfile(fcmToken);
         if (res && res.StatusCode === 200) {
           // setIsAuth(true);
           setUser(res.Data);
@@ -129,7 +131,9 @@ function Header() {
   };
 
   const handleLogout = async () => {
-    const res = await userService.logout();
+    const fcmToken = await getMessagingToken();
+
+    const res = await userService.logout(fcmToken);
     if (res && res.StatusCode === 200) {
       localService.removeAll();
       localService.removeAccessToken();

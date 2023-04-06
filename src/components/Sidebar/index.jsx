@@ -25,6 +25,7 @@ function Sidebar() {
       Icon: dairy,
       label: "Dòng thời gian",
       code: "2",
+      link: "/history",
     },
     {
       Icon: clock,

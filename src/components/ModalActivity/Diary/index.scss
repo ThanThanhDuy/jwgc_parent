@@ -1,6 +1,6 @@
 @import "../../../themes/colors/index.scss";
 
-.containerModal__box__sleep {
+.containerModal__box__diary {
   margin-top: 16px;
   .ant-picker-focused {
     border: 1.5px solid #ffc300 !important;
@@ -36,7 +36,7 @@
     }
   }
 }
-.containerModal__sleep {
+.containerModal__diary {
   .ant-modal-content {
     width: 700px;
   }
@@ -52,7 +52,7 @@
     }
   }
 }
-.containerModal__result__sleep {
+.containerModal__result__diary {
   .ant-btn-primary {
     background-color: #ffc300 !important;
   }

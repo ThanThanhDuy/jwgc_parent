@@ -1,58 +1,68 @@
 import milk from "../assets/activity/feeding-bottle.png";
+import milkde from "../assets/activity/feeding-bottle_de.png";
 import sleep from "../assets/activity/sleeping.png";
+import sleep_de from "../assets/activity/sleeping_de.png";
 import play from "../assets/activity/blocks.png";
+import play_de from "../assets/activity/blocks_de.png";
 import health from "../assets/activity/stethoscope.png";
+import health_de from "../assets/activity/stethoscope_de.png";
 import growth from "../assets/activity/growth-chart.png";
-import vaccine from "../assets/activity/vaccine.png";
+import growth_de from "../assets/activity/growth-chart_de.png";
 import breastPump from "../assets/activity/breast-pump.png";
+import breastPump_de from "../assets/activity/breast-pump_de.png";
 import diaper from "../assets/activity/diaper.png";
+import diaper_de from "../assets/activity/diaper_de.png";
 import diary from "../assets/activity/diary.png";
+import diary_de from "../assets/activity/diary_de.png";
 
 export const ACTIVITY = [
   {
     title: "Cho Ăn",
     color: "#ff7ba7",
     icon: milk,
+    iconde: milkde,
   },
   {
     title: "Ngủ",
     color: "#bb98ff",
     icon: sleep,
+    iconde: sleep_de,
   },
   {
     title: "Giờ Chơi",
     color: "#00d677",
     icon: play,
+    iconde: play_de,
   },
   {
     title: "Sức Khỏe",
     color: "#00c2bd",
     icon: health,
+    iconde: health_de,
   },
   {
     title: "Tăng Trưởng",
     color: "#ee7e61",
     icon: growth,
-  },
-  {
-    title: "Mũi Tiêm",
-    color: "#ffc300",
-    icon: vaccine,
+    iconde: growth_de,
   },
   {
     title: "Vắt Sữa",
     color: "#79b9ff",
     icon: breastPump,
+    iconde: breastPump_de,
   },
   {
     title: "Thay Tã",
     color: "#ff4974",
     icon: diaper,
+    iconde: diaper_de,
   },
   {
     title: "Nhật Ký",
     color: "#ffc300",
     icon: diary,
+    iconde: diary_de,
   },
 ];
 

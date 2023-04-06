@@ -24,6 +24,7 @@
     }
   }
 }
+
 .containerModal__sleep {
   .ant-modal-content {
     width: 700px;
@@ -33,6 +34,12 @@
       &:hover {
         border-color: #bb98ff !important;
         color: #bb98ff !important;
+      }
+    }
+    .ant-btn-dangerous {
+      &:hover {
+        border-color: #ff7875 !important;
+        color: #ff7875 !important;
       }
     }
     .ant-btn-primary {
@@ -51,4 +58,3 @@
     }
   }
 }
-
