@@ -14,6 +14,8 @@ import diaper from "../assets/activity/diaper.png";
 import diaper_de from "../assets/activity/diaper_de.png";
 import diary from "../assets/activity/diary.png";
 import diary_de from "../assets/activity/diary_de.png";
+import vaccine from "../assets/activity/vaccine.png";
+import vaccine_de from "../assets/activity/vaccine_de.png";
 
 export const ACTIVITY = [
   {
@@ -63,6 +65,12 @@ export const ACTIVITY = [
     color: "#ffc300",
     icon: diary,
     iconde: diary_de,
+  },
+  {
+    title: "Vaccine",
+    color: "#6BA769",
+    icon: vaccine,
+    iconde: vaccine_de,
   },
 ];
 

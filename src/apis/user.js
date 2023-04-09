@@ -43,6 +43,15 @@ class UserApi {
     });
   }
 
+  async searchNanny(params) {
+    const url = `users/nannies`;
+    return axiosClient.get(url, {
+      params: {
+        ...params,
+      },
+    });
+  }
+
   async followUser(code) {
     const url = `users/following`;
     return axiosClient.put(url, {
@@ -59,7 +68,16 @@ class UserApi {
 
   async logout(params) {
     const url = `users/logout`;
-    return axiosClient.post(url,params);
+    return axiosClient.post(url, params);
+  }
+
+  async verifyNanny(params) {
+    const url = `users/nanny-identification`;
+    return await axiosClient.put(url, params, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   }
 }
 

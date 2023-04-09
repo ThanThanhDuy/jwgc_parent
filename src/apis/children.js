@@ -124,6 +124,11 @@ class ChildrenApi {
       },
     });
   }
+
+  async updateJobDescription(params) {
+    const url = `children/caring-job-description`;
+    return axiosClient.put(url, params);
+  }
 }
 
 const childrenApi = new ChildrenApi();

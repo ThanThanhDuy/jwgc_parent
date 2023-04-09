@@ -10,7 +10,8 @@
   width: 100%;
   z-index: 100;
   &__container {
-    margin: 0 calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2);
+    margin: 0
+      calc(calc(100vw - calc(900px + 58.91px + 346px + 30px + 200px)) / 2);
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
@@ -186,6 +187,19 @@
       }
     }
   }
+  .ant-btn-default {
+    border: 1px solid $form-border;
+    &:hover {
+      border: 1px solid $primary-color-hover !important;
+      color: $primary-color-hover !important;
+    }
+  }
+  .ant-btn-primary {
+    background-color: $primary-color;
+    &:hover {
+      background-color: $primary-color-hover;
+    }
+  }
 }
 .popover_profile {
   padding: 8px;
@@ -224,23 +238,11 @@
   justify-content: center;
 }
 .containerV2 {
-  width: 900px;
+  width: 1500px;
   margin: 0;
   padding: 0;
 }
-.ant-btn-default {
-  border: 1px solid $form-border;
-  &:hover {
-    border: 1px solid $primary-color-hover !important;
-    color: $primary-color-hover !important;
-  }
-}
-.ant-btn-primary {
-  background-color: $primary-color;
-  &:hover {
-    background-color: $primary-color-hover;
-  }
-}
+
 .ant-popover-placement-bottomRight {
   padding: 0;
 }

@@ -399,14 +399,24 @@ function Profile() {
             <Col span={8}>
               <div className="profile__container__box__header__edit">
                 {user.Code === localService.getUser().Code ? (
-                  <button
-                    onClick={() => {
-                      navigate(`/profile/update/${user.Code}`);
-                    }}
-                    className="jwgc__btn__primary"
-                  >
-                    Chỉnh sửa
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        navigate(`/profile/update/${user.Code}`);
+                      }}
+                      className="jwgc__btn__primary"
+                    >
+                      Chỉnh sửa
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate(`/career-support`);
+                      }}
+                      className="jwgc__btn__primary"
+                    >
+                      Hỗ trợ việc làm
+                    </button>
+                  </>
                 ) : isFollow ? (
                   <button
                     className="jwgc__btn__primary"
@@ -487,6 +497,7 @@ function Profile() {
             </Row>
           </div>
         </div>
+
         <div className="profile__container__main__blog">
           <Tabs activeKey={tabValue} onChange={handleChangeTab}>
             <Tabs.TabPane tab="Bài viết" key="1">
