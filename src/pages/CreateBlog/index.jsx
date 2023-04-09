@@ -304,7 +304,7 @@ function CreateBlog() {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              width: "900px",
+              width: "1500px",
               alignItems: "center",
               marginTop: "20px",
             }}

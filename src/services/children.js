@@ -208,6 +208,30 @@ class ChildrenService {
     }
     return response;
   }
+
+  async updateJobDescription({
+    childCode,
+    description,
+    dayOfWeeks,
+    startTime,
+    endTime,
+    agreementWage,
+  }) {
+    const params = {
+      ChildCode: childCode,
+      Description: description,
+      DayOfWeeks: dayOfWeeks,
+      StartTime: startTime,
+      EndTime: endTime,
+      AgreementWage: agreementWage,
+    };
+    try {
+      var response = await children.updateJobDescription(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const childrenService = new ChildrenService();
 export default childrenService;

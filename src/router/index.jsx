@@ -22,6 +22,7 @@ import Children from "../pages/Children/index";
 import Invition from "../pages/Invition";
 import Reminder from "../pages/Reminder";
 import History from "../pages/History";
+import Career from "../pages/Career";
 
 function Router() {
   return (
@@ -58,6 +59,7 @@ function Router() {
           <Route path="invition" element={<Invition />} />
           <Route path="reminder" element={<Reminder />} />
           <Route path="history" element={<History />} />
+          <Route path="career-support" element={<Career />} />
         </Route>
       </Route>
       {/* not found */}

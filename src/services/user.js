@@ -1,9 +1,9 @@
 import userApi from "../apis/user";
 
 class UserService {
-  async getProfile() {
+  async getProfile(fcmTokem) {
     const params = {
-      FCMToken: "",
+      FCMToken: fcmTokem,
     };
     try {
       var response = await userApi.getProfile(params);
@@ -85,6 +85,22 @@ class UserService {
     return response;
   }
 
+  async searchNanny(value, page, pageSize, fromAge, toAge, gender) {
+    const params = {};
+    value && (params["Value"] = value);
+    page && (params["Paging.Page"] = page);
+    pageSize && (params["Paging.PageSize"] = pageSize);
+    fromAge && (params["FromAge"] = fromAge);
+    toAge && (params["ToAge"] = toAge);
+    gender && (params["Genders"] = gender);
+    try {
+      var response = await userApi.searchNanny(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
   async followUser(code) {
     try {
       var response = await userApi.followUser(code);
@@ -109,6 +125,39 @@ class UserService {
         FCMToken: fcm,
       };
       var response = await userApi.logout(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async verifyNanny({
+    Name,
+    Gender,
+    DateOfBirth,
+    IdentityCardNumber,
+    PlaceOfResidence,
+    PlaceOfOrigin,
+    ForegroundIdentityCardImage,
+    BackgroundIdentityCardImage,
+  }) {
+    const params = new FormData();
+    params.append("Name", Name);
+    params.append("Gender", Number(Gender));
+    params.append("DateOfBirth", DateOfBirth);
+    params.append("IdentityCardNumber", IdentityCardNumber);
+    params.append("PlaceOfResidence", PlaceOfResidence);
+    params.append("PlaceOfOrigin", PlaceOfOrigin);
+    console.log(ForegroundIdentityCardImage);
+    if (ForegroundIdentityCardImage) {
+      params.append("ForegroundIdentityCardImage", ForegroundIdentityCardImage);
+    }
+    console.log(BackgroundIdentityCardImage);
+    if (BackgroundIdentityCardImage) {
+      params.append("BackgroundIdentityCardImage", BackgroundIdentityCardImage);
+    }
+    try {
+      var response = await userApi.verifyNanny(params);
     } catch (error) {
       return error;
     }

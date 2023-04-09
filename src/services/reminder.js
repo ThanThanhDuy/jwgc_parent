@@ -4,7 +4,7 @@ class ReminderService {
   async addReminder({
     Label,
     Time,
-    Date,
+    Type,
     Note,
     ActivityCategoryCode,
     ChildCode,
@@ -12,7 +12,7 @@ class ReminderService {
     const params = {
       Label,
       Time,
-      Date,
+      Type: Number(Type),
       Note,
       Sound: 0,
       ActivityCategoryCode,
@@ -45,7 +45,7 @@ class ReminderService {
     Code,
     Label,
     Time,
-    Date,
+    Type,
     Note,
     ActivityCategoryCode,
   }) {
@@ -53,12 +53,11 @@ class ReminderService {
       Code,
       Label,
       Time,
-      Date,
+      Type,
       Note,
       Sound: 0,
       ActivityCategoryCode,
     };
-    console.log("params", params);
     try {
       var response = await reminderApi.updateReminder(params);
     } catch (error) {

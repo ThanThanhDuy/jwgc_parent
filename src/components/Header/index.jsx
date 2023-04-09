@@ -66,6 +66,7 @@ function Header() {
     if (!location?.pathname.includes("create-post")) {
       const handleGetProfile = async () => {
         const fcmToken = await getMessagingToken();
+        console.log(fcmToken);
         const res = await userService.getProfile(fcmToken);
         if (res && res.StatusCode === 200) {
           // setIsAuth(true);
@@ -265,6 +266,12 @@ function Header() {
                         onClick={() => navigate("/invition")}
                       >
                         Xem lời mời
+                      </span>
+                      <span
+                        className="popover_profile__link"
+                        onClick={() => navigate("/career-support")}
+                      >
+                        Hỗ trợ việc làm
                       </span>
                       <div className="divider-10"></div>
                       <div>

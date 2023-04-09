@@ -72,12 +72,14 @@ function Reminder() {
   const [childSelect, setChildSelect] = useState(null);
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [errorsAddReminder, setErrorsAddReminder] = useState([]);
   const [label, setLabel] = useState("");
   const [time, setTime] = useState(null);
   const [date, setDate] = useState(null);
   const [note, setNote] = useState("");
   const [cate, setCate] = useState("");
+  const [type, setType] = useState("1");
   const [result, setResult] = useState(false);
   const [dateSelected, setDateSelected] = useState(() => dayjs());
   const [reminderDate, setReminderDate] = useState([]);
@@ -230,7 +232,6 @@ function Reminder() {
           To: dateSelected.format(dateFormat),
         });
         if (res.StatusCode === 200) {
-          console.log(res.Data.Items);
           const data = res.Data.Items.map((item) => {
             return {
               ...item,
@@ -283,11 +284,21 @@ function Reminder() {
   };
 
   const addReminder = async (values) => {
+    console.log({
+      Label: values.label,
+      Time: values.time,
+      // Date: values.date,
+      Type: Number(values.type),
+      Note: values.note,
+      ActivityCategoryCode: cate,
+      ChildCode: childSelect.Code,
+    });
     setConfirmLoading(true);
     const res = await reminderService.addReminder({
       Label: values.label,
       Time: values.time,
-      Date: values.date,
+      // Date: values.date,
+      Type: values.type,
       Note: values.note,
       ActivityCategoryCode: cate,
       ChildCode: childSelect.Code,
@@ -330,7 +341,6 @@ function Reminder() {
 
   const updateReminder = async (values) => {
     setConfirmLoading(true);
-    console.log();
     const res = await reminderService.updateReminder({
       Code: rowSelect.Code,
       Label: values.label,
@@ -338,10 +348,6 @@ function Reminder() {
         typeof values.time === "string"
           ? values.time
           : values.time.format("HH:mm:ss"),
-      Date:
-        typeof values.date === "string"
-          ? values.date
-          : values.date.format("DD-MM-YYYY"),
       Note: values.note,
       ActivityCategoryCode: cate,
     });
@@ -357,7 +363,6 @@ function Reminder() {
           To: dateSelected.format(dateFormat),
         });
         if (res.StatusCode === 200) {
-          console.log(res.Data.Items);
           const data = res.Data.Items.map((item) => {
             return {
               ...item,
@@ -395,6 +400,7 @@ function Reminder() {
   };
 
   const handleDelete = async () => {
+    setConfirmLoadingDelete(true);
     const res = await reminderService.deleteReminder(rowSelect.Code);
     if (res.StatusCode === 200) {
       setMess("Xóa nhắc nhở thành công");
@@ -406,7 +412,6 @@ function Reminder() {
           To: dateSelected.format(dateFormat),
         });
         if (res.StatusCode === 200) {
-          console.log(res.Data.Items);
           const data = res.Data.Items.map((item) => {
             return {
               ...item,
@@ -414,10 +419,17 @@ function Reminder() {
             };
           });
           setReminderDate(data);
+          setConfirmLoadingDelete(false);
+        } else {
+          setConfirmLoadingDelete(false);
         }
       };
       getData();
     }
+  };
+
+  const handleChangeType = (value) => {
+    setType(value);
   };
 
   return (
@@ -552,8 +564,9 @@ function Reminder() {
               initialValues={{
                 label: label,
                 time: time,
-                date: date,
+                // date: date,
                 note: note,
+                type: type,
               }}
               onSubmit={(values, { setErrors }) => {
                 let check = true;
@@ -566,10 +579,10 @@ function Reminder() {
                   errors.time = "Vui lòng chọn thời gian";
                   check = false;
                 }
-                if (!values.date) {
-                  errors.date = "Vui lòng chọn ngày";
-                  check = false;
-                }
+                // if (!values.date) {
+                //   errors.date = "Vui lòng chọn ngày";
+                //   check = false;
+                // }
                 setErrors(errors);
                 if (check) {
                   if (isUpdate) {
@@ -626,13 +639,13 @@ function Reminder() {
                         htmlFor="birthday"
                         style={{ marginBottom: "8px" }}
                       >
-                        Ngày
+                        Loại nhắc nhở
                       </label>
                       <FormAntd.Item
                         validateStatus={errors.date && "error"}
                         help={errors.date}
                       >
-                        <DatePicker
+                        {/* <DatePicker
                           id="date"
                           placeholder="Ngày"
                           style={{ width: "100%", height: "40px" }}
@@ -645,6 +658,23 @@ function Reminder() {
                           disabledDate={(d) =>
                             d.isBefore(moment().format("YYYY-MM-DD"))
                           }
+                        /> */}
+                        <Select
+                          value={values.type}
+                          style={{
+                            width: "100%",
+                          }}
+                          onChange={handleChangeType}
+                          options={[
+                            {
+                              value: "1",
+                              label: "Trong ngày",
+                            },
+                            {
+                              value: "2",
+                              label: "Hàng ngày",
+                            },
+                          ]}
                         />
                       </FormAntd.Item>
                     </Col>
@@ -701,7 +731,7 @@ function Reminder() {
                     <Button onClick={handleCancel}>Hủy</Button>
                     {isUpdate && (
                       <Button
-                        loading={confirmLoading}
+                        loading={confirmLoadingDelete}
                         danger
                         type="primary"
                         onClick={handleDelete}

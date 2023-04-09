@@ -18,6 +18,9 @@ function InputField(props) {
     disabled,
     verify,
     isNeedVerify,
+    className,
+    style = null,
+    styleLabel = null,
   } = props;
 
   const handleBlur = (value) => {
@@ -28,7 +31,7 @@ function InputField(props) {
     <FormGroup>
       {label && (
         <>
-          <Label for={id} hidden={hiddenLabel}>
+          <Label for={id} hidden={hiddenLabel} style={styleLabel}>
             {label}
           </Label>
           {isNeedVerify && (
@@ -59,6 +62,7 @@ function InputField(props) {
       )}
       <Input
         style={{ height: `${height}px` }}
+        className={className}
         id={id}
         name={id}
         placeholder={placeholder}

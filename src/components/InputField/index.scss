@@ -6,6 +6,10 @@
   border: 1.5px solid $primary-color;
   box-shadow: none;
 }
+.form-control__addVaccine:focus {
+  border: 2px solid #6ba769;
+  box-shadow: none;
+}
 .form-control:disabled {
   background-color: #f5f5f5;
 }
