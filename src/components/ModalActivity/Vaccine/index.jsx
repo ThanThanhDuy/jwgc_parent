@@ -41,6 +41,7 @@ import {
   UilTrashAlt,
   UilPlus,
   UilMinus,
+  UilExternalLinkAlt,
 } from "@iconscout/react-unicons";
 import { Formik } from "formik";
 import InputField from "../../InputField";
@@ -82,17 +83,105 @@ function Vaccine({
   const [noteVaccine, setNoteVaccine] = useState("");
   const [diseaseVaccine, setDiseaseVaccine] = useState("");
   const [basicAmount, setBasicAmount] = useState(1);
-  const [editReordSystem, setEditReordSystem] = useState(false);
+  const [editReordDefine, setEditReordDefine] = useState(false);
   const [confirmLoadingDeleteVaccine, setConfirmLoadingDeleteVaccine] =
     useState(false);
   const [typeImport, setTypeImport] = useState("system");
   const [editVaccineDefine, setEditVaccineDefine] = useState(false);
+  const [countVaccine, setCountVaccine] = useState(0);
+  const [recordSelected, setRecordSelected] = useState(null);
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
   );
 
   const childSelect = useRecoilValue(childSelectState);
+
+  const columnsSystem = [
+    {
+      title: "Mũi tiêm",
+      dataIndex: "No",
+      key: "No",
+      width: "11%",
+      align: "center",
+    },
+    {
+      title: "Dự kiến tiêm",
+      dataIndex: "IntendedDate",
+      key: "IntendedDate",
+      width: "16%",
+      align: "center",
+    },
+    {
+      title: "Tiêm thực tế",
+      dataIndex: "Date",
+      key: "Date",
+      width: "16%",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "Note",
+
+      key: "Note",
+    },
+    {
+      title: "Trạng thái",
+      key: "Status",
+      dataIndex: "Status",
+      align: "center",
+      width: "11%",
+      render: (Status) => (
+        <>
+          <Tag color={Status ? "green" : "gold"} key={Status}>
+            {Status ? "Đã tiêm".toUpperCase() : "Chưa tiêm".toUpperCase()}
+          </Tag>
+        </>
+      ),
+    },
+    {
+      title: "Cập nhật",
+      key: "action",
+      align: "center",
+      width: "15%",
+      render: (_, record) => (
+        <Space size="middle">
+          <UilExternalLinkAlt
+            onClick={() => {
+              if (type === "Vaccine khuyến nghị") {
+                if (
+                  moment().isBefore(moment(record.IntendedDate, "DD-MM-YYYY"))
+                ) {
+                  notification.warning({
+                    message: "Thông báo",
+                    description: "Chưa đến ngày tiêm, vui lòng quay lại sau!",
+                  });
+                  return;
+                }
+                setVaccineSelected(record);
+              } else {
+                setVaccineSelectedDefine(record);
+              }
+              setDate(record.Date);
+              setNote(record.Note);
+              setStatusVaccine(record.Status);
+              setOpenDrawer(true);
+              // setEditReordSystem(true);
+            }}
+            className="edit"
+            size={20}
+          />
+          {/* <UilTrashAlt
+            onClick={() => {
+              handleDeleteVaccineSystem(record.Code);
+            }}
+            className="delete"
+            size={20}
+          /> */}
+        </Space>
+      ),
+    },
+  ];
 
   const columns = [
     {
@@ -103,7 +192,17 @@ function Vaccine({
       align: "center",
     },
     {
-      title: "Ngày tiêm",
+      title: "Dự kiến tiêm",
+      dataIndex: "IntendedDate",
+      key: "IntendedDate",
+      width: "16%",
+      align: "center",
+      render: (IntendedDate) => (
+        <>{IntendedDate ? <span>{IntendedDate}</span> : <span>- - -</span>}</>
+      ),
+    },
+    {
+      title: "Tiêm thực tế",
       dataIndex: "Date",
       key: "Date",
       width: "16%",
@@ -138,16 +237,13 @@ function Vaccine({
         <Space size="middle">
           <UilEdit
             onClick={() => {
-              if (typeImport === "system") {
-                setVaccineSelected(record);
-              } else {
-                setVaccineSelectedDefine(record);
-              }
+              console.log("record", record);
+              setVaccineSelectedDefine(record);
               setDate(record.Date);
               setNote(record.Note);
               setStatusVaccine(record.Status);
               setOpenDrawer(true);
-              setEditReordSystem(true);
+              setEditReordDefine(true);
             }}
             className="edit"
             size={20}
@@ -167,10 +263,12 @@ function Vaccine({
   useEffect(() => {
     if (childSelect) {
       if (type === "Vaccine khuyến nghị") {
+        setTypeImport("system");
         const getVaccineSystem = async () => {
+          setListVaccineSystemChild([]);
           const res = await vaccineService.getVaccineSystem(childSelect.Code);
           if (res && res.StatusCode === 200) {
-            setListVaccineSystem(res.Data);
+            handleDataVaccineSystem(res);
           } else {
             notification.error({
               message: "Lỗi",
@@ -180,10 +278,12 @@ function Vaccine({
         };
         getVaccineSystem();
       } else {
+        setTypeImport("define");
         const getVaccineDefine = async () => {
+          setListVaccineDefineChild([]);
           const res = await vaccineService.getVaccineDefine(childSelect.Code);
           if (res && res.StatusCode === 200) {
-            setListVaccineDefine(res.Data);
+            handleDataVaccineDefine(res);
           } else {
             notification.error({
               message: "Lỗi",
@@ -194,7 +294,7 @@ function Vaccine({
         getVaccineDefine();
       }
     }
-  }, [type]);
+  }, [type, childSelect]);
 
   const handleCancel = () => {
     setopenModalActivitySelect(false);
@@ -231,6 +331,7 @@ function Vaccine({
           if (dataTmp[i].Vaccines[j].Records.length > 0) {
             for (let k = 0; k < dataTmp[i].Vaccines[j].Records.length; k++) {
               dataTmp[i].Vaccines[j].Records[k].No = k + 1;
+              dataTmp[i].Vaccines[j].Records[k].Index = k;
               dataTmp[i].Vaccines[j].Records[k].Name =
                 dataTmp[i].Vaccines[j].Name;
               dataTmp[i].Vaccines[j].Records[k].VaccineCode =
@@ -241,6 +342,10 @@ function Vaccine({
                 dataTmp[i].Vaccines[j].BasicAmount;
               dataTmp[i].Vaccines[j].Records[k].RecordCode =
                 dataTmp[i].Vaccines[j].Records[k].Code;
+              dataTmp[i].Vaccines[j].Records[k].IntendedDate =
+                dataTmp[i].Vaccines[j].Records[k].IntendedDate;
+              dataTmp[i].Vaccines[j].Records[k].Vaccine =
+                dataTmp[i].Vaccines[j];
             }
           } else {
             dataTmp[i].Vaccines.splice(j, 1);
@@ -268,7 +373,7 @@ function Vaccine({
       if (res && res.StatusCode === 200) {
         setListVaccineSystem(res.Data);
       }
-      setEditReordSystem(false);
+      // setEditReordSystem(false);
     }
   };
 
@@ -276,20 +381,23 @@ function Vaccine({
     if (res && res.Data) {
       let dataTmp = [...res.Data];
       for (let i = 0; i < dataTmp.length; i++) {
-        if (dataTmp[i].Records.length > 0) {
-          for (let k = 0; k < dataTmp[i].Records.length; k++) {
-            dataTmp[i].Records[k].No = k + 1;
-            dataTmp[i].Records[k].No = k + 1;
-            dataTmp[i].Records[k].Name = dataTmp[i].Name;
-            dataTmp[i].Records[k].VaccineCode = dataTmp[i].Code;
-            dataTmp[i].Records[k].Disease = dataTmp[i].Disease;
-            dataTmp[i].Records[k].BasicAmount = dataTmp[i].BasicAmount;
-            dataTmp[i].Records[k].RecordCode = dataTmp[i].Records[k].Code;
-          }
-        } else {
-          dataTmp.splice(i, 1);
-          i--;
+        // if (dataTmp[i].Records.length > 0) {
+        for (let k = 0; k < dataTmp[i].Records.length; k++) {
+          dataTmp[i].Records[k].No = k + 1;
+          dataTmp[i].Records[k].Index = k;
+          dataTmp[i].Records[k].Name = dataTmp[i].Name;
+          dataTmp[i].Records[k].VaccineCode = dataTmp[i].Code;
+          dataTmp[i].Records[k].Disease = dataTmp[i].Disease;
+          dataTmp[i].Records[k].BasicAmount = dataTmp[i].BasicAmount;
+          dataTmp[i].Records[k].RecordCode = dataTmp[i].Records[k].Code;
+          dataTmp[i].Records[k].IntendedDate =
+            dataTmp[i].Records[k].IntendedDate;
+          dataTmp[i].Records[k].Vaccine = dataTmp[i];
         }
+        // } else {
+        //   dataTmp.splice(i, 1);
+        //   i--;
+        // }
       }
       setListVaccineDefineChild(dataTmp);
     }
@@ -308,12 +416,12 @@ function Vaccine({
       if (res && res.StatusCode === 200) {
         setListVaccineDefine(res.Data);
       }
-      setEditReordSystem(false);
+      // setEditReordSystem(false);
     }
   };
 
   const showDrawer = () => {
-    setEditReordSystem(false);
+    // setEditReordSystem(false);
     setOpenDrawer(true);
   };
 
@@ -364,6 +472,59 @@ function Vaccine({
   const handleUpdateVaccineSystem = async () => {
     try {
       setConfirmLoading(true);
+      // debugger;
+      if (vaccineSelected.Index > 0) {
+        if (statusVaccine) {
+          // console.log(vaccineSelected.Vaccine);
+          if (vaccineSelected.Vaccine.Records[vaccineSelected.Index - 1].Date) {
+            let dateCompare = moment(
+              vaccineSelected.Vaccine.Records[vaccineSelected.Index - 1].Date,
+              "DD-MM-YYYY"
+            ).add(7, "days");
+            // console.log(dateCompare);
+            // console.log(date);
+            if (moment(date, "DD-MM-YYYY").isBefore(dateCompare)) {
+              notification.error({
+                message: "Lỗi",
+                description:
+                  "Ngày tiêm phải sau 1 tuần so với ngày tiêm lần trước",
+              });
+              setConfirmLoading(false);
+              return;
+            }
+          } else {
+            notification.error({
+              message: "Lỗi",
+              description:
+                "Bạn vui lòng cập nhật các lần tiêm trước trước khi tiêm lần này",
+            });
+            setConfirmLoading(false);
+            return;
+          }
+        } else {
+          if (vaccineSelected.Vaccine.Records[vaccineSelected.Index + 1].Date) {
+            notification.error({
+              message: "Lỗi",
+              description:
+                "Bạn không thể chỉnh sửa trạng thái của lần tiêm này",
+            });
+            setConfirmLoading(false);
+            return;
+          }
+        }
+      } else {
+        if (!statusVaccine) {
+          if (vaccineSelected.Vaccine.Records[vaccineSelected.Index + 1].Date) {
+            notification.error({
+              message: "Lỗi",
+              description:
+                "Bạn không thể chỉnh sửa trạng thái của lần tiêm này",
+            });
+            setConfirmLoading(false);
+            return;
+          }
+        }
+      }
       const res = await vaccineService.updateRecordVaccineSystem({
         childCode: childSelect.Code,
         date,
@@ -448,9 +609,9 @@ function Vaccine({
       amoundVaccine: values.amount,
     });
     if (res && res.StatusCode === 200) {
-      const resV = await vaccineService.getVaccineDefine(childSelect.Code);
-      if (resV && res.StatusCode === 200) {
-        setListVaccineDefine(resV.Data);
+      const resv = await vaccineService.getVaccineDefine(childSelect.Code);
+      if (resv && resv.StatusCode === 200) {
+        handleDataVaccineDefine(resv);
       }
       notification.success({
         message: "Thành công",
@@ -481,9 +642,9 @@ function Vaccine({
       codeVaccine: vaccineSelectedDefine.Code,
     });
     if (res && res.StatusCode === 200) {
-      const resV = await vaccineService.getVaccineDefine(childSelect.Code);
-      if (resV && res.StatusCode === 200) {
-        setListVaccineDefine(resV.Data);
+      const res = await vaccineService.getVaccineDefine(childSelect.Code);
+      if (res && res.StatusCode === 200) {
+        handleDataVaccineDefine(res);
       }
       notification.success({
         message: "Thành công",
@@ -506,6 +667,64 @@ function Vaccine({
 
   const handleImportVaccineDefine = async (values) => {
     setConfirmLoading(true);
+    if (vaccineSelectedDefine.Records.length > 0) {
+      if (statusVaccine) {
+        if (
+          vaccineSelectedDefine.Records[
+            vaccineSelectedDefine.Records.length - 1
+          ].Date
+        ) {
+          let dateCompare = moment(
+            vaccineSelectedDefine.Records[
+              vaccineSelectedDefine.Records.length - 1
+            ].Date,
+            "DD-MM-YYYY"
+          ).add(7, "days");
+          console.log(dateCompare);
+          console.log(date);
+          if (moment(date, "DD-MM-YYYY").isBefore(dateCompare)) {
+            notification.error({
+              message: "Lỗi",
+              description:
+                "Ngày tiêm phải sau 1 tuần so với ngày tiêm lần trước",
+            });
+            setConfirmLoading(false);
+            return;
+          }
+        } else {
+          notification.error({
+            message: "Lỗi",
+            description:
+              "Bạn vui lòng cập nhật các lần tiêm trước trước khi tiêm lần này",
+          });
+          setConfirmLoading(false);
+          return;
+        }
+      } else {
+        let dateCompare = moment(
+          vaccineSelectedDefine.Records[
+            vaccineSelectedDefine.Records.length - 1
+          ]?.IntendedDate
+            ? vaccineSelectedDefine.Records[
+                vaccineSelectedDefine.Records.length - 1
+              ]?.IntendedDate
+            : vaccineSelectedDefine.Vaccine.Records[
+                vaccineSelectedDefine.Records.length - 1
+              ]?.Date,
+          "DD-MM-YYYY"
+        ).add(7, "days");
+        console.log(dateCompare);
+        console.log(date);
+        if (moment(date, "DD-MM-YYYY").isBefore(dateCompare)) {
+          notification.error({
+            message: "Lỗi",
+            description: "Ngày tiêm phải sau 1 tuần so với ngày tiêm lần trước",
+          });
+          setConfirmLoading(false);
+          return;
+        }
+      }
+    }
     const res = await vaccineService.importVaccineDefine({
       childCode: childSelect.Code,
       date,
@@ -514,9 +733,9 @@ function Vaccine({
       statusVaccine,
     });
     if (res && res.StatusCode === 200) {
-      const resV = await vaccineService.getVaccineDefine(childSelect.Code);
-      if (resV && res.StatusCode === 200) {
-        setListVaccineDefine(resV.Data);
+      const resv = await vaccineService.getVaccineDefine(childSelect.Code);
+      if (resv && resv.StatusCode === 200) {
+        handleDataVaccineDefine(resv);
       }
       notification.success({
         message: "Thành công",
@@ -538,18 +757,78 @@ function Vaccine({
   const handleUpdateVaccineDefine = async () => {
     try {
       setConfirmLoading(true);
-      const res = await vaccineService.updateRecordVaccineSystem({
+      if (vaccineSelectedDefine.Vaccine.Records.length > 0) {
+        if (statusVaccine) {
+          if (
+            vaccineSelectedDefine.Vaccine.Records[
+              vaccineSelectedDefine.Index - 1
+            ].Date
+          ) {
+            let dateCompare = moment(
+              vaccineSelectedDefine.Vaccine.Records[
+                vaccineSelectedDefine.Index - 1
+              ].Date,
+              "DD-MM-YYYY"
+            ).add(7, "days");
+            console.log(dateCompare);
+            console.log(date);
+            if (moment(date, "DD-MM-YYYY").isBefore(dateCompare)) {
+              notification.error({
+                message: "Lỗi",
+                description:
+                  "Ngày tiêm phải sau 1 tuần so với ngày tiêm lần trước",
+              });
+              setConfirmLoading(false);
+              return;
+            }
+          } else {
+            notification.error({
+              message: "Lỗi",
+              description:
+                "Bạn vui lòng cập nhật các lần tiêm trước trước khi tiêm lần này",
+            });
+            setConfirmLoading(false);
+            return;
+          }
+        } else {
+          let dateCompare = moment(
+            vaccineSelectedDefine.Vaccine.Records[
+              vaccineSelectedDefine.Index - 1
+            ]?.IntendedDate
+              ? vaccineSelectedDefine.Vaccine.Records[
+                  vaccineSelectedDefine.Index - 1
+                ]?.IntendedDate
+              : vaccineSelectedDefine.Vaccine.Vaccine.Records[
+                  vaccineSelectedDefine.Index - 1
+                ]?.Date,
+            "DD-MM-YYYY"
+          ).add(7, "days");
+          console.log(dateCompare.format("DD-MM-YYYY"));
+          console.log(date);
+          if (moment(date, "DD-MM-YYYY").isBefore(dateCompare)) {
+            notification.error({
+              message: "Lỗi",
+              description:
+                "Ngày tiêm phải sau 1 tuần so với ngày tiêm lần trước",
+            });
+            setConfirmLoading(false);
+            return;
+          }
+        }
+      }
+      const res = await vaccineService.updateRecordVaccineDefine({
         childCode: childSelect.Code,
         date,
         note,
+        intendedDate: vaccineSelectedDefine.IntendedDate,
         vaccineCode: vaccineSelectedDefine.VaccineCode,
         statusVaccine,
         recordCode: vaccineSelectedDefine.Code,
       });
       if (res && res.StatusCode === 200) {
-        const resV = await vaccineService.getVaccineDefine(childSelect.Code);
-        if (resV && res.StatusCode === 200) {
-          handleDataVaccineDefine(resV);
+        const resv = await vaccineService.getVaccineDefine(childSelect.Code);
+        if (resv && resv.StatusCode === 200) {
+          handleDataVaccineDefine(resv);
         }
         notification.success({
           message: "Thành công",
@@ -576,9 +855,9 @@ function Vaccine({
       vaccineSelectedDefine.Code
     );
     if (res && res.StatusCode === 200) {
-      const resV = await vaccineService.getVaccineDefine(childSelect.Code);
-      if (resV && res.StatusCode === 200) {
-        setListVaccineDefine(resV.Data);
+      const resv = await vaccineService.getVaccineDefine(childSelect.Code);
+      if (resv && resv.StatusCode === 200) {
+        handleDataVaccineDefine(resv);
       }
       notification.success({
         message: "Thành công",
@@ -641,7 +920,7 @@ function Vaccine({
                   <div className="containerModal__box__vaccine__control__content__box">
                     <Row className="containerModal__box__vaccine__control__content__box__item">
                       <Col span={24}>
-                        <Tabs
+                        {/* <Tabs
                           activeKey={tabSelect}
                           onChange={onChangeTabs}
                           tabBarExtraContent={<></>}
@@ -704,84 +983,27 @@ function Vaccine({
                                               </p>
                                             </div>
                                             <div>
-                                              {itemVaccine.Records.length <
-                                                itemVaccine.BasicAmount && (
-                                                <Button
-                                                  onClick={() => {
-                                                    showDrawer(true);
-                                                    setVaccineSelected(
-                                                      itemVaccine
-                                                    );
-                                                  }}
-                                                >
-                                                  Thêm
-                                                </Button>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )
-                                      )}
-                                    </span>
-                                  </Col>
-                                </Row>
-                              ))}
-                            </div>
-                          </Tabs.TabPane>
-                          <Tabs.TabPane tab="Danh sách vaccine của bé" key="2">
-                            <div>
-                              {listVaccineSystemChild.map((item, index) => (
-                                <Row key={`v${index}`}>
-                                  <Col
-                                    span={24}
-                                    style={{ marginBottom: "8px" }}
-                                  >
-                                    <span
-                                      style={{
-                                        fontSize: "18px",
-                                      }}
-                                    >
-                                      {item.FromMonth !== item.ToMonth
-                                        ? `Từ ${item.FromMonth} đến ${item.ToMonth} tháng tuổi`
-                                        : `${item.FromMonth} tháng tuổi`}
-                                    </span>
-                                  </Col>
-                                  <Col span={24} className="vaccineBox">
-                                    <span style={{ fontSize: "16px" }}>
-                                      {item.Vaccines.map(
-                                        (itemVaccine, index) => (
-                                          <div
-                                            key={index}
-                                            style={{
-                                              padding: "8px 16px",
-                                              borderRadius: "8px",
-                                              border: "1px solid #ccc",
-                                              marginBottom: "8px",
-                                            }}
-                                          >
-                                            <div>
-                                              <p style={{ marginBottom: "0" }}>
-                                                {itemVaccine.Name}
-                                              </p>
-                                              <p
-                                                style={{
-                                                  marginBottom: "16px",
-                                                  color: "#aaa",
+                                              <Button
+                                                onClick={() => {
+                                                  showDrawer(true);
+                                                  setVaccineSelected(
+                                                    itemVaccine
+                                                  );
+                                                  if (
+                                                    itemVaccine &&
+                                                    itemVaccine.Records.length >
+                                                      0
+                                                  ) {
+                                                    let count = 0;
+                                                    for (const item of itemVaccine.Records) {
+                                                      item?.Date && count++;
+                                                    }
+                                                    setCountVaccine(count);
+                                                  }
                                                 }}
                                               >
-                                                {itemVaccine.Disease}
-                                              </p>
-                                              <Row>
-                                                <Col span={24}>
-                                                  <Table
-                                                    style={{ width: "100%" }}
-                                                    columns={columns}
-                                                    dataSource={
-                                                      itemVaccine.Records
-                                                    }
-                                                    pagination={false}
-                                                  />
-                                                </Col>
-                                              </Row>
+                                                Chi tiết
+                                              </Button>
                                             </div>
                                           </div>
                                         )
@@ -792,7 +1014,91 @@ function Vaccine({
                               ))}
                             </div>
                           </Tabs.TabPane>
-                        </Tabs>
+                          <Tabs.TabPane tab="Danh sách vaccine của bé" key="2"> */}
+                        <div>
+                          {listVaccineSystemChild.map((item, index) => (
+                            <Row key={`v${index}`}>
+                              <Col span={24} style={{ marginBottom: "8px" }}>
+                                <span
+                                  style={{
+                                    fontSize: "18px",
+                                  }}
+                                >
+                                  {item.FromMonth !== item.ToMonth
+                                    ? `Từ ${item.FromMonth} đến ${item.ToMonth} tháng tuổi`
+                                    : `${item.FromMonth} tháng tuổi`}
+                                </span>
+                              </Col>
+                              <Col span={24} className="vaccineBox">
+                                <span style={{ fontSize: "16px" }}>
+                                  {item.Vaccines.map((itemVaccine, index) => (
+                                    <div
+                                      key={itemVaccine.Code}
+                                      style={{
+                                        padding: "8px 16px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #ccc",
+                                        marginBottom: "8px",
+                                      }}
+                                    >
+                                      <div>
+                                        <p style={{ marginBottom: "0" }}>
+                                          {itemVaccine.Name}
+                                        </p>
+                                        <p
+                                          style={{
+                                            marginBottom: "0",
+                                            marginTop: "6px",
+                                            color: "#aaa",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              marginBottom: "0px",
+                                              color: "#000000e0",
+                                            }}
+                                          >
+                                            Phòng ngừa bệnh:{" "}
+                                          </span>
+                                          {itemVaccine.Disease}
+                                        </p>
+                                        <p
+                                          style={{
+                                            marginBottom: "16px",
+                                            marginTop: "6px",
+                                            color: "#aaa",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              marginBottom: "0",
+                                              color: "#000000e0",
+                                            }}
+                                          >
+                                            Lưu ý:{" "}
+                                          </span>
+                                          {itemVaccine.Note}
+                                        </p>
+                                        <Row>
+                                          <Col span={24}>
+                                            <Table
+                                              style={{ width: "100%" }}
+                                              columns={columnsSystem}
+                                              dataSource={itemVaccine.Records}
+                                              pagination={false}
+                                            />
+                                          </Col>
+                                        </Row>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </span>
+                              </Col>
+                            </Row>
+                          ))}
+                        </div>
+                        {/* </Tabs.TabPane>
+                        </Tabs> */}
                       </Col>
                     </Row>
                   </div>
@@ -801,7 +1107,27 @@ function Vaccine({
                   <div className="containerModal__box__vaccine__control__content__box">
                     <Row className="containerModal__box__vaccine__control__content__box__item">
                       <Col span={24}>
-                        <Tabs
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            padding: "0 16px 16px",
+                          }}
+                        >
+                          <Button
+                            onClick={() => {
+                              setNameVaccine("");
+                              setDiseaseVaccine("");
+                              setBasicAmount(1);
+                              setNoteVaccine("");
+                              showDrawerAddVaccine(true);
+                              setEditVaccineDefine(false);
+                            }}
+                          >
+                            Thêm vaccine khác
+                          </Button>
+                        </div>
+                        {/* <Tabs
                           activeKey={tabSelectOther}
                           onChange={onChangeTabsOther}
                           tabBarExtraContent={
@@ -905,57 +1231,165 @@ function Vaccine({
                                 </div>
                               </div>
                             ))}
-                          </Tabs.TabPane>
-                          <Tabs.TabPane tab="Danh sách vaccine của bé" key="2">
-                            <div>
-                              <Row>
-                                <Col span={24} className="vaccineBox">
-                                  <span style={{ fontSize: "16px" }}>
-                                    {listVaccineDefineChild.map(
-                                      (itemVaccine, index) => (
-                                        <div
-                                          key={index}
+                          </Tabs.TabPane> */}
+                        {/* <Tabs.TabPane tab="Danh sách vaccine của bé" key="2"> */}
+                        <div>
+                          <Row>
+                            <Col span={24} className="vaccineBox">
+                              <span style={{ fontSize: "16px" }}>
+                                {listVaccineDefineChild.map(
+                                  (itemVaccine, index) => (
+                                    <div
+                                      key={index}
+                                      style={{
+                                        padding: "8px 16px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #ccc",
+                                        marginBottom: "8px",
+                                      }}
+                                    >
+                                      <div>
+                                        <Row
                                           style={{
-                                            padding: "8px 16px",
-                                            borderRadius: "8px",
-                                            border: "1px solid #ccc",
-                                            marginBottom: "8px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
                                           }}
                                         >
-                                          <div>
-                                            <p style={{ marginBottom: "0" }}>
+                                          <Col>
+                                            <p
+                                              style={{
+                                                marginBottom: "0",
+                                                fontSize: "16px",
+                                              }}
+                                            >
                                               {itemVaccine.Name}
                                             </p>
                                             <p
                                               style={{
-                                                marginBottom: "16px",
+                                                marginBottom: "0",
+                                                marginTop: "6px",
                                                 color: "#aaa",
+                                                fontSize: "16px",
                                               }}
                                             >
+                                              <span
+                                                style={{
+                                                  marginBottom: "0px",
+                                                  color: "#000000e0",
+                                                }}
+                                              >
+                                                Phòng ngừa bệnh:{" "}
+                                              </span>
                                               {itemVaccine.Disease}
                                             </p>
-                                            <Row>
-                                              <Col span={24}>
-                                                <Table
-                                                  style={{ width: "100%" }}
-                                                  columns={columns}
-                                                  dataSource={
-                                                    itemVaccine.Records
-                                                  }
-                                                  pagination={false}
-                                                />
-                                              </Col>
-                                            </Row>
-                                          </div>
-                                        </div>
-                                      )
-                                    )}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </div>
-                          </Tabs.TabPane>
-                        </Tabs>
+                                          </Col>
+                                          <Col
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "flex-end",
+                                            }}
+                                          >
+                                            <Button
+                                              onClick={() => {
+                                                setVaccineSelectedDefine(
+                                                  itemVaccine
+                                                );
+                                                setNameVaccine(
+                                                  itemVaccine.Name
+                                                );
+                                                setNoteVaccine(
+                                                  itemVaccine.Note
+                                                );
+                                                setDiseaseVaccine(
+                                                  itemVaccine.Disease
+                                                );
+                                                setBasicAmount(
+                                                  itemVaccine.BasicAmount
+                                                );
+                                                setOpenDrawerAddVaccine(true);
+                                                setEditVaccineDefine(true);
+                                              }}
+                                              icon={<UilEdit size={18} />}
+                                            ></Button>
+                                          </Col>
+                                        </Row>
+                                        <p
+                                          style={{
+                                            marginBottom: "16px",
+                                            marginTop: "6px",
+                                            color: "#aaa",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              marginBottom: "0",
+                                              color: "#000000e0",
+                                            }}
+                                          >
+                                            Lưu ý:{" "}
+                                          </span>
+                                          {itemVaccine.Note}
+                                        </p>
+                                        <div className="divider-20"></div>
+                                        <Row>
+                                          <Col
+                                            span={24}
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "space-between",
+                                              marginBottom: "16px",
+                                            }}
+                                          >
+                                            <div>
+                                              <span
+                                                style={{
+                                                  fontSize: "16px",
+                                                  fontWeight: 500,
+                                                  textDecoration: "underline",
+                                                }}
+                                              >
+                                                Danh sách mũi tiêm
+                                              </span>
+                                            </div>
+                                            {itemVaccine.Records.length <
+                                              itemVaccine.BasicAmount && (
+                                              <Button
+                                                onClick={() => {
+                                                  console.log(itemVaccine);
+                                                  setVaccineSelectedDefine(
+                                                    itemVaccine
+                                                  );
+                                                  setOpenDrawer(true);
+                                                  setEditReordDefine(false);
+                                                  setTypeImport("denfine");
+                                                }}
+                                              >
+                                                Thêm mũi tiêm
+                                              </Button>
+                                            )}
+                                          </Col>
+                                          <Col span={24}>
+                                            {itemVaccine.Records.length > 0 && (
+                                              <Table
+                                                style={{ width: "100%" }}
+                                                columns={columns}
+                                                dataSource={itemVaccine.Records}
+                                                pagination={false}
+                                              />
+                                            )}
+                                          </Col>
+                                        </Row>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              </span>
+                            </Col>
+                          </Row>
+                        </div>
+                        {/* </Tabs.TabPane>
+                        </Tabs> */}
                       </Col>
                     </Row>
                   </div>
@@ -991,15 +1425,25 @@ function Vaccine({
         )}
       </Modal>
       <Drawer
-        title={`Thêm vaccine cho trẻ ${childSelect.Name}`}
+        title={`Chi tiết vaccine`}
         placement="right"
         closable={false}
         onClose={onClose}
         open={openDrawer}
         width={500}
         key="right"
+        extra={
+          type === "Vaccine khuyến nghị" && (
+            <div>
+              <span>
+                <span style={{ color: "#0277b7" }}>Dự kiến tiêm:</span>{" "}
+                {vaccineSelected?.IntendedDate}
+              </span>
+            </div>
+          )
+        }
       >
-        <Row style={{ marginBottom: "8px" }}>
+        {/* <Row style={{ marginBottom: "8px" }}>
           <Col span={8} style={{ fontSize: "16px", color: "#8f8f8f" }}>
             Trẻ
           </Col>
@@ -1017,8 +1461,8 @@ function Vaccine({
               ? vaccineSelected?.Name
               : vaccineSelectedDefine?.Name}
           </Col>
-        </Row>
-        <Row style={{ marginBottom: "8px" }}>
+        </Row> */}
+        {/* <Row style={{ marginBottom: "8px" }}>
           <Col span={8} style={{ fontSize: "16px", color: "#8f8f8f" }}>
             Trị bệnh
           </Col>
@@ -1031,6 +1475,17 @@ function Vaccine({
         </Row>
         <Row style={{ marginBottom: "8px" }}>
           <Col span={8} style={{ fontSize: "16px", color: "#8f8f8f" }}>
+            Lưu ý
+          </Col>
+          <Col span={16} style={{ fontSize: "16px", color: "#282828" }}>
+            :{" "}
+            {typeImport === "system"
+              ? vaccineSelected?.Note
+              : vaccineSelectedDefine?.Note}
+          </Col>
+        </Row> */}
+        {/* <Row style={{ marginBottom: "8px" }}>
+          <Col span={8} style={{ fontSize: "16px", color: "#8f8f8f" }}>
             Tổng số mũi tiêm
           </Col>
           <Col span={16} style={{ fontSize: "16px", color: "#282828" }}>
@@ -1040,29 +1495,16 @@ function Vaccine({
               : vaccineSelectedDefine?.BasicAmount}
           </Col>
         </Row>
-        <div className="divider-20"></div>
-        <Row style={{ marginBottom: "8px" }} gutter={50}>
-          <Col span={12}>
-            <label
-              style={{ fontSize: "16px", marginBottom: "8px" }}
-              className="inputProfile__label"
-              htmlFor="birthday"
-            >
-              Ngày tiêm
-            </label>
-            <DatePicker
-              id="dateVaccine"
-              placeholder="Ngày tiêm"
-              style={{ width: "100%", height: "40px" }}
-              locale={locale}
-              value={dayjs(date, dateFormat)}
-              format={dateFormat}
-              onChange={(date, dateString) => {
-                setDate(dateString);
-              }}
-            />
+        <Row style={{ marginBottom: "8px" }}>
+          <Col span={8} style={{ fontSize: "16px", color: "#8f8f8f" }}>
+            Tổng số mũi đã tiêm
           </Col>
-
+          <Col span={16} style={{ fontSize: "16px", color: "#282828" }}>
+            : {countVaccine}
+          </Col>
+        </Row> */}
+        {/* <div className="divider-20"></div> */}
+        <Row style={{ marginBottom: "8px" }} gutter={50}>
           <Col span={12}>
             <label
               style={{ fontSize: "16px", marginBottom: "8px" }}
@@ -1078,6 +1520,7 @@ function Vaccine({
               }}
               onChange={(value) => {
                 setStatusVaccine(value);
+                setDate(null);
               }}
               options={[
                 {
@@ -1091,6 +1534,71 @@ function Vaccine({
               ]}
               value={statusVaccine}
             />
+          </Col>
+          <Col span={12}>
+            {type === "Vaccine khuyến nghị" ? (
+              <>
+                {statusVaccine === true && (
+                  <>
+                    <label
+                      style={{ fontSize: "16px", marginBottom: "8px" }}
+                      className="inputProfile__label"
+                      htmlFor="birthday"
+                    >
+                      Ngày tiêm
+                    </label>
+                    <DatePicker
+                      id="dateVaccine"
+                      placeholder="Chọn ngày"
+                      style={{ width: "100%", height: "40px" }}
+                      locale={locale}
+                      value={date && dayjs(date, dateFormat)}
+                      format={dateFormat}
+                      onChange={(date, dateString) => {
+                        setDate(dateString);
+                      }}
+                      disabledDate={(current) => {
+                        if (statusVaccine) {
+                          return current && current > dayjs().endOf("day");
+                        } else {
+                          return current && current < dayjs().startOf("day");
+                        }
+                      }}
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <>
+                  <label
+                    style={{ fontSize: "16px", marginBottom: "8px" }}
+                    className="inputProfile__label"
+                    htmlFor="birthday"
+                  >
+                    {statusVaccine ? "Ngày tiêm" : "Dự kiến tiêm"}
+                  </label>
+                  <DatePicker
+                    id="dateVaccine"
+                    placeholder="Chọn ngày"
+                    style={{ width: "100%", height: "40px" }}
+                    locale={locale}
+                    value={date && dayjs(date, dateFormat)}
+                    format={dateFormat}
+                    onChange={(date, dateString) => {
+                      setDate(dateString);
+                    }}
+                    disabledDate={(current) => {
+                      if (statusVaccine) {
+                        return current && current > dayjs().endOf("day");
+                      } else {
+                        return current && current < dayjs().startOf("day");
+                      }
+                    }}
+                  />
+                </>
+              </>
+            )}
           </Col>
         </Row>
         <Row>
@@ -1118,16 +1626,14 @@ function Vaccine({
               type="primary"
               onClick={
                 typeImport === "system"
-                  ? editReordSystem
-                    ? handleUpdateVaccineSystem
-                    : handleImportVaccine
-                  : editReordSystem
+                  ? handleUpdateVaccineSystem
+                  : editReordDefine
                   ? handleUpdateVaccineDefine
                   : handleImportVaccineDefine
               }
               loading={confirmLoading}
             >
-              {editReordSystem ? "Cập nhật" : "Thêm"}
+              {editReordDefine ? "Cập nhật" : "Thêm"}
             </Button>
           </Col>
         </Row>

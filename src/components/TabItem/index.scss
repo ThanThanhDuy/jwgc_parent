@@ -15,6 +15,11 @@
     text-decoration: underline;
     color: $primary-color-hover;
   }
+  &__active {
+    background-color: $primary-color-bg-hover;
+    color: $primary-color-hover;
+    text-decoration: underline;
+  }
   &__icon {
     margin-right: 8px;
     margin-left: -8px;

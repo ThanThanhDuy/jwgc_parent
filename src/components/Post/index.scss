@@ -32,7 +32,7 @@
       display: flex;
       flex-direction: column;
       &_name {
-        font-size: 14px;
+        font-size: 18px;
         padding: 4px;
         border-radius: 5px;
         font-weight: 500;
@@ -45,7 +45,7 @@
         }
       }
       &_date {
-        font-size: 12px;
+        font-size: 14px;
         margin-left: 4px;
         margin-top: -4px;
       }
@@ -81,7 +81,7 @@
         &_link {
           text-decoration: none;
           color: $text;
-          font-size: 14px;
+          font-size: 16px;
         }
       }
       &_more {
@@ -92,7 +92,7 @@
           display: flex;
           align-items: center;
           margin-top: 10px;
-          font-size: 14px;
+          font-size: 16px;
           color: #3d3d3d;
           padding: 4px 12px 4px 8px;
           border-radius: 5px;
@@ -105,7 +105,7 @@
           display: flex;
           align-items: center;
           margin-top: 10px;
-          font-size: 14px;
+          font-size: 16px;
           color: #3d3d3d;
           padding: 4px 12px 4px 8px;
           border-radius: 5px;

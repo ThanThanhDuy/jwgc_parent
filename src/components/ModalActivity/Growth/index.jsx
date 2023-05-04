@@ -44,6 +44,8 @@ function Growth({
   const [statusHead, setStatusHead] = useState("");
   const [statusModal, setStatusModal] = useState(null);
   const [error, setError] = useState("");
+  const [errorWeight, setErrorWeight] = useState("");
+  const [errorHeight, setErrorHeight] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [reload, setReload] = useRecoilState(reloadState);
@@ -65,26 +67,41 @@ function Growth({
   const handleOk = async () => {
     setConfirmLoading(true);
     let check = true;
-    if (date === null) {
+    if (!date) {
       setStatusDate("error");
       setConfirmLoading(false);
       check = false;
     }
     if (!weight) {
       setStatusWeight("error");
+      setErrorWeight("Vui lòng nhập cân nặng");
       setConfirmLoading(false);
       check = false;
     }
     if (!height) {
       setStatusHeight("error");
+      setErrorHeight("Vui lòng nhập chiều cao");
       setConfirmLoading(false);
       check = false;
     }
-    if (!headCircumference) {
-      setStatusHead("error");
+    if (weight < 0 || weight > 100) {
+      setStatusWeight("error");
+      setErrorWeight("Vui lòng kiểm tra lại cân nặng");
       setConfirmLoading(false);
       check = false;
     }
+    if (height < 0 || height > 200) {
+      setStatusHeight("error");
+      setErrorHeight("Vui lòng kiểm tra lại chiều cao");
+      setConfirmLoading(false);
+      check = false;
+    }
+
+    // if (!headCircumference) {
+    //   setStatusHead("error");
+    //   setConfirmLoading(false);
+    //   check = false;
+    // }
     if (!check) {
       return;
     }
@@ -93,7 +110,7 @@ function Growth({
     data.date = date;
     data.weight = weight;
     data.height = height;
-    data.headCircumference = headCircumference;
+    // data.headCircumference = headCircumference;
     let res;
     if (typeApi !== "update") {
       res = await activityService.recordActivity(
@@ -215,15 +232,17 @@ function Growth({
         {statusModal === null && (
           <div className="containerModal__box__growth">
             <DatePicker
-              showTime
               locale={locale}
               style={{ width: "100%", height: "40px", color: "#000" }}
-              placeholder="Chọn thời gian"
+              placeholder="Chọn ngày"
               onChange={onChangeDate}
               status={statusDate}
               className="containerModal__box__growth__date"
-              format="DD-MM-YYYY HH:mm:ss"
-              value={date ? dayjs(date, "DD-MM-YYYY HH:mm:ss") : null}
+              format="DD-MM-YYYY"
+              value={date ? dayjs(date, "DD-MM-YYYY") : null}
+              disabledDate={(current) => {
+                return current && current > dayjs().endOf("day");
+              }}
             />
             {statusDate === "error" && (
               <p
@@ -233,7 +252,7 @@ function Growth({
                   color: "#ff4d4f",
                 }}
               >
-                Vui lòng chọn thời gian
+                Vui lòng chọn ngày
               </p>
             )}
             <div className="containerModal__box__growth__control">
@@ -243,8 +262,6 @@ function Growth({
                     <Col span={8}>Cân nặng</Col>
                     <Col offset={7} span={6}>
                       <InputNumber
-                        min={0}
-                        max={100}
                         style={{
                           width: "100%",
                         }}
@@ -271,7 +288,7 @@ function Growth({
                             marginBottom: "0px",
                           }}
                         >
-                          Vui lòng nhập cân nặng
+                          {errorWeight}
                         </p>
                       )}
                     </Col>
@@ -284,8 +301,6 @@ function Growth({
                     <Col span={8}>Chiều cao</Col>
                     <Col offset={7} span={6}>
                       <InputNumber
-                        min={0}
-                        max={200}
                         style={{
                           width: "100%",
                         }}
@@ -312,12 +327,12 @@ function Growth({
                             marginBottom: "0px",
                           }}
                         >
-                          Vui lòng nhập chiều cao
+                          {errorHeight}
                         </p>
                       )}
                     </Col>
                   </Row>
-                  <Row
+                  {/* <Row
                     className="containerModal__box__growth__control__content__box__item"
                     style={{ marginTop: "16px" }}
                   >
@@ -340,7 +355,7 @@ function Growth({
                     <Col span={2} offset={1}>
                       Cm
                     </Col>
-                  </Row>
+                  </Row> */}
                   <Row className="containerModal__box__growth__control__content__box__item">
                     <Col offset={15}>
                       {statusHead === "error" && (
@@ -360,7 +375,7 @@ function Growth({
                 </div>
               </div>
             </div>
-            <div className="containerModal__box__growth__textarea">
+            {/* <div className="containerModal__box__growth__textarea">
               <TextareaAutosize
                 placeholder="Ghi chú (không bắt buộc)"
                 className="containerModal__box__growth__textarea__input__box"
@@ -368,7 +383,7 @@ function Growth({
                 onChange={onChangeTextArea}
                 value={note}
               />
-            </div>
+            </div> */}
           </div>
         )}
         {statusModal !== null && (

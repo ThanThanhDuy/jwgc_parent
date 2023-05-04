@@ -25,6 +25,7 @@ import {
   ConfigProvider,
   Checkbox,
   TimePicker,
+  Rate,
 } from "antd";
 import userService from "../../services/user";
 import userAvatar from "../../assets/icons/user.png";
@@ -88,6 +89,7 @@ const DAY = [
 
 function Activity() {
   const [childSelect, setChildSelect] = useRecoilState(childSelectState);
+  const [nannytSelect, setNanntSelect] = useState(null);
   const type = useRecoilValue(typeState);
   const [activitySelect, setActivitySelect] =
     useRecoilState(activitySelectState);
@@ -95,6 +97,8 @@ function Activity() {
     openModalActivitySelectState
   );
   const [openModal, setOpenModal] = useState(false);
+  const [openModalRating, setOpenModalRating] = useState(false);
+  const [loadingRating, setLoadingRating] = useState(false);
   const [listUser, setListUser] = useState([]);
   const [typeModal, setTypeModal] = useState("");
   const [loadingSearch, setLoadingSearch] = useState(false);
@@ -117,6 +121,8 @@ function Activity() {
   const [dayOfWeeks, setDayOfWeeks] = useState([]);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [listChild, setListChild] = useRecoilState(listChildState);
+  const [rate, setRate] = useState(5);
+  const [comment, setComment] = useState("");
 
   useEffect(() => {
     const fetchCateAcitivity = async () => {
@@ -274,6 +280,43 @@ function Activity() {
     setListInvite([]);
   };
 
+  const handleCancelRating = () => {
+    setOpenModalRating(false);
+  };
+
+  const handleOkRating = async () => {
+    try {
+      setLoadingRating(true);
+      const res = await childrenService.parentCancelRelationshipNanny(
+        childSelect.Code,
+        nannytSelect.Code,
+        rate,
+        comment
+      );
+      if (res && res.StatusCode === 200) {
+        notification.success({
+          message: "Thành công",
+          description: res.Message,
+        });
+        let childSelectTmp = { ...childSelect };
+        childSelectTmp.Nannies = childSelectTmp.Nannies.filter(
+          (itemTmp) => itemTmp.Code !== nannytSelect.Code
+        );
+        setChildSelect(childSelectTmp);
+        setOpenModalRating(false);
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: res.Message,
+        });
+      }
+      setLoadingRating(false);
+    } catch (error) {
+      setLoadingRating(false);
+      console.log(error);
+    }
+  };
+
   const handleClickActivity = (name) => {
     setOpenModalActivitySelect(true);
     setActivitySelect(name);
@@ -384,31 +427,13 @@ function Activity() {
     }
   };
 
-  const handleParentCancelRelationshipNanny = async (childCode, nannyCode) => {
-    try {
-      const res = await childrenService.parentCancelRelationshipNanny(
-        childCode,
-        nannyCode
-      );
-      if (res && res.StatusCode === 200) {
-        notification.success({
-          message: "Thành công",
-          description: res.Message,
-        });
-        let childSelectTmp = { ...childSelect };
-        childSelectTmp.Nannies = childSelectTmp.Nannies.filter(
-          (itemTmp) => itemTmp.Code !== nannyCode
-        );
-        setChildSelect(childSelectTmp);
-      } else {
-        notification.error({
-          message: "Lỗi",
-          description: res.Message,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const handleParentCancelRelationshipNanny = async (childCode, nanny) => {
+    setOpenModalRating(true);
+    setNanntSelect(nanny);
+  };
+
+  const handleChangeRating = (value) => {
+    setRate(value);
   };
 
   const handleParentCancelRelationshipPartner = async (
@@ -686,7 +711,7 @@ function Activity() {
               }
             />
           )}
-          {activitySelect === "Nhật Ký" && (
+          {activitySelect === "Khoảnh Khắc" && (
             <Diary
               activitySelect={activitySelect}
               open={openModalActivitySelect}
@@ -1093,7 +1118,7 @@ function Activity() {
                               onClick={() =>
                                 handleParentCancelRelationshipNanny(
                                   childSelect.Code,
-                                  item.Code
+                                  item
                                 )
                               }
                             >
@@ -1340,6 +1365,42 @@ function Activity() {
                 </Tabs.TabPane>
               )}
             </Tabs>
+          </Modal>
+          <Modal
+            title="Đánh giá bảo mẫu"
+            open={openModalRating}
+            onCancel={handleCancelRating}
+            okText="Gửi"
+            cancelText="Hủy"
+            // className="box__moadl__link"
+            // footer={null}
+            width={800}
+            onOk={handleOkRating}
+            confirmLoading={loadingRating}
+          >
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Rate
+                value={rate}
+                onChange={handleChangeRating}
+                style={{ fontSize: "24px" }}
+              />
+            </div>
+            <div
+              style={{
+                marginTop: "18px",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Input
+                placeholder="Nhận xét"
+                style={{ height: "40px", width: "500px" }}
+                value={comment}
+                onChange={(e) => {
+                  setComment(e.target.value);
+                }}
+              />
+            </div>
           </Modal>
         </div>
       )}

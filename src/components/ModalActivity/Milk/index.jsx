@@ -62,6 +62,8 @@ function Milk({
   const [timeStart, setTimeStart] = useState(null);
   const [timeFinish, setTimeFinish] = useState(null);
   const [errorTimeFinish, setErrorTimeFinish] = useState("");
+  const [file, setFile] = useState(null);
+  const [avatar, setAvatar] = useState("");
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
@@ -141,14 +143,14 @@ function Milk({
         childSelect.Code,
         `${date} ${timeStart}`,
         data,
-        null
+        file
       );
     } else {
       res = await activityService.updateActivity(
         itemSelected.Code,
         `${date} ${timeStart}`,
         data,
-        null
+        file
       );
     }
     if (res && res.StatusCode === 200) {
@@ -225,6 +227,16 @@ function Milk({
       });
     }
     setConfirmLoadingDelete(false);
+  };
+
+  const handleFileSelected = (e) => {
+    const file = e.target.files[0];
+    setFile(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setAvatar(reader.result);
+    };
   };
 
   return (
@@ -315,6 +327,9 @@ function Milk({
                   status={statusDate}
                   format="DD-MM-YYYY"
                   value={date ? dayjs(date, formatDay) : null}
+                  disabledDate={(current) => {
+                    return current && current > dayjs().endOf("day");
+                  }}
                 />
               </Col>
               <Col span={6} offset={2}>
@@ -398,13 +413,13 @@ function Milk({
               </Col>
             </Row>
             <div className="containerModal__box__milk__control">
-              {typeApi !== "update" && (
+              {/* {typeApi !== "update" && (
                 <Segmented
                   block
                   options={["Vắt sữa", "Trữ sữa"]}
                   onChange={onChangeSegmented}
                 />
-              )}
+              )} */}
 
               <div className="containerModal__box__milk__control__content">
                 {type === "Vắt sữa" && (
@@ -480,6 +495,21 @@ function Milk({
                 onChange={onChangeTextArea}
                 value={note}
               />
+            </div>
+            <div>
+              <div
+                className="updateprofile__container__box__main__user__avatar"
+                id="avatar"
+              >
+                <img src={avatar} alt="" />
+                <div className="updateprofile__container__box__main__user__avatar__input">
+                  <input
+                    onChange={handleFileSelected}
+                    type="file"
+                    accept="image/png, image/jpeg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

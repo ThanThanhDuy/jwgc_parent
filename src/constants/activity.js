@@ -61,7 +61,7 @@ export const ACTIVITY = [
     iconde: diaper_de,
   },
   {
-    title: "Nhật Ký",
+    title: "Khoảnh Khắc",
     color: "#ffc300",
     icon: diary,
     iconde: diary_de,

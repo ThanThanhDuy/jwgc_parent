@@ -12,6 +12,15 @@ import cateBlogService from "../../services/cateBlog";
 import { useRecoilState } from "recoil";
 import { cateDataState } from "../../stores/cate";
 import hashtag from "../../assets/icons/hashtag.png";
+import {
+  cateSelectedState,
+  currentPageState,
+  listBlogState,
+  pageCountState,
+  searchValueState,
+} from "../../stores/blog";
+import blogService from "../../services/blog";
+import { BLOG } from "../../constants/blog";
 
 function Sidebar() {
   const data_jwgc = [
@@ -54,6 +63,12 @@ function Sidebar() {
   ];
 
   const [dataCate, setDataCate] = useRecoilState(cateDataState);
+  const [cateSelected, setCatesSelected] = useRecoilState(cateSelectedState);
+  const [listBlog, setListBlog] = useRecoilState(listBlogState);
+  const [pageCount, setPageCount] = useRecoilState(pageCountState);
+  const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
+  const [searchValue, setSearchValue] = useRecoilState(searchValueState);
+
   useEffect(() => {
     if (dataCate.length === 0) {
       const handleGetCateBlog = async () => {
@@ -81,11 +96,40 @@ function Sidebar() {
     // eslint-disable-next-line
   }, []);
 
+  const handleItem = async (item, index) => {
+    setCatesSelected(item);
+    const data = {
+      Code: "",
+      Title: searchValue,
+      ConcernCategoryCode: item.Code === "-1" ? "" : item.Code,
+      Page: 1,
+      PageSize: BLOG.pageSizeDefault,
+    };
+    const res = await blogService.getBlog(data);
+    if (res && res.StatusCode === 200) {
+      setListBlog(res.Data?.Items);
+      setPageCount(res.Data?.TotalPagesCount);
+      if (currentPage < res.Data?.TotalPagesCount) {
+        setCurrentPage(1);
+      }
+    }
+  };
+
   return (
     <div>
       <p className="sidebar_titleGroup">Blog</p>
       {dataCate.map((item, index) => {
-        return <TabItem key={item.Code} Icon={item.Icon} label={item.Label} />;
+        return (
+          <div key={item.Code} onClick={() => handleItem(item, index)}>
+            <TabItem
+              key={item.Code}
+              Icon={item.Icon}
+              label={item.Label}
+              active={item.Code === cateSelected.Code}
+              div={true}
+            />
+          </div>
+        );
       })}
       <p className="sidebar_titleGroup" style={{ marginTop: "30px" }}>
         Đồng hành cùng bé

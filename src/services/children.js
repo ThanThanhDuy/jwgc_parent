@@ -83,10 +83,12 @@ class ChildrenService {
     return response;
   }
 
-  async parentCancelRelationshipNanny(ChildCode, NannyCode) {
+  async parentCancelRelationshipNanny(ChildCode, NannyCode, Rating, Comment) {
     let params = {
       ChildCode,
       NannyCode,
+      Rating,
+      Comment,
     };
     try {
       var response = await children.parentCancelRelationshipNanny(params);

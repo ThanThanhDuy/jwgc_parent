@@ -146,6 +146,8 @@ function Health({
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [reload, setReload] = useRecoilState(reloadState);
+  const [file, setFile] = useState(null);
+  const [avatar, setAvatar] = useState("");
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
@@ -231,14 +233,14 @@ function Health({
         childSelect.Code,
         date,
         data,
-        null
+        file
       );
     } else {
       res = await activityService.updateActivity(
         itemSelected.Code,
         date,
         data,
-        null
+        file
       );
     }
     if (res && res.StatusCode === 200) {
@@ -327,6 +329,16 @@ function Health({
       setError(res.Message);
     }
     setConfirmLoadingDelete(false);
+  };
+
+  const handleFileSelected = (e) => {
+    const file = e.target.files[0];
+    setFile(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setAvatar(reader.result);
+    };
   };
 
   return (
@@ -678,6 +690,21 @@ function Health({
                 onChange={onChangeTextArea}
                 value={note}
               />
+            </div>
+            <div>
+              <div
+                className="updateprofile__container__box__main__user__avatar"
+                id="avatar"
+              >
+                <img src={avatar} alt="" />
+                <div className="updateprofile__container__box__main__user__avatar__input">
+                  <input
+                    onChange={handleFileSelected}
+                    type="file"
+                    accept="image/png, image/jpeg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
