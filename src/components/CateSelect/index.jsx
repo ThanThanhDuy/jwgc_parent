@@ -1,9 +1,7 @@
 import * as React from "react";
-import SelectUnstyled from "@mui/base/SelectUnstyled";
-import OptionUnstyled, {
-  optionUnstyledClasses,
-} from "@mui/base/OptionUnstyled";
-import PopperUnstyled from "@mui/base/PopperUnstyled";
+import Select from "@mui/base/Select";
+import Option, { optionClasses } from "@mui/base/Option";
+import Popper from "@mui/base/Popper";
 import { styled } from "@mui/system";
 import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import hashtag from "../../assets/icons/hashtag.png";
@@ -87,7 +85,7 @@ const StyledListbox = styled("ul")(
   `
 );
 
-const StyledOption = styled(OptionUnstyled)(
+const StyledOption = styled(Option)(
   ({ theme }) => `
   list-style: none;
   padding: 8px;
@@ -98,34 +96,34 @@ const StyledOption = styled(OptionUnstyled)(
     border-bottom: none;
   }
 
-  &.${optionUnstyledClasses.selected} {
+  &.${optionClasses.selected} {
     background-color: #ebecfe;
     color: #2f3ab2;
     
   }
 
-  &.${optionUnstyledClasses.highlighted} {
+  &.${optionClasses.highlighted} {
     background-color: #ebecfe;
     color: #2f3ab2;
   }
 
-  &.${optionUnstyledClasses.highlighted}.${optionUnstyledClasses.selected} {
+  &.${optionClasses.highlighted}.${optionClasses.selected} {
     background-color: #ebecfe;
     color: #2f3ab2;
   }
 
-  &.${optionUnstyledClasses.disabled} {
+  &.${optionClasses.disabled} {
     color: #2f3ab2;
   }
 
-  &:hover:not(.${optionUnstyledClasses.disabled}) {
+  &:hover:not(.${optionClasses.disabled}) {
     background-color: #ebecfe;
     color: #2f3ab2;
   }
   `
 );
 
-const StyledPopper = styled(PopperUnstyled)`
+const StyledPopper = styled(Popper)`
   z-index: 99;
 `;
 
@@ -137,7 +135,7 @@ const CustomSelect = React.forwardRef(function CustomSelect(props, ref) {
     ...props.slots,
   };
 
-  return <SelectUnstyled {...props} ref={ref} slots={slots} />;
+  return <Select {...props} ref={ref} slots={slots} />;
 });
 
 export default function CateSelect({ onChange, value, dataCate }) {
@@ -150,7 +148,7 @@ export default function CateSelect({ onChange, value, dataCate }) {
       {dataCate?.map((item) => (
         <StyledOption value={item.Id} key={item.Id}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <img
+            {/* <img
               style={{
                 width: "18px",
                 height: "18px",
@@ -159,7 +157,7 @@ export default function CateSelect({ onChange, value, dataCate }) {
               }}
               src={item.Icon ? item.Icon : hashtag}
               alt="icon"
-            />
+            /> */}
             <span style={{ display: "block" }}>{item.Label}</span>
           </div>
         </StyledOption>
