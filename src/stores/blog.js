@@ -13,7 +13,7 @@ export const contentBlogState = atom({
 
 export const cateBlogState = atom({
   key: "cateBlogState",
-  default: 2,
+  default: "",
 });
 
 export const cateDisplayState = atom({

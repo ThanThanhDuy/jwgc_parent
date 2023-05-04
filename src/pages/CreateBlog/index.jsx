@@ -318,7 +318,7 @@ function CreateBlog() {
                   Đăng bài
                 </div>
               )}
-              {!isLoadingDeleteDraft && (
+              {/* {!isLoadingDeleteDraft && (
                 <div
                   className={`createBlog__container__editor__control__draft ${
                     isLoadingSaveDraft
@@ -351,7 +351,7 @@ function CreateBlog() {
                     : "Xóa nháp"}
                   {isDeletedDraft && <UilCheck color="green" />}
                 </div>
-              )}
+              )} */}
             </div>
             <div>
               <span style={{ fontSize: "14px" }}>
