@@ -30,3 +30,25 @@ export const scrollPositionState = atom({
   key: "scrollPositionState",
   default: 0,
 });
+
+export const searchValueState = atom({
+  key: "searchValueState",
+  default: "",
+});
+
+export const listBlogState = atom({
+  key: "listBlogState",
+  default: [],
+});
+
+export const pageCountState = atom({
+  key: "pageCountState",
+  default: 1,
+});
+
+export const cateSelectedState = atom({
+  key: "cateSelectedState",
+  default: {
+    Code: "-1",
+  },
+});

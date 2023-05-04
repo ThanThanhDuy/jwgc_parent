@@ -44,6 +44,7 @@ function Diary({
   const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
   const [reload, setReload] = useRecoilState(reloadState);
   const setItemSelected = useSetRecoilState(itemSelectedState);
+  const [avatar, setAvatar] = useState("");
 
   const setopenModalActivitySelect = useSetRecoilState(
     openModalActivitySelectState
@@ -118,16 +119,6 @@ function Diary({
     setNote(e.target.value);
   };
 
-  const handleFileSelected = (e) => {
-    const file = e.target.files[0];
-    setFile(file);
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setImage(reader.result);
-    };
-  };
-
   const handleDelete = async () => {
     setConfirmLoadingDelete(true);
     const res = await activityService.deleteActivity(itemSelected.Code);
@@ -146,6 +137,16 @@ function Diary({
       });
     }
     setConfirmLoadingDelete(false);
+  };
+
+  const handleFileSelected = (e) => {
+    const file = e.target.files[0];
+    setFile(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setAvatar(reader.result);
+    };
   };
 
   return (
@@ -217,6 +218,9 @@ function Diary({
                   status={statusDate}
                   format="DD-MM-YYYY HH:mm:ss"
                   value={date ? dayjs(date, "DD-MM-YYYY HH:mm:ss") : null}
+                  disabledDate={(current) => {
+                    return current && current > dayjs().endOf("day");
+                  }}
                 />
               </Col>
             </Row>
@@ -231,7 +235,7 @@ function Diary({
                 Vui lòng chọn thời gian
               </p>
             )}
-            <Row>
+            {/* <Row>
               <Col span={24}>
                 <div
                   style={{ width: "100%" }}
@@ -248,7 +252,7 @@ function Diary({
                   </div>
                 </div>
               </Col>
-            </Row>
+            </Row> */}
             <div className="containerModal__box__diary__textarea">
               <TextareaAutosize
                 placeholder="Ghi chú (không bắt buộc)"
@@ -257,6 +261,21 @@ function Diary({
                 onChange={onChangeTextArea}
                 value={note}
               />
+            </div>
+            <div>
+              <div
+                className="updateprofile__container__box__main__user__avatar"
+                id="avatar"
+              >
+                <img src={avatar} alt="" />
+                <div className="updateprofile__container__box__main__user__avatar__input">
+                  <input
+                    onChange={handleFileSelected}
+                    type="file"
+                    accept="image/png, image/jpeg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

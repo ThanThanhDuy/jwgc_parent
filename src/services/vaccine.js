@@ -42,10 +42,9 @@ class VaccineService {
   }) {
     const params = {
       ChildCode: childCode,
-      Date: date,
+      Date: statusVaccine ? date : null,
       Note: note,
       VaccineCode: vaccineCode,
-      Status: statusVaccine,
     };
     try {
       var response = await vaccineApi.updateRecordVaccineSystem(
@@ -126,13 +125,41 @@ class VaccineService {
   }) {
     const params = {
       ChildCode: childCode,
-      Date: date,
+      Date: statusVaccine ? date : null,
+      IntendedDate: !statusVaccine ? date : null,
       Note: note,
       VaccineCode: vaccineCode,
       Status: statusVaccine,
     };
     try {
       var response = await vaccineApi.importVaccineDefine(params);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
+
+  async updateRecordVaccineDefine({
+    childCode,
+    intendedDate,
+    date,
+    note,
+    vaccineCode,
+    statusVaccine,
+    recordCode,
+  }) {
+    const params = {
+      ChildCode: childCode,
+      Date: statusVaccine ? date : null,
+      IntendedDate: statusVaccine ? date : intendedDate,
+      Note: note,
+      VaccineCode: vaccineCode,
+    };
+    try {
+      var response = await vaccineApi.updateRecordVaccineSystem(
+        recordCode,
+        params
+      );
     } catch (error) {
       return error;
     }
@@ -147,7 +174,6 @@ class VaccineService {
     }
     return response;
   }
-  
 }
 const vaccineService = new VaccineService();
 export default vaccineService;

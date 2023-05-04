@@ -16,6 +16,11 @@ class VaccineApi {
     return axiosClient.put(url, params);
   }
 
+  async updateRecordVaccineDefine(recordCode, params) {
+    const url = `vaccinations/customization/records/${recordCode}`;
+    return axiosClient.put(url, params);
+  }
+
   async deleteRecordVaccineSystem(recordCode) {
     const url = `vaccinations/records/${recordCode}`;
     return axiosClient.delete(url);

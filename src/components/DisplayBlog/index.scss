@@ -32,6 +32,14 @@
       img {
         max-width: 770px;
       }
+      p {
+        span {
+          font-family: "Roboto", sans-serif !important;
+          font-size: 18px !important;
+          line-height: 22px;
+          color: $text-dark;
+        }
+      }
     }
   }
 }

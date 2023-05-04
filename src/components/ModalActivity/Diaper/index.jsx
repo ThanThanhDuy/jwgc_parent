@@ -56,6 +56,8 @@ function Diaper({
   );
   const setActivitySelect = useSetRecoilState(activitySelectState);
   const childSelect = useRecoilValue(childSelectState);
+  const [file, setFile] = useState(null);
+  const [avatar, setAvatar] = useState("");
 
   useEffect(() => {
     setType(itemSelected?.Data.type ? itemSelected?.Data.type : "Ướt");
@@ -103,14 +105,14 @@ function Diaper({
         childSelect.Code,
         date,
         data,
-        null
+        file
       );
     } else {
       res = await activityService.updateActivity(
         itemSelected.Code,
         date,
         data,
-        null
+        file
       );
     }
     if (res && res.StatusCode === 200) {
@@ -193,6 +195,16 @@ function Diaper({
     setConfirmLoadingDelete(false);
   };
 
+  const handleFileSelected = (e) => {
+    const file = e.target.files[0];
+    setFile(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setAvatar(reader.result);
+    };
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -260,6 +272,9 @@ function Diaper({
               status={statusDate}
               format="DD-MM-YYYY HH:mm:ss"
               value={date ? dayjs(date, "DD-MM-YYYY HH:mm:ss") : null}
+              disabledDate={(current) => {
+                return current && current > dayjs().endOf("day");
+              }}
             />
             {statusDate === "error" && (
               <p
@@ -495,6 +510,21 @@ function Diaper({
                 onChange={onChangeTextArea}
                 value={note}
               />
+            </div>
+            <div>
+              <div
+                className="updateprofile__container__box__main__user__avatar"
+                id="avatar"
+              >
+                <img src={avatar} alt="" />
+                <div className="updateprofile__container__box__main__user__avatar__input">
+                  <input
+                    onChange={handleFileSelected}
+                    type="file"
+                    accept="image/png, image/jpeg"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

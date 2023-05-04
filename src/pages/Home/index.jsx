@@ -7,14 +7,23 @@ import { Helmet } from "react-helmet";
 import blogService from "../../services/blog";
 import { BLOG } from "../../constants/blog";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { currentPageState, scrollPositionState } from "../../stores/blog";
+import {
+  cateSelectedState,
+  currentPageState,
+  listBlogState,
+  pageCountState,
+  scrollPositionState,
+  searchValueState,
+} from "../../stores/blog";
 
 function Home() {
-  const [listBlog, setListBlog] = useState([]);
-  const [pageCount, setPageCount] = useState(1);
+  const [listBlog, setListBlog] = useRecoilState(listBlogState);
+  const [pageCount, setPageCount] = useRecoilState(pageCountState);
   const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
   const scrollPosition = useRecoilValue(scrollPositionState);
   const [loading, setLoading] = useState(false);
+  const [searchValue, setSearchValue] = useRecoilState(searchValueState);
+  const [cateSelected, setCateSelected] = useRecoilState(cateSelectedState);
 
   useEffect(() => {
     const handleGetBlog = async () => {
@@ -23,7 +32,7 @@ function Home() {
       for (let i = 1; i <= currentPage; i++) {
         const data = {
           Code: "",
-          Title: "",
+          Title: searchValue,
           ConcernCategoryCode: "",
           Page: i,
           PageSize: BLOG.pageSizeDefault,
@@ -61,8 +70,8 @@ function Home() {
   const handleLoadMore = async () => {
     const data = {
       Code: "",
-      Title: "",
-      ConcernCategoryCode: "",
+      Title: searchValue,
+      ConcernCategoryCode: cateSelected.Code,
       Page: currentPage + 1,
       PageSize: BLOG.pageSizeDefault,
     };

@@ -17,6 +17,10 @@ import {
   cateBlogState,
   scrollPositionState,
   currentPageState,
+  searchValueState,
+  listBlogState,
+  pageCountState,
+  cateSelectedState,
 } from "../../stores/blog";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
@@ -33,9 +37,12 @@ import {
 import { isOpenModalRequireAuthState } from "../../stores/auth";
 import { childSelectState, typeState } from "../../stores/child";
 import { getMessagingToken } from "../../utils/noti";
+import { BLOG } from "../../constants/blog";
+import blogService from "../../services/blog";
 
 function Header() {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useRecoilState(searchValueState);
+  const [search, setSearch] = useState("");
   const [user, setUser] = useRecoilState(userState);
   const [isEdit, setIsEdit] = useRecoilState(isEditState);
   const [titleBlog, setTitleBlog] = useRecoilState(titleBlogState);
@@ -45,7 +52,7 @@ function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const setScrollPosition = useSetRecoilState(scrollPositionState);
-  const setCurrentPage = useSetRecoilState(currentPageState);
+  const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
   const setScrollPositionProfile = useSetRecoilState(
     scrollPositionProfileState
   );
@@ -56,10 +63,28 @@ function Header() {
   const setType = useSetRecoilState(typeState);
   const setchildSelect = useSetRecoilState(childSelectState);
   const setTabValue = useSetRecoilState(tabProfileState);
+  const [listBlog, setListBlog] = useRecoilState(listBlogState);
+  const [pageCount, setPageCount] = useRecoilState(pageCountState);
+  const [cateSelected, setCateSelected] = useRecoilState(cateSelectedState);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(searchValue);
+    setSearchValue(search);
+    const data = {
+      Code: "",
+      Title: search,
+      ConcernCategoryCode: cateSelected.Code,
+      Page: 1,
+      PageSize: BLOG.pageSizeDefault,
+    };
+    const res = await blogService.getBlog(data);
+    if (res && res.StatusCode === 200) {
+      setListBlog(res.Data?.Items);
+      setPageCount(res.Data?.TotalPagesCount);
+      if (currentPage < res.Data?.TotalPagesCount) {
+        setCurrentPage(1);
+      }
+    }
   };
 
   useEffect(() => {
@@ -128,6 +153,8 @@ function Header() {
   const handleHome = () => {
     setScrollPosition(0);
     setCurrentPage(1);
+    setSearchValue("");
+    setSearch("");
     navigate(`/home`);
   };
 
@@ -203,8 +230,8 @@ function Header() {
                   name="search"
                   className="header__container__search__bar"
                   placeholder="Tìm kiếm..."
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
                 <Btn color="white" className="header__container__search__btn">
                   <UilSearch className="header__container__search__btn__icon" />

@@ -220,6 +220,17 @@ class BlogService {
     }
     return response;
   }
+
+  async uploadImage(file) {
+    let bodyFormData = new FormData();
+    file && bodyFormData.append("File", file);
+    try {
+      var response = await blogApi.uploadImage(bodyFormData);
+    } catch (error) {
+      return error;
+    }
+    return response;
+  }
 }
 const blogService = new BlogService();
 export default blogService;

@@ -605,6 +605,7 @@ function Career() {
                           }}
                           href={linkMomo}
                           target="_blank"
+                          rel="noreferrer"
                         >
                           <span>Thanh toán</span>
                         </a>

@@ -1,14 +1,15 @@
 @import "../../themes/colors/index.scss";
 
 .blog__container {
-  margin: 16px calc(calc(100vw - calc(900px + 58.91px + 346px + 30px)) / 2) 0;
+  margin: 16px
+    calc(calc(100vw - calc(900px + 58.91px + 346px + 30px + 200px)) / 2) 0;
   padding: 0 16px 16px;
   display: flex;
   gap: 15px;
-  width: calc(900px + 58.91px + 346px + 30px);
+  width: calc(900px + 58.91px + 346px + 30px + 200px);
   &__main {
-    max-width: 900px;
-    min-width: 900px;
+    max-width: 1100px;
+    min-width: 1100px;
     background: #fff;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
     border-radius: 8px;

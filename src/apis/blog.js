@@ -123,6 +123,15 @@ class BlogApi {
     const url = `${this.PREFIX}/comment/report`;
     return axiosClient.put(url, params);
   }
+
+  async uploadImage(params) {
+    const url = `${this.PREFIX}/images`;
+    return axiosClient.post(url, params, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
 }
 
 const blogApi = new BlogApi();
