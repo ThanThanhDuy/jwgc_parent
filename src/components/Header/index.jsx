@@ -298,7 +298,7 @@ function Header() {
                         className="popover_profile__link"
                         onClick={() => navigate("/career-support")}
                       >
-                        Hỗ trợ việc làm
+                        Xác thực tài khoản
                       </span>
                       <div className="divider-10"></div>
                       <div>

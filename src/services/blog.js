@@ -15,13 +15,21 @@ class BlogService {
     return response;
   }
 
-  async getBlog({ Code, Title, ConcernCategoryCode, Page, PageSize }) {
+  async getBlog({
+    Code,
+    Title,
+    ConcernCategoryCode,
+    Page,
+    PageSize,
+    TopBlogFilterBy,
+  }) {
     const params = {};
     Code && (params.Code = Code);
     Title && (params.Title = Title);
     ConcernCategoryCode && (params.ConcernCategoryCode = ConcernCategoryCode);
     Page && (params["Paging.Page"] = Page);
     PageSize && (params["Paging.PageSize"] = PageSize);
+    TopBlogFilterBy && (params["TopBlogFilterBy"] = TopBlogFilterBy);
     try {
       var response = await blogApi.getBlog(params);
     } catch (error) {
