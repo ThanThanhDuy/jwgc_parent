@@ -26,6 +26,9 @@ import activityService from "../../../services/activity";
 import { UilArrowRight } from "@iconscout/react-unicons";
 import dayjs from "dayjs";
 import { reloadState } from "../../../stores/activity";
+import moment from "moment";
+import { ExclamationCircleFilled } from "@ant-design/icons";
+import confirm from "antd/es/modal/confirm";
 
 const marks3 = {
   0: "0g",
@@ -148,7 +151,7 @@ function ModalNormal({
   }, [itemSelected]);
 
   const handleOk = async () => {
-    setConfirmLoading(true);
+    // setConfirmLoading(true);
     let check = true;
     if (date === null) {
       setStatusDate("error");
@@ -176,58 +179,167 @@ function ModalNormal({
         check = false;
       }
     }
+
+    let timeStartCheck = moment(
+      timeStart.substring(0, timeStart.length - 2) + "00",
+      "HH:mm:ss"
+    );
+    console.log("timeStartCheck", timeStartCheck.format("HH:mm:ss"));
+
+    let timeEndCheck = moment(
+      timeFinish.substring(0, timeFinish.length - 2) + "00",
+      "HH:mm:ss"
+    );
+
+    console.log("timeEndCheck", timeEndCheck.format("HH:mm:ss"));
+
+    let beforeTimeStartCheck = moment(`21:00:00`, "HH:mm:ss");
+
+    console.log(
+      "beforeTimeStartCheck",
+      beforeTimeStartCheck.format("HH:mm:ss")
+    );
+
+    let afterTimeStartCheck = moment(`23:59:59`, "HH:mm:ss");
+
+    console.log("afterTimeStartCheck", afterTimeStartCheck.format("HH:mm:ss"));
+
+    let beforeTimeEndCheck = moment(`00:00:00`, "HH:mm:ss");
+
+    console.log("beforeTimeEndCheck", beforeTimeEndCheck.format("HH:mm:ss"));
+
+    let afterTimeEndCheck = moment(`06:00:00`, "HH:mm:ss");
+
+    console.log("afterTimeEndCheck", afterTimeEndCheck.format("HH:mm:ss"));
+
+    let check1 = timeStartCheck.isBetween(
+      beforeTimeStartCheck,
+      afterTimeStartCheck
+    );
+
+    let check2 = timeStartCheck.isBetween(
+      beforeTimeEndCheck,
+      afterTimeEndCheck
+    );
+
+    let check3 = timeEndCheck.isBetween(beforeTimeEndCheck, afterTimeEndCheck);
+
+    console.log("check1", check1);
+    console.log("check2", check2);
+    console.log("check3", check3);
     if (!check) {
       return;
     }
-    const data = {};
-    data.type = type;
-    data.note = note;
-    data.date = date;
-    data.timeStart = timeStart;
-    data.timeFinish = timeFinish;
-    switch (type) {
-      case "Sữa bình":
-        data.material = value__2;
-        data.amount = sliderValue2;
-        data.unit = "ml";
-        break;
-      case "Ăn dặm":
-        data.material = value__3;
-        data.amount = sliderValue3;
-        data.unit = "g";
-        break;
-      default:
-        data.material = null;
-        data.amount = 0;
-        data.unit = null;
-        break;
-    }
-    // console.log(cateCode, childSelect.Code, date[0], data, null);
-    let res;
-    if (typeApi !== "update") {
-      res = await activityService.recordActivity(
-        cateCode,
-        childSelect.Code,
-        `${date} ${timeStart}`,
-        data,
-        file
-      );
+
+    if (check1 || check2 || check3) {
+      confirm({
+        title: "Thông báo",
+        icon: <ExclamationCircleFilled />,
+        content: "Bạn có chắc là bé ăn uống vào khung giờ này không?",
+        onCancel() {},
+        async onOk() {
+          const data = {};
+          data.type = type;
+          data.note = note;
+          data.date = date;
+          data.timeStart = timeStart;
+          data.timeFinish = timeFinish;
+          switch (type) {
+            case "Sữa bình":
+              data.material = value__2;
+              data.amount = sliderValue2;
+              data.unit = "ml";
+              break;
+            case "Ăn dặm":
+              data.material = value__3;
+              data.amount = sliderValue3;
+              data.unit = "g";
+              break;
+            default:
+              data.material = null;
+              data.amount = 0;
+              data.unit = null;
+              break;
+          }
+          // console.log(cateCode, childSelect.Code, date[0], data, null);
+          let res;
+          if (typeApi !== "update") {
+            res = await activityService.recordActivity(
+              cateCode,
+              childSelect.Code,
+              `${date} ${timeStart}`,
+              data,
+              file
+            );
+          } else {
+            res = await activityService.updateActivity(
+              itemSelected.Code,
+              `${date} ${timeStart}`,
+              data,
+              file
+            );
+          }
+          if (res && res.StatusCode === 200) {
+            setStatusModal("success");
+            setReload(!reload);
+          } else {
+            setStatusModal("error");
+            setError(res.Message);
+          }
+          setConfirmLoading(false);
+        },
+      });
     } else {
-      res = await activityService.updateActivity(
-        itemSelected.Code,
-        `${date} ${timeStart}`,
-        data,
-        file
-      );
+      const data = {};
+      data.type = type;
+      data.note = note;
+      data.date = date;
+      data.timeStart = timeStart;
+      data.timeFinish = timeFinish;
+      switch (type) {
+        case "Sữa bình":
+          data.material = value__2;
+          data.amount = sliderValue2;
+          data.unit = "ml";
+          break;
+        case "Ăn dặm":
+          data.material = value__3;
+          data.amount = sliderValue3;
+          data.unit = "g";
+          break;
+        default:
+          data.material = null;
+          data.amount = 0;
+          data.unit = null;
+          break;
+      }
+      // console.log(cateCode, childSelect.Code, date[0], data, null);
+      let res;
+      if (typeApi !== "update") {
+        res = await activityService.recordActivity(
+          cateCode,
+          childSelect.Code,
+          `${date} ${timeStart}`,
+          data,
+          file
+        );
+      } else {
+        res = await activityService.updateActivity(
+          itemSelected.Code,
+          `${date} ${timeStart}`,
+          data,
+          file
+        );
+      }
+      if (res && res.StatusCode === 200) {
+        setStatusModal("success");
+        setReload(!reload);
+      } else {
+        setStatusModal("error");
+        setError(res.Message);
+      }
+      setConfirmLoading(false);
     }
-    if (res && res.StatusCode === 200) {
-      setStatusModal("success");
-      setReload(!reload);
-    } else {
-      setStatusModal("error");
-      setError(res.Message);
-    }
-    setConfirmLoading(false);
   };
 
   const handleCancel = () => {

@@ -1,9 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { Link } from "react-router-dom";
 import family from "../../assets/images/family.jpg";
+import blogService from "../../services/blog";
 
 function Rank() {
+  const [value, setValue] = useState(3);
+  const [listBlog, setListBlog] = useState([]);
+
   useEffect(() => {
     document
       .getElementsByClassName("rank__container__tab__item")[0]
@@ -15,9 +19,30 @@ function Rank() {
           tabs[j].classList.remove("rank__container__tab__item__active");
         }
         this.classList.add("rank__container__tab__item__active");
+        if (i === 0) setValue(3);
+        else if (i === 1) setValue(2);
+        else setValue(1);
       });
     }
   }, []);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = {
+        Code: "",
+        Title: "",
+        ConcernCategoryCode: "",
+        Page: 1,
+        PageSize: 5,
+        TopBlogFilterBy: value,
+      };
+      const res = await blogService.getBlog(data);
+      if (res && res.StatusCode === 200) {
+        setListBlog(res.Data.Items);
+      }
+    };
+    getData();
+  }, [value]);
 
   const data = [
     {
@@ -51,9 +76,9 @@ function Rank() {
         <span>Xếp hạng</span>
       </div>
       <div className="rank__container__tab">
-        <div className="rank__container__tab__item">
+        {/* <div className="rank__container__tab__item">
           <span>Tất cả</span>
-        </div>
+        </div> */}
         <div className="rank__container__tab__item">
           <span>Năm</span>
         </div>
@@ -65,10 +90,22 @@ function Rank() {
         </div>
       </div>
       <div className="rank__container__list">
-        {data.map((item, index) => {
+        {listBlog.map((item, index) => {
           return (
-            <Link className="rank__container__list__item" key={index} to="#">
-              <span>{item.Name}</span>
+            <Link
+              className="rank__container__list__item"
+              key={index}
+              to={`/blog/${encodeURIComponent(item.User.Name)?.replaceAll(
+                "%20",
+                "-"
+              )}/${encodeURIComponent(item.Title)?.replaceAll("%20", "-")}/${
+                item.Code
+              }/${encodeURIComponent(item.User.UserName)?.replaceAll(
+                "%20",
+                "-"
+              )}`}
+            >
+              <span>{item.Title}</span>
             </Link>
           );
         })}
